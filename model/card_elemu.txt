@@ -1,0 +1,30 @@
+EleMu Datacard
+
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+#shapes process channel file histogram [histogram_with_systematics]
+
+shapes data_obs elemu param_ws.root wspace:data_obs_elemu
+shapes heavy    elemu param_ws.root wspace:heavy_elemu
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+bin         elemu
+observation -1
+-------------------------------------------------------------------------------------------------------------------------------------------
+# background rate must be taken from _norm param x 1      
+bin      elemu
+process  heavy     
+process  1
+rate     1
+-------------------------------------------------------------------------------------------------------------------------------------------
+#uncertainties
+-------------------------------------------------------------------------------------------------------------------------------------------
+#free floating parameters
+heavy_elemu_bin1 flatParam
+heavy_elemu_bin2 flatParam
+heavy_elemu_bin3 flatParam

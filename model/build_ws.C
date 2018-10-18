@@ -171,4 +171,7 @@ void build_ws(){
   wspace.import(p_heavy_twomuzh);
   wspace.import(p_heavy_twomuzh_norm, RooFit::RecycleConflictNodes());
 
+  fOut->cd();
+  wspace.Write();
+
 }

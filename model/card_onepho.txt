@@ -1,0 +1,32 @@
+OnePho Datacard
+
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+#shapes process channel file histogram [histogram_with_systematics]
+
+shapes data_obs onepho param_ws.root wspace:data_obs_onepho
+shapes light    onepho param_ws.root wspace:light_onepho
+shapes heavy    onepho param_ws.root wspace:heavy_onepho
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+bin         onepho
+observation -1
+-------------------------------------------------------------------------------------------------------------------------------------------
+# background rate must be taken from _norm param x 1      
+bin      onepho   onepho
+process  light    heavy 
+process  1        2
+rate     1        1
+-------------------------------------------------------------------------------------------------------------------------------------------
+#uncertainties
+-------------------------------------------------------------------------------------------------------------------------------------------
+#free floating parameters
+light_onepho_bin1 flatParam
+light_onepho_bin2 flatParam
+light_onepho_bin3 flatParam
+rrv_heavy_elemu_to_onepho param 0.8 1.2
