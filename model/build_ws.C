@@ -36,9 +36,9 @@ void build_ws(){
 
   //Heavy background is freely floating
   //Create one parameter per bin representing the yield 
-  RooRealVar heavy_elemu_bin1("heavy_elemu_bin1", "Heavy background yield in EleMu, bin 1", 5e5, 0, 1e7);
-  RooRealVar heavy_elemu_bin2("heavy_elemu_bin2", "Heavy background yield in EleMu, bin 2", 1e3, 0, 1e5);
-  RooRealVar heavy_elemu_bin3("heavy_elemu_bin3", "Heavy background yield in EleMu, bin 3", 1, 0, 1e2);
+  RooRealVar heavy_elemu_bin1("heavy_elemu_bin1", "Heavy background yield in EleMu, bin 1", 5126.56, 1e3, 5e4);
+  RooRealVar heavy_elemu_bin2("heavy_elemu_bin2", "Heavy background yield in EleMu, bin 2", 98.25, 50, 200);
+  RooRealVar heavy_elemu_bin3("heavy_elemu_bin3", "Heavy background yield in EleMu, bin 3", 1.29, 0, 5);
   RooArgList heavy_elemu_bins;
   heavy_elemu_bins.add(heavy_elemu_bin1);
   heavy_elemu_bins.add(heavy_elemu_bin2);
@@ -69,9 +69,9 @@ void build_ws(){
 
   //Light background is freely floating
   //Create one parameter per bin representing the yield 
-  RooRealVar light_onepho_bin1("light_onepho_bin1", "Light background yield in OnePho, bin 1", 5e5, 0, 1e7);
-  RooRealVar light_onepho_bin2("light_onepho_bin2", "Light background yield in OnePho, bin 2", 1e3, 0, 1e5);
-  RooRealVar light_onepho_bin3("light_onepho_bin3", "Light background yield in OnePho, bin 3", 1, 0, 1e2);
+  RooRealVar light_onepho_bin1("light_onepho_bin1", "Light background yield in OnePho, bin 1", 288366, 200000, 400000);
+  RooRealVar light_onepho_bin2("light_onepho_bin2", "Light background yield in OnePho, bin 2", 1377.44, 500, 2000);
+  RooRealVar light_onepho_bin3("light_onepho_bin3", "Light background yield in OnePho, bin 3", 0.5, 0, 5);
   RooArgList light_onepho_bins;
   light_onepho_bins.add(light_onepho_bin1);
   light_onepho_bins.add(light_onepho_bin2);

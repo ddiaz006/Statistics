@@ -2,6 +2,14 @@ float r_err(float n, float dn, float d, float dd){
   return (n/d)*TMath::Sqrt(dn*dn/(n*n) + (dd*dd)/(d*d));
 }
 
+void print_hist(TH1F* h, TString name){
+  std::cout << name << " ";
+  for(int i=1; i<h->GetNbinsX(); i++){
+    std::cout << h->GetBinContent(i) << " ";
+  }
+  std::cout << endl;
+}
+
 void extract_ratios(){
 
   TFile* f_elemu   = TFile::Open("../inputs/EleMuOSOF_nSelectedAODCaloJetTag_GH.root", "READ");
@@ -15,6 +23,14 @@ void extract_ratios(){
   TH1F* h_heavy_twomuzh = (TH1F*)f_twomuzh->Get("heavy");
   TH1F* h_light_twomuzh = (TH1F*)f_twomuzh->Get("light");
   
+
+  //print
+  print_hist(h_heavy_elemu, "h_heavy_elemu");
+  print_hist(h_heavy_onepho, "h_heavy_onepho");
+  print_hist(h_light_onepho, "h_light_onepho");
+  print_hist(h_heavy_twomuzh, "h_heavy_twomuzh");
+  print_hist(h_light_twomuzh, "h_light_twomuzh");
+  std::cout << std::endl;
 
   //heavy elemu-to-onepho
   Double_t n_heavy_onepho_err;
