@@ -1,4 +1,6 @@
 #Instructions
+
+## Setup
 ```
 root -l extract_ratios.C
 #and put ratios into datacards
@@ -11,9 +13,15 @@ combineCards.py EleMu=card_elemu.txt OnePho=card_onepho.txt TwoMuZH=card_twomuzh
 
 #create final workspace
 text2workspace.py card.txt
+```
 
-#fit
+## Fits
+```
 combine -M FitDiagnostics -v 3 card.root -t -1
 combine -M FitDiagnostics -v 3 card.root
 combine -M MultiDimFit -v 3 card.root
+
+#For pre and post fit plots
+combine -M FitDiagnostics -v 3 card.root --saveShapes 
+
 ```
