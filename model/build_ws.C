@@ -83,7 +83,7 @@ void build_ws(){
   
   //Start with transfer factor -- assume all bins share one
   RooRealVar rrv_heavy_elemu_to_onepho("rrv_heavy_elemu_to_onepho", "heavy EleMu to OnePho",1);
-  RooFormulaVar tf_heavy_elemu_to_onepho("tf_heavy_elemu_to_onepho", "heavy EleMu to OnePho transfer factor", "@0", RooArgList(rrv_heavy_elemu_to_onepho) );//Leave as gaussian for now TODO
+  RooFormulaVar tf_heavy_elemu_to_onepho("tf_heavy_elemu_to_onepho", "heavy EleMu to OnePho transfer factor", " 0.138834*TMath::Power(1+0.5,@0)", RooArgList(rrv_heavy_elemu_to_onepho) );//Leave as gaussian for now TODO
   
   RooFormulaVar heavy_onepho_bin1("heavy_onepho_bin1", "Heavy background yield in OnePho, bin 1", "@0*@1", RooArgList(tf_heavy_elemu_to_onepho, heavy_elemu_bin1));
   RooFormulaVar heavy_onepho_bin2("heavy_onepho_bin2", "Heavy background yield in OnePho, bin 2", "@0*@1", RooArgList(tf_heavy_elemu_to_onepho, heavy_elemu_bin2));
@@ -113,7 +113,7 @@ void build_ws(){
 
   //Heavy as function of heavy_elemu
   RooRealVar rrv_heavy_elemu_to_twomuzh("rrv_heavy_elemu_to_twomuzh", "heavy EleMu to TwoMuZH",1);
-  RooFormulaVar tf_heavy_elemu_to_twomuzh("tf_heavy_elemu_to_twomuzh", "heavy EleMu to TwoMuZH transfer factor", "@0", RooArgList(rrv_heavy_elemu_to_twomuzh) );//Leave as gaussian for now TODO
+  RooFormulaVar tf_heavy_elemu_to_twomuzh("tf_heavy_elemu_to_twomuzh", "heavy EleMu to TwoMuZH transfer factor", "0.733396*TMath::Power(1+0.5,@0)", RooArgList(rrv_heavy_elemu_to_twomuzh) );//Leave as gaussian for now TODO
   
   RooFormulaVar heavy_twomuzh_bin1("heavy_twomuzh_bin1", "Heavy background yield in TwoMuZH, bin 1", "@0*@1", RooArgList(tf_heavy_elemu_to_twomuzh, heavy_elemu_bin1));
   RooFormulaVar heavy_twomuzh_bin2("heavy_twomuzh_bin2", "Heavy background yield in TwoMuZH, bin 2", "@0*@1", RooArgList(tf_heavy_elemu_to_twomuzh, heavy_elemu_bin2));
@@ -127,7 +127,7 @@ void build_ws(){
 
   //Light as function of light_onepho
   RooRealVar rrv_light_onepho_to_twomuzh("rrv_light_onepho_to_twomuzh", "light OnePhoo to TwoMuZH",1);
-  RooFormulaVar tf_light_onepho_to_twomuzh("tf_light_onepho_to_twomuzh", "light OnePhoo to TwoMuZH transfer factor", "@0", RooArgList(rrv_light_onepho_to_twomuzh) );//Leave as gaussian for now TODO
+  RooFormulaVar tf_light_onepho_to_twomuzh("tf_light_onepho_to_twomuzh", "light OnePhoo to TwoMuZH transfer factor", "0.576097*TMath::Power(1+0.5,@0)", RooArgList(rrv_light_onepho_to_twomuzh) );//Leave as gaussian for now TODO
   
   RooFormulaVar light_twomuzh_bin1("light_twomuzh_bin1", "Light background yield in TwoMuZH, bin 1", "@0*@1", RooArgList(tf_light_onepho_to_twomuzh, light_onepho_bin1));
   RooFormulaVar light_twomuzh_bin2("light_twomuzh_bin2", "Light background yield in TwoMuZH, bin 2", "@0*@1", RooArgList(tf_light_onepho_to_twomuzh, light_onepho_bin2));

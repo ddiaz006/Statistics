@@ -27,5 +27,5 @@ rate     1        1         -1
 #uncertainties
 -------------------------------------------------------------------------------------------------------------------------------------------
 #free floating parameters
-rrv_heavy_elemu_to_twomuzh  param 0.8 1.2
-rrv_light_onepho_to_twomuzh param 0.8 1.2
+rrv_heavy_elemu_to_twomuzh  param 0 1
+rrv_light_onepho_to_twomuzh param 0 1

@@ -29,4 +29,4 @@ rate     1        1
 light_onepho_bin1 flatParam
 light_onepho_bin2 flatParam
 light_onepho_bin3 flatParam
-rrv_heavy_elemu_to_onepho param 0.8 1.2
+rrv_heavy_elemu_to_onepho param 0 1
