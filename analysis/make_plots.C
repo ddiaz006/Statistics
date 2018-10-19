@@ -44,10 +44,12 @@ void make_one_plot(TString channel_name, TString fit_name){
   bgstack->Add(h_heavy);
   if(channel_name != "EleMu") bgstack->Add(h_light);
   if(draw_signal) bgstack->Add(h_signal);
+
+  bgstack->SetMinimum(0.1);
   bgstack->Draw("hist");
   gr_data->Draw("P");
 
-  c.SaveAs("c_"fit_name+"_"+channel_name+".pdf");
+  c.SaveAs("c_"+fit_name+"_"+channel_name+".pdf");
 }
 
 void make_plots(){
