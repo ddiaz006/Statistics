@@ -11,17 +11,17 @@ kmax * number of nuisance parameters
 shapes data_obs onepho param_ws.root wspace:data_obs_onepho
 shapes light    onepho param_ws.root wspace:light_onepho
 shapes heavy    onepho param_ws.root wspace:heavy_onepho
-
+shapes other    onepho param_ws.root wspace:other_onepho
 -------------------------------------------------------------------------------------------------------------------------------------------
 
 bin         onepho
 observation -1
 -------------------------------------------------------------------------------------------------------------------------------------------
 # background rate must be taken from _norm param x 1      
-bin      onepho   onepho
-process  light    heavy 
-process  1        2
-rate     1        1
+bin      onepho   onepho  onepho
+process  light    heavy   other
+process  1        2       3
+rate     1        1       1
 -------------------------------------------------------------------------------------------------------------------------------------------
 #uncertainties
 -------------------------------------------------------------------------------------------------------------------------------------------

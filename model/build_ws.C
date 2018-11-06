@@ -16,6 +16,14 @@
 #include "HiggsAnalysis/CombinedLimit/interface/RooParametricHist.h"
 
 
+//Todo:
+// - add "other" 
+// - add ele channels
+// - make constraint extraction integrate 2 and up
+// - add systematics
+// - make constraint extraction a function?
+
+
 //Global options
 TString signal_string = "Sig_MS40ct100";
 TString data_string = "bkgtotal"; //"Data";
@@ -56,6 +64,17 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "OnePho"){
   data_twomuzh_th1.SetBinContent(3, data_twomuzh_th1_file->Integral(3,6));//assumes bin 6 is overflow
   RooDataHist data_twomuzh_hist("data_obs_twomuzh", "Data observed in TwoMuZH", vars, &data_twomuzh_th1);
   wspace->import(data_twomuzh_hist);
+
+
+  //Other contamination
+  TH1F* other_twomuzh_th1_file = (TH1F*)f_twomuzh->Get("other");
+  TH1F other_twomuzh_th1("other_twomuzh","Other yield in TwoMuZH", 3, -0.5, 2.5);
+  other_twomuzh_th1.SetBinContent(1, other_twomuzh_th1_file->GetBinContent(1));
+  other_twomuzh_th1.SetBinContent(2, other_twomuzh_th1_file->GetBinContent(2));
+  other_twomuzh_th1.SetBinContent(3, other_twomuzh_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
+  RooDataHist other_twomuzh_hist("other_twomuzh", "Other yield in TwoMuZH", vars, &other_twomuzh_th1);
+  wspace->import(other_twomuzh_hist, RooFit::RecycleConflictNodes());  
+  //TODO Is this sufficient? Need norm??
 
 
   //Heavy as function of heavy_elemu
@@ -263,15 +282,26 @@ void build_elemu(RooWorkspace *wspace){
   RooDataHist data_elemu_hist("data_obs_elemu", "Data observed in EleMu", vars, &data_elemu_th1);
   wspace->import(data_elemu_hist, RooFit::RecycleConflictNodes());  
 
-
+  
   //Light contamination
   TH1F* light_elemu_th1_file = (TH1F*)f_elemu->Get("light");
-  TH1F light_elemu_th1("light_elemu","Light observed in EleMu", 3, -0.5, 2.5);
+  TH1F light_elemu_th1("light_elemu","Light yield in EleMu", 3, -0.5, 2.5);
   light_elemu_th1.SetBinContent(1, light_elemu_th1_file->GetBinContent(1));
   light_elemu_th1.SetBinContent(2, light_elemu_th1_file->GetBinContent(2));
   light_elemu_th1.SetBinContent(3, light_elemu_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
-  RooDataHist light_elemu_hist("light_elemu", "Light observed in EleMu", vars, &light_elemu_th1);
+  RooDataHist light_elemu_hist("light_elemu", "Light yield in EleMu", vars, &light_elemu_th1);
   wspace->import(light_elemu_hist, RooFit::RecycleConflictNodes());  
+  //TODO Is this sufficient? Need norm??
+
+
+  //Other contamination
+  TH1F* other_elemu_th1_file = (TH1F*)f_elemu->Get("other");
+  TH1F other_elemu_th1("other_elemu","Other yield in EleMu", 3, -0.5, 2.5);
+  other_elemu_th1.SetBinContent(1, other_elemu_th1_file->GetBinContent(1));
+  other_elemu_th1.SetBinContent(2, other_elemu_th1_file->GetBinContent(2));
+  other_elemu_th1.SetBinContent(3, other_elemu_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
+  RooDataHist other_elemu_hist("other_elemu", "Other yield in EleMu", vars, &other_elemu_th1);
+  wspace->import(other_elemu_hist, RooFit::RecycleConflictNodes());  
   //TODO Is this sufficient? Need norm??
 
   
@@ -314,6 +344,17 @@ void build_onepho(RooWorkspace* wspace){
   data_onepho_th1.SetBinContent(3, data_onepho_th1_file->Integral(3,6));//assumes bin 6 is overflow
   RooDataHist data_onepho_hist("data_obs_onepho", "Data observed in OnePho", vars, &data_onepho_th1);
   wspace->import(data_onepho_hist, RooFit::RecycleConflictNodes());
+
+
+  //Other contamination
+  TH1F* other_onepho_th1_file = (TH1F*)f_onepho->Get("other");
+  TH1F other_onepho_th1("other_onepho","Other yield in OnePho", 3, -0.5, 2.5);
+  other_onepho_th1.SetBinContent(1, other_onepho_th1_file->GetBinContent(1));
+  other_onepho_th1.SetBinContent(2, other_onepho_th1_file->GetBinContent(2));
+  other_onepho_th1.SetBinContent(3, other_onepho_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
+  RooDataHist other_onepho_hist("other_onepho", "Other yield in OnePho", vars, &other_onepho_th1);
+  wspace->import(other_onepho_hist, RooFit::RecycleConflictNodes());  
+  //TODO Is this sufficient? Need norm??
 
 
   //Light background 
@@ -413,6 +454,17 @@ void build_twomudy(RooWorkspace* wspace){
   data_twomudy_th1.SetBinContent(3, data_twomudy_th1_file->Integral(3,6));//assumes bin 6 is overflow
   RooDataHist data_twomudy_hist("data_obs_twomudy", "Data observed in TwoMuDY", vars, &data_twomudy_th1);
   wspace->import(data_twomudy_hist, RooFit::RecycleConflictNodes());
+
+
+  //Other contamination
+  TH1F* other_twomudy_th1_file = (TH1F*)f_twomudy->Get("other");
+  TH1F other_twomudy_th1("other_twomudy","Other yield in TwoMuDY", 3, -0.5, 2.5);
+  other_twomudy_th1.SetBinContent(1, other_twomudy_th1_file->GetBinContent(1));
+  other_twomudy_th1.SetBinContent(2, other_twomudy_th1_file->GetBinContent(2));
+  other_twomudy_th1.SetBinContent(3, other_twomudy_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
+  RooDataHist other_twomudy_hist("other_twomudy", "Other yield in TwoMuDY", vars, &other_twomudy_th1);
+  wspace->import(other_twomudy_hist, RooFit::RecycleConflictNodes());  
+  //TODO Is this sufficient? Need norm??
 
 
   //Light background 

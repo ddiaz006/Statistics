@@ -16,9 +16,11 @@ void make_one_plot(TString channel_name, TString fit_name){
 
   TH1F* h_heavy=0;
   TH1F* h_light=0;
+  TH1F* h_other=0;
   TH1F* h_signal=0;
   h_heavy = (TH1F*)fin->Get(fit_name+"/"+channel_name+"/heavy");
   h_light = (TH1F*)fin->Get(fit_name+"/"+channel_name+"/light");
+  h_other = (TH1F*)fin->Get(fit_name+"/"+channel_name+"/other");
   if(draw_signal) h_signal = (TH1F*)fin->Get(fit_name+"/"+channel_name+"/signal");
 
   TGraphAsymmErrors* gr_data = (TGraphAsymmErrors*)fin->Get(fit_name+"/"+channel_name+"/data");
@@ -28,6 +30,8 @@ void make_one_plot(TString channel_name, TString fit_name){
   h_heavy->SetFillStyle(1001);
   h_light->SetFillColor(kAzure-3);
   h_light->SetFillStyle(1001);
+  h_other->SetFillColor(kGray+1);
+  h_other->SetFillStyle(1001);
   if(draw_signal){
     h_signal->SetFillColor(kRed);
     h_signal->SetFillStyle(1001);
@@ -40,10 +44,12 @@ void make_one_plot(TString channel_name, TString fit_name){
   gPad->SetLogy(1);
   THStack *bgstack = new THStack("bgstack","");
   if(h_heavy->Integral()>h_light->Integral()){
+    bgstack->Add(h_other);
     bgstack->Add(h_light);
     bgstack->Add(h_heavy);
   }
   else{
+    bgstack->Add(h_other);
     bgstack->Add(h_heavy);
     bgstack->Add(h_light);
   }

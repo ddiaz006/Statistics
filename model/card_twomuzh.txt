@@ -11,6 +11,7 @@ kmax * number of nuisance parameters
 shapes data_obs twomuzh param_ws.root wspace:data_obs_twomuzh
 shapes light    twomuzh param_ws.root wspace:light_twomuzh
 shapes heavy    twomuzh param_ws.root wspace:heavy_twomuzh
+shapes other    twomuzh param_ws.root wspace:other_twomuzh
 shapes signal   twomuzh param_ws.root wspace:signal_twomuzh
 
 -------------------------------------------------------------------------------------------------------------------------------------------
@@ -19,10 +20,10 @@ bin         twomuzh
 observation -1
 -------------------------------------------------------------------------------------------------------------------------------------------
 # background rate must be taken from _norm param x 1      
-bin      twomuzh   twomuzh  twomuzh
-process  light    heavy     signal
-process  1        2         0
-rate     1        1         -1
+bin      twomuzh   twomuzh  twomuzh  twomuzh
+process  light    heavy     signal   other
+process  1        2         0        3
+rate     1        1         -1       10323.949958
 -------------------------------------------------------------------------------------------------------------------------------------------
 #uncertainties
 -------------------------------------------------------------------------------------------------------------------------------------------

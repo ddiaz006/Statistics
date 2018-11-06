@@ -11,6 +11,7 @@ kmax * number of nuisance parameters
 shapes data_obs twomudy param_ws.root wspace:data_obs_twomudy
 shapes light    twomudy param_ws.root wspace:light_twomudy
 shapes heavy    twomudy param_ws.root wspace:heavy_twomudy
+shapes other    twomudy param_ws.root wspace:other_twomudy
 shapes signal   twomudy param_ws.root wspace:signal_twomudy
 
 -------------------------------------------------------------------------------------------------------------------------------------------
@@ -19,10 +20,10 @@ bin         twomudy
 observation -1
 -------------------------------------------------------------------------------------------------------------------------------------------
 # background rate must be taken from _norm param x 1      
-bin      twomudy   twomudy  twomudy
-process  light    heavy     signal
-process  1        2         0
-rate     1        1         -1
+bin      twomudy   twomudy  twomudy  twomudy
+process  light    heavy     signal   other
+process  1        2         0        3
+rate     1        1         -1       30449.950243
 -------------------------------------------------------------------------------------------------------------------------------------------
 #uncertainties
 -------------------------------------------------------------------------------------------------------------------------------------------
