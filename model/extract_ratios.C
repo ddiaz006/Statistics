@@ -1,6 +1,16 @@
+#include <iostream>
+
+#include "TMath.h"
+#include "TFile.h"
+#include "TH1F.h"
+
+using namespace std;
+
+
 float r_err(float n, float dn, float d, float dd){
   return (n/d)*TMath::Sqrt(dn*dn/(n*n) + (dd*dd)/(d*d));
 }
+
 
 void print_hist(TH1F* h, TString name){
   std::cout << name << " ";
@@ -9,6 +19,7 @@ void print_hist(TH1F* h, TString name){
   }
   std::cout << endl;
 }
+
 
 void extract_ratios(){
 
@@ -19,15 +30,20 @@ void extract_ratios(){
   TH1F* h_heavy_onepho = (TH1F*)f_onepho->Get("heavy");
   TH1F* h_light_onepho = (TH1F*)f_onepho->Get("light");
 
+  TFile* f_twomudy = TFile::Open("../inputs/TwoMuDY_nSelectedAODCaloJetTag_GH.root", "READ");
+  TH1F* h_heavy_twomudy = (TH1F*)f_twomudy->Get("heavy");
+  TH1F* h_light_twomudy = (TH1F*)f_twomudy->Get("light");
+
   TFile* f_twomuzh = TFile::Open("../inputs/TwoMuZH_nSelectedAODCaloJetTag_GH.root", "READ");
   TH1F* h_heavy_twomuzh = (TH1F*)f_twomuzh->Get("heavy");
   TH1F* h_light_twomuzh = (TH1F*)f_twomuzh->Get("light");
   
-
   //print
   print_hist(h_heavy_elemu, "h_heavy_elemu");
   print_hist(h_heavy_onepho, "h_heavy_onepho");
   print_hist(h_light_onepho, "h_light_onepho");
+  print_hist(h_heavy_twomudy, "h_heavy_twomudy");
+  print_hist(h_light_twomudy, "h_light_twomudy");
   print_hist(h_heavy_twomuzh, "h_heavy_twomuzh");
   print_hist(h_light_twomuzh, "h_light_twomuzh");
   std::cout << std::endl;

@@ -2,9 +2,6 @@
 
 ## Setup
 ```
-root -l extract_ratios.C
-#and put ratios into datacards
-
 #build workspace
 root -l 
 .L build_ws.C++

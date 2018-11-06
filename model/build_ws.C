@@ -1,4 +1,5 @@
 #include <iostream>
+#include <math.h>   
 
 #include "TFile.h"
 #include "TH1.h"
@@ -19,6 +20,23 @@
 TString signal_string = "Sig_MS40ct100";
 TString data_string = "bkgtotal"; //"Data";
 
+
+struct tf {
+  float b1;
+  float b1_err;
+  float b2;
+  float b2_err;
+  float b3;
+  float b3_err;
+} ;
+
+
+/*
+struct make_tf(TH1F* hnum, TH1F* hden){
+  TH1F* hrat = (TH1F*) hnum->Clone();
+  hrat->Divide(hden);
+}
+*/
 
 //---------------------------------------------------------------------------------------------------------------
 //TwoMuZH Region
@@ -45,16 +63,39 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "OnePho"){
   RooRealVar* heavy_elemu_bin2 = wspace->var("heavy_elemu_bin2");
   RooRealVar* heavy_elemu_bin3 = wspace->var("heavy_elemu_bin3");
 
+  //Get constraints
+  TFile* f_elemu = TFile::Open("../inputs/EleMuOSOF_nSelectedAODCaloJetTag_GH.root", "READ");
+  TH1F* h_heavy_elemu = (TH1F*)f_elemu->Get("heavy");
+  TH1F* h_heavy_twomuzh = (TH1F*)f_twomuzh->Get("heavy");
+  TH1F* h_r_heavy_elemu_to_twomuzh = (TH1F*)h_heavy_twomuzh->Clone("h_r_heavy_elemu_to_twomuzh");
+  h_r_heavy_elemu_to_twomuzh->Divide(h_heavy_elemu);
+  TString s_heavy_elemu_to_twomuzh_bin1="", s_heavy_elemu_to_twomuzh_bin2="", s_heavy_elemu_to_twomuzh_bin3="";
+  TString s_heavy_elemu_to_twomuzh_bin1_err="", s_heavy_elemu_to_twomuzh_bin2_err="", s_heavy_elemu_to_twomuzh_bin3_err="";
+  s_heavy_elemu_to_twomuzh_bin1     += h_r_heavy_elemu_to_twomuzh->GetBinContent(1);
+  s_heavy_elemu_to_twomuzh_bin1_err += h_r_heavy_elemu_to_twomuzh->GetBinError(1)/h_r_heavy_elemu_to_twomuzh->GetBinContent(1);
+  s_heavy_elemu_to_twomuzh_bin2     += h_r_heavy_elemu_to_twomuzh->GetBinContent(2);
+  s_heavy_elemu_to_twomuzh_bin2_err += h_r_heavy_elemu_to_twomuzh->GetBinError(2)/h_r_heavy_elemu_to_twomuzh->GetBinContent(2);
+  if(h_r_heavy_elemu_to_twomuzh->GetBinContent(3)>0){
+    s_heavy_elemu_to_twomuzh_bin3     += h_r_heavy_elemu_to_twomuzh->GetBinContent(3);
+    s_heavy_elemu_to_twomuzh_bin3_err += h_r_heavy_elemu_to_twomuzh->GetBinError(3)/h_r_heavy_elemu_to_twomuzh->GetBinContent(3);
+  }else{
+    s_heavy_elemu_to_twomuzh_bin3=s_heavy_elemu_to_twomuzh_bin2;
+    s_heavy_elemu_to_twomuzh_bin3_err="0.5";
+  }
+
   RooRealVar rrv_heavy_elemu_to_twomuzh_bin1("rrv_heavy_elemu_to_twomuzh_bin1", "heavy EleMu to TwoMuZH bin 1",1);
   RooRealVar rrv_heavy_elemu_to_twomuzh_bin2("rrv_heavy_elemu_to_twomuzh_bin2", "heavy EleMu to TwoMuZH bin 2",1);
   RooRealVar rrv_heavy_elemu_to_twomuzh_bin3("rrv_heavy_elemu_to_twomuzh_bin3", "heavy EleMu to TwoMuZH bin 3",1);
 
   RooFormulaVar tf_heavy_elemu_to_twomuzh_bin1("tf_heavy_elemu_to_twomuzh_bin1", "heavy EleMu to TwoMuZH transfer factor bin 1", 
-					  "0.733396*TMath::Power(1+0.5,@0)", RooArgList(rrv_heavy_elemu_to_twomuzh_bin1) );
+					       s_heavy_elemu_to_twomuzh_bin1+"*TMath::Power(1+"+s_heavy_elemu_to_twomuzh_bin1_err+",@0)", 
+					       RooArgList(rrv_heavy_elemu_to_twomuzh_bin1) );
   RooFormulaVar tf_heavy_elemu_to_twomuzh_bin2("tf_heavy_elemu_to_twomuzh_bin2", "heavy EleMu to TwoMuZH transfer factor bin 2", 
-					  "0.733396*TMath::Power(1+0.5,@0)", RooArgList(rrv_heavy_elemu_to_twomuzh_bin2) );
+					       s_heavy_elemu_to_twomuzh_bin2+"*TMath::Power(1+"+s_heavy_elemu_to_twomuzh_bin2_err+",@0)", 
+					       RooArgList(rrv_heavy_elemu_to_twomuzh_bin2) );
   RooFormulaVar tf_heavy_elemu_to_twomuzh_bin3("tf_heavy_elemu_to_twomuzh_bin3", "heavy EleMu to TwoMuZH transfer factor bin 3", 
-					  "0.733396*TMath::Power(1+0.5,@0)", RooArgList(rrv_heavy_elemu_to_twomuzh_bin3) );
+					       s_heavy_elemu_to_twomuzh_bin3+"*TMath::Power(1+"+s_heavy_elemu_to_twomuzh_bin3_err+",@0)", 
+					       RooArgList(rrv_heavy_elemu_to_twomuzh_bin3) );
   
   RooFormulaVar heavy_twomuzh_bin1("heavy_twomuzh_bin1", "Heavy background yield in TwoMuZH, bin 1", 
 				   "@0*@1", RooArgList(tf_heavy_elemu_to_twomuzh_bin1, *heavy_elemu_bin1));
@@ -79,17 +120,41 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "OnePho"){
     RooRealVar* light_onepho_bin2 = wspace->var("light_onepho_bin2");
     RooRealVar* light_onepho_bin3 = wspace->var("light_onepho_bin3");
 
+    //Get constraints
+    TFile* f_onepho = TFile::Open("../inputs/OnePho_nSelectedAODCaloJetTag_GH.root", "READ");
+    TH1F* h_light_onepho = (TH1F*)f_onepho->Get("light");
+    TH1F* h_light_twomuzh = (TH1F*)f_twomuzh->Get("light");
+    TH1F* h_r_light_onepho_to_twomuzh = (TH1F*)h_light_twomuzh->Clone("h_r_light_onepho_to_twomuzh");
+    h_r_light_onepho_to_twomuzh->Divide(h_light_onepho);
+    TString s_light_onepho_to_twomuzh_bin1="", s_light_onepho_to_twomuzh_bin2="", s_light_onepho_to_twomuzh_bin3="";
+    TString s_light_onepho_to_twomuzh_bin1_err="", s_light_onepho_to_twomuzh_bin2_err="", s_light_onepho_to_twomuzh_bin3_err="";
+    s_light_onepho_to_twomuzh_bin1     += h_r_light_onepho_to_twomuzh->GetBinContent(1);
+    s_light_onepho_to_twomuzh_bin1_err += h_r_light_onepho_to_twomuzh->GetBinError(1)/h_r_light_onepho_to_twomuzh->GetBinContent(1);
+    s_light_onepho_to_twomuzh_bin2     += h_r_light_onepho_to_twomuzh->GetBinContent(2);
+    s_light_onepho_to_twomuzh_bin2_err += h_r_light_onepho_to_twomuzh->GetBinError(2)/h_r_light_onepho_to_twomuzh->GetBinContent(2);
+    if(h_r_light_onepho_to_twomuzh->GetBinContent(3)>0){
+      s_light_onepho_to_twomuzh_bin3     += h_r_light_onepho_to_twomuzh->GetBinContent(3);
+      s_light_onepho_to_twomuzh_bin3_err += h_r_light_onepho_to_twomuzh->GetBinError(3)/h_r_light_onepho_to_twomuzh->GetBinContent(3);
+    }
+    else{
+      s_light_onepho_to_twomuzh_bin3=s_light_onepho_to_twomuzh_bin2;
+      s_light_onepho_to_twomuzh_bin3_err="0.5";
+    }
+    
     RooRealVar rrv_light_onepho_to_twomuzh_bin1("rrv_light_onepho_to_twomuzh_bin1", "light OnePhoo to TwoMuZH_bin1",1);
     RooRealVar rrv_light_onepho_to_twomuzh_bin2("rrv_light_onepho_to_twomuzh_bin2", "light OnePhoo to TwoMuZH_bin2",1);
     RooRealVar rrv_light_onepho_to_twomuzh_bin3("rrv_light_onepho_to_twomuzh_bin3", "light OnePhoo to TwoMuZH_bin3",1);
 
     RooFormulaVar tf_light_onepho_to_twomuzh_bin1("tf_light_onepho_to_twomuzh_bin1", "light OnePhoo to TwoMuZH transfer factor bin 1", 
-					     "0.576097*TMath::Power(1+0.5,@0)", RooArgList(rrv_light_onepho_to_twomuzh_bin1) );
+						  s_light_onepho_to_twomuzh_bin1+"*TMath::Power(1+"+s_light_onepho_to_twomuzh_bin1_err+",@0)", 
+						  RooArgList(rrv_light_onepho_to_twomuzh_bin1) );
     RooFormulaVar tf_light_onepho_to_twomuzh_bin2("tf_light_onepho_to_twomuzh_bin2", "light OnePhoo to TwoMuZH transfer factor bin 2", 
-					     "0.576097*TMath::Power(1+0.5,@0)", RooArgList(rrv_light_onepho_to_twomuzh_bin2) );
+						  s_light_onepho_to_twomuzh_bin2+"*TMath::Power(1+"+s_light_onepho_to_twomuzh_bin2_err+",@0)", 
+						  RooArgList(rrv_light_onepho_to_twomuzh_bin2) );
     RooFormulaVar tf_light_onepho_to_twomuzh_bin3("tf_light_onepho_to_twomuzh_bin3", "light OnePhoo to TwoMuZH transfer factor bin 3", 
-					     "0.576097*TMath::Power(1+0.5,@0)", RooArgList(rrv_light_onepho_to_twomuzh_bin3) );
-    
+						  s_light_onepho_to_twomuzh_bin3+"*TMath::Power(1+"+s_light_onepho_to_twomuzh_bin3_err+",@0)", 
+						  RooArgList(rrv_light_onepho_to_twomuzh_bin3) );
+        
     RooFormulaVar light_twomuzh_bin1("light_twomuzh_bin1", "Light background yield in TwoMuZH, bin 1", 
 				     "@0*@1", RooArgList(tf_light_onepho_to_twomuzh_bin1, *light_onepho_bin1));
     RooFormulaVar light_twomuzh_bin2("light_twomuzh_bin2", "Light background yield in TwoMuZH, bin 2", 
@@ -111,16 +176,40 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "OnePho"){
     RooRealVar* light_twomudy_bin2 = wspace->var("light_twomudy_bin2");
     RooRealVar* light_twomudy_bin3 = wspace->var("light_twomudy_bin3");
 
+    //Get constraints
+    TFile* f_twomudy = TFile::Open("../inputs/TwoMuDY_nSelectedAODCaloJetTag_GH.root", "READ");
+    TH1F* h_light_twomudy = (TH1F*)f_twomudy->Get("light");
+    TH1F* h_light_twomuzh = (TH1F*)f_twomuzh->Get("light");
+    TH1F* h_r_light_twomudy_to_twomuzh = (TH1F*)h_light_twomuzh->Clone("h_r_light_twomudy_to_twomuzh");
+    h_r_light_twomudy_to_twomuzh->Divide(h_light_twomudy);
+    TString s_light_twomudy_to_twomuzh_bin1="", s_light_twomudy_to_twomuzh_bin2="", s_light_twomudy_to_twomuzh_bin3="";
+    TString s_light_twomudy_to_twomuzh_bin1_err="", s_light_twomudy_to_twomuzh_bin2_err="", s_light_twomudy_to_twomuzh_bin3_err="";
+    s_light_twomudy_to_twomuzh_bin1     += h_r_light_twomudy_to_twomuzh->GetBinContent(1);
+    s_light_twomudy_to_twomuzh_bin1_err += h_r_light_twomudy_to_twomuzh->GetBinError(1)/h_r_light_twomudy_to_twomuzh->GetBinContent(1);
+    s_light_twomudy_to_twomuzh_bin2     += h_r_light_twomudy_to_twomuzh->GetBinContent(2);
+    s_light_twomudy_to_twomuzh_bin2_err += h_r_light_twomudy_to_twomuzh->GetBinError(2)/h_r_light_twomudy_to_twomuzh->GetBinContent(2);
+    if(h_r_light_twomudy_to_twomuzh->GetBinContent(3)>0){
+      s_light_twomudy_to_twomuzh_bin3     += h_r_light_twomudy_to_twomuzh->GetBinContent(3);
+      s_light_twomudy_to_twomuzh_bin3_err += h_r_light_twomudy_to_twomuzh->GetBinError(3)/h_r_light_twomudy_to_twomuzh->GetBinContent(3);
+    }
+    else{
+      s_light_twomudy_to_twomuzh_bin3=s_light_twomudy_to_twomuzh_bin2;
+      s_light_twomudy_to_twomuzh_bin3_err="0.5";
+    }
+
     RooRealVar rrv_light_twomudy_to_twomuzh_bin1("rrv_light_twomudy_to_twomuzh_bin1", "light TwoMuDY to TwoMuZH bin 1",1);
     RooRealVar rrv_light_twomudy_to_twomuzh_bin2("rrv_light_twomudy_to_twomuzh_bin2", "light TwoMuDY to TwoMuZH bin 2",1);
     RooRealVar rrv_light_twomudy_to_twomuzh_bin3("rrv_light_twomudy_to_twomuzh_bin3", "light TwoMuDY to TwoMuZH bin 3",1);
 
     RooFormulaVar tf_light_twomudy_to_twomuzh_bin1("tf_light_twomudy_to_twomuzh_bin1", "light TwoMuDY to TwoMuZH transfer factor bin 1", 
-					      "0.576097*TMath::Power(1+0.5,@0)", RooArgList(rrv_light_twomudy_to_twomuzh_bin1) );
+						   s_light_twomudy_to_twomuzh_bin1+"*TMath::Power(1+"+s_light_twomudy_to_twomuzh_bin1_err+",@0)", 
+						   RooArgList(rrv_light_twomudy_to_twomuzh_bin1) );
     RooFormulaVar tf_light_twomudy_to_twomuzh_bin2("tf_light_twomudy_to_twomuzh_bin2", "light TwoMuDY to TwoMuZH transfer factor bin 2", 
-					      "0.576097*TMath::Power(1+0.5,@0)", RooArgList(rrv_light_twomudy_to_twomuzh_bin2) );
+						   s_light_twomudy_to_twomuzh_bin2+"*TMath::Power(1+"+s_light_twomudy_to_twomuzh_bin2_err+",@0)", 
+						   RooArgList(rrv_light_twomudy_to_twomuzh_bin2) );
     RooFormulaVar tf_light_twomudy_to_twomuzh_bin3("tf_light_twomudy_to_twomuzh_bin3", "light TwoMuDY to TwoMuZH transfer factor bin 3", 
-					      "0.576097*TMath::Power(1+0.5,@0)", RooArgList(rrv_light_twomudy_to_twomuzh_bin3) );
+						   s_light_twomudy_to_twomuzh_bin3+"*TMath::Power(1+"+s_light_twomudy_to_twomuzh_bin3_err+",@0)", 
+						   RooArgList(rrv_light_twomudy_to_twomuzh_bin3) );
     
     RooFormulaVar light_twomuzh_bin1("light_twomuzh_bin1", "Light background yield in TwoMuZH, bin 1", 
 				     "@0*@1", RooArgList(tf_light_twomudy_to_twomuzh_bin1, *light_twomudy_bin1));
@@ -186,11 +275,15 @@ void build_elemu(RooWorkspace *wspace){
   //TODO Is this sufficient? Need norm??
 
   
-  //Heavy background is freely floating
+  //Heavy background
   //Create one parameter per bin representing the yield 
-  RooRealVar heavy_elemu_bin1("heavy_elemu_bin1", "Heavy background yield in EleMu, bin 1", 5126.56, 1e3, 5e4);
-  RooRealVar heavy_elemu_bin2("heavy_elemu_bin2", "Heavy background yield in EleMu, bin 2", 98.25, 50, 200);
-  RooRealVar heavy_elemu_bin3("heavy_elemu_bin3", "Heavy background yield in EleMu, bin 3", 1.29, 0, 5);
+  TH1F* h_heavy_elemu = (TH1F*)f_elemu->Get("heavy");
+  RooRealVar heavy_elemu_bin1("heavy_elemu_bin1", "Heavy background yield in EleMu, bin 1", 
+			      h_heavy_elemu->GetBinContent(1), h_heavy_elemu->GetBinContent(1)*0.5,h_heavy_elemu->GetBinContent(1)*1.5 );
+  RooRealVar heavy_elemu_bin2("heavy_elemu_bin2", "Heavy background yield in EleMu, bin 2", 
+			      h_heavy_elemu->GetBinContent(2), h_heavy_elemu->GetBinContent(2)*0.5,h_heavy_elemu->GetBinContent(2)*1.5 );
+  RooRealVar heavy_elemu_bin3("heavy_elemu_bin3", "Heavy background yield in EleMu, bin 3", 
+			      h_heavy_elemu->GetBinContent(3), 0, 20);
   RooArgList heavy_elemu_bins;
   heavy_elemu_bins.add(heavy_elemu_bin1);
   heavy_elemu_bins.add(heavy_elemu_bin2);
@@ -223,11 +316,15 @@ void build_onepho(RooWorkspace* wspace){
   wspace->import(data_onepho_hist, RooFit::RecycleConflictNodes());
 
 
-  //Light background is freely floating
+  //Light background 
   //Create one parameter per bin representing the yield 
-  RooRealVar light_onepho_bin1("light_onepho_bin1", "Light background yield in OnePho, bin 1", 288366, 200000, 400000);
-  RooRealVar light_onepho_bin2("light_onepho_bin2", "Light background yield in OnePho, bin 2", 1377.44, 500, 2000);
-  RooRealVar light_onepho_bin3("light_onepho_bin3", "Light background yield in OnePho, bin 3", 0.5, 0, 5);
+  TH1F* h_light_onepho = (TH1F*)f_onepho->Get("light");
+  RooRealVar light_onepho_bin1("light_onepho_bin1", "Light background yield in OnePho, bin 1", 
+			       h_light_onepho->GetBinContent(1), h_light_onepho->GetBinContent(1)*0.5, h_light_onepho->GetBinContent(1)*1.5);
+  RooRealVar light_onepho_bin2("light_onepho_bin2", "Light background yield in OnePho, bin 2", 
+			       h_light_onepho->GetBinContent(2), h_light_onepho->GetBinContent(2)*0.5, h_light_onepho->GetBinContent(2)*1.5);
+  RooRealVar light_onepho_bin3("light_onepho_bin3", "Light background yield in OnePho, bin 3", 
+			       h_light_onepho->GetBinContent(3), 0, 5);
   RooArgList light_onepho_bins;
   light_onepho_bins.add(light_onepho_bin1);
   light_onepho_bins.add(light_onepho_bin2);
@@ -243,16 +340,40 @@ void build_onepho(RooWorkspace* wspace){
   RooRealVar* heavy_elemu_bin2 = wspace->var("heavy_elemu_bin2");
   RooRealVar* heavy_elemu_bin3 = wspace->var("heavy_elemu_bin3");
 
+  //Get constraints
+  TFile* f_elemu = TFile::Open("../inputs/EleMuOSOF_nSelectedAODCaloJetTag_GH.root", "READ");
+  TH1F* h_heavy_elemu = (TH1F*)f_elemu->Get("heavy");
+  TH1F* h_heavy_onepho = (TH1F*)f_onepho->Get("heavy");
+  TH1F* h_r_heavy_elemu_to_onepho = (TH1F*)h_heavy_onepho->Clone("h_r_heavy_elemu_to_onepho");
+  h_r_heavy_elemu_to_onepho->Divide(h_heavy_elemu);
+  TString s_heavy_elemu_to_onepho_bin1="", s_heavy_elemu_to_onepho_bin2="", s_heavy_elemu_to_onepho_bin3="";
+  TString s_heavy_elemu_to_onepho_bin1_err="", s_heavy_elemu_to_onepho_bin2_err="", s_heavy_elemu_to_onepho_bin3_err="";
+  s_heavy_elemu_to_onepho_bin1     += h_r_heavy_elemu_to_onepho->GetBinContent(1);
+  s_heavy_elemu_to_onepho_bin1_err += h_r_heavy_elemu_to_onepho->GetBinError(1)/h_r_heavy_elemu_to_onepho->GetBinContent(1);
+  s_heavy_elemu_to_onepho_bin2     += h_r_heavy_elemu_to_onepho->GetBinContent(2);
+  s_heavy_elemu_to_onepho_bin2_err += h_r_heavy_elemu_to_onepho->GetBinError(2)/h_r_heavy_elemu_to_onepho->GetBinContent(2);
+  if(h_r_heavy_elemu_to_onepho->GetBinContent(3)>0){
+    s_heavy_elemu_to_onepho_bin3     += h_r_heavy_elemu_to_onepho->GetBinContent(3);
+    s_heavy_elemu_to_onepho_bin3_err += h_r_heavy_elemu_to_onepho->GetBinError(3)/h_r_heavy_elemu_to_onepho->GetBinContent(3);
+  }
+  else{
+    s_heavy_elemu_to_onepho_bin3=s_heavy_elemu_to_onepho_bin2;
+    s_heavy_elemu_to_onepho_bin3_err="0.5";
+  }
+
   RooRealVar rrv_heavy_elemu_to_onepho_bin1("rrv_heavy_elemu_to_onepho_bin1", "heavy EleMu to OnePho bin 1",1);
   RooRealVar rrv_heavy_elemu_to_onepho_bin2("rrv_heavy_elemu_to_onepho_bin2", "heavy EleMu to OnePho bin 2",1);
   RooRealVar rrv_heavy_elemu_to_onepho_bin3("rrv_heavy_elemu_to_onepho_bin3", "heavy EleMu to OnePho bin 3",1);
  
   RooFormulaVar tf_heavy_elemu_to_onepho_bin1("tf_heavy_elemu_to_onepho_bin1", "heavy EleMu to OnePho transfer factor bin 1", 
-					 "0.138834*TMath::Power(1+0.5,@0)", RooArgList(rrv_heavy_elemu_to_onepho_bin1) );
+					      s_heavy_elemu_to_onepho_bin1+"*TMath::Power(1+"+s_heavy_elemu_to_onepho_bin1_err+",@0)", 
+					      RooArgList(rrv_heavy_elemu_to_onepho_bin1) );
   RooFormulaVar tf_heavy_elemu_to_onepho_bin2("tf_heavy_elemu_to_onepho_bin2", "heavy EleMu to OnePho transfer factor bin 2", 
-					 "0.138834*TMath::Power(1+0.5,@0)", RooArgList(rrv_heavy_elemu_to_onepho_bin2) );
+					      s_heavy_elemu_to_onepho_bin2+"*TMath::Power(1+"+s_heavy_elemu_to_onepho_bin2_err+",@0)", 
+					      RooArgList(rrv_heavy_elemu_to_onepho_bin2) );
   RooFormulaVar tf_heavy_elemu_to_onepho_bin3("tf_heavy_elemu_to_onepho_bin3", "heavy EleMu to OnePho transfer factor bin 3", 
-					 "0.138834*TMath::Power(1+0.5,@0)", RooArgList(rrv_heavy_elemu_to_onepho_bin3) );
+					      s_heavy_elemu_to_onepho_bin3+"*TMath::Power(1+"+s_heavy_elemu_to_onepho_bin3_err+",@0)", 
+					      RooArgList(rrv_heavy_elemu_to_onepho_bin3) );
 
   RooFormulaVar heavy_onepho_bin1("heavy_onepho_bin1", "Heavy background yield in OnePho, bin 1", 
 				  "@0*@1", RooArgList(tf_heavy_elemu_to_onepho_bin1, *heavy_elemu_bin1));
@@ -294,11 +415,15 @@ void build_twomudy(RooWorkspace* wspace){
   wspace->import(data_twomudy_hist, RooFit::RecycleConflictNodes());
 
 
-  //Light background is freely floating
+  //Light background 
   //Create one parameter per bin representing the yield 
-  RooRealVar light_twomudy_bin1("light_twomudy_bin1", "Light background yield in TwoMuDY, bin 1", 288366, 200000, 400000);
-  RooRealVar light_twomudy_bin2("light_twomudy_bin2", "Light background yield in TwoMuDY, bin 2", 1377.44, 500, 2000);
-  RooRealVar light_twomudy_bin3("light_twomudy_bin3", "Light background yield in TwoMuDY, bin 3", 0.5, 0, 5);
+  TH1F* h_light_twomudy = (TH1F*)f_twomudy->Get("light");
+  RooRealVar light_twomudy_bin1("light_twomudy_bin1", "Light background yield in TwoMuDY, bin 1",
+				h_light_twomudy->GetBinContent(1), h_light_twomudy->GetBinContent(1)*0.5, h_light_twomudy->GetBinContent(1)*1.5);
+  RooRealVar light_twomudy_bin2("light_twomudy_bin2", "Light background yield in TwoMuDY, bin 2",
+				h_light_twomudy->GetBinContent(2), h_light_twomudy->GetBinContent(2)*0.5, h_light_twomudy->GetBinContent(2)*1.5);
+  RooRealVar light_twomudy_bin3("light_twomudy_bin3", "Light background yield in TwoMuDY, bin 3", 
+				h_light_twomudy->GetBinContent(3), 0, 25);
   RooArgList light_twomudy_bins;
   light_twomudy_bins.add(light_twomudy_bin1);
   light_twomudy_bins.add(light_twomudy_bin2);
@@ -314,17 +439,40 @@ void build_twomudy(RooWorkspace* wspace){
   RooRealVar* heavy_elemu_bin2 = wspace->var("heavy_elemu_bin2");
   RooRealVar* heavy_elemu_bin3 = wspace->var("heavy_elemu_bin3");
 
-
+  //Get constraints
+  TFile* f_elemu = TFile::Open("../inputs/EleMuOSOF_nSelectedAODCaloJetTag_GH.root", "READ");
+  TH1F* h_heavy_elemu = (TH1F*)f_elemu->Get("heavy");
+  TH1F* h_heavy_twomudy = (TH1F*)f_twomudy->Get("heavy");
+  TH1F* h_r_heavy_elemu_to_twomudy = (TH1F*)h_heavy_twomudy->Clone("h_r_heavy_elemu_to_twomudy");
+  h_r_heavy_elemu_to_twomudy->Divide(h_heavy_elemu);
+  TString s_heavy_elemu_to_twomudy_bin1="", s_heavy_elemu_to_twomudy_bin2="", s_heavy_elemu_to_twomudy_bin3="";
+  TString s_heavy_elemu_to_twomudy_bin1_err="", s_heavy_elemu_to_twomudy_bin2_err="", s_heavy_elemu_to_twomudy_bin3_err="";
+  s_heavy_elemu_to_twomudy_bin1     += h_r_heavy_elemu_to_twomudy->GetBinContent(1);
+  s_heavy_elemu_to_twomudy_bin1_err += h_r_heavy_elemu_to_twomudy->GetBinError(1)/h_r_heavy_elemu_to_twomudy->GetBinContent(1);
+  s_heavy_elemu_to_twomudy_bin2     += h_r_heavy_elemu_to_twomudy->GetBinContent(2);
+  s_heavy_elemu_to_twomudy_bin2_err += h_r_heavy_elemu_to_twomudy->GetBinError(2)/h_r_heavy_elemu_to_twomudy->GetBinContent(2);
+  if(h_r_heavy_elemu_to_twomudy->GetBinContent(3)>0){
+    s_heavy_elemu_to_twomudy_bin3     += h_r_heavy_elemu_to_twomudy->GetBinContent(3);
+    s_heavy_elemu_to_twomudy_bin3_err += h_r_heavy_elemu_to_twomudy->GetBinError(3)/h_r_heavy_elemu_to_twomudy->GetBinContent(3);
+  }
+  else{
+    s_heavy_elemu_to_twomudy_bin3=s_heavy_elemu_to_twomudy_bin2;
+    s_heavy_elemu_to_twomudy_bin3_err="0.5";
+  }
+  
   RooRealVar rrv_heavy_elemu_to_twomudy_bin1("rrv_heavy_elemu_to_twomudy_bin1", "heavy EleMu to TwoMuDY bin 1",1);
   RooRealVar rrv_heavy_elemu_to_twomudy_bin2("rrv_heavy_elemu_to_twomudy_bin2", "heavy EleMu to TwoMuDY bin 2",1);
   RooRealVar rrv_heavy_elemu_to_twomudy_bin3("rrv_heavy_elemu_to_twomudy_bin3", "heavy EleMu to TwoMuDY bin 3",1);
 
   RooFormulaVar tf_heavy_elemu_to_twomudy_bin1("tf_heavy_elemu_to_twomudy_bin1", "heavy EleMu to TwoMuDY transfer factor bin 1", 
-					  "0.138834*TMath::Power(1+0.5,@0)", RooArgList(rrv_heavy_elemu_to_twomudy_bin1) );
+					       s_heavy_elemu_to_twomudy_bin1+"*TMath::Power(1+"+s_heavy_elemu_to_twomudy_bin1_err+",@0)", 
+					       RooArgList(rrv_heavy_elemu_to_twomudy_bin1) );
   RooFormulaVar tf_heavy_elemu_to_twomudy_bin2("tf_heavy_elemu_to_twomudy_bin2", "heavy EleMu to TwoMuDY transfer factor bin 2", 
-					  "0.138834*TMath::Power(1+0.5,@0)", RooArgList(rrv_heavy_elemu_to_twomudy_bin2) );
+					       s_heavy_elemu_to_twomudy_bin2+"*TMath::Power(1+"+s_heavy_elemu_to_twomudy_bin2_err+",@0)", 
+					       RooArgList(rrv_heavy_elemu_to_twomudy_bin2) );
   RooFormulaVar tf_heavy_elemu_to_twomudy_bin3("tf_heavy_elemu_to_twomudy_bin3", "heavy EleMu to TwoMuDY transfer factor bin 3", 
-					  "0.138834*TMath::Power(1+0.5,@0)", RooArgList(rrv_heavy_elemu_to_twomudy_bin3) );
+					       s_heavy_elemu_to_twomudy_bin3+"*TMath::Power(1+"+s_heavy_elemu_to_twomudy_bin3_err+",@0)", 
+					       RooArgList(rrv_heavy_elemu_to_twomudy_bin3) );
   
   RooFormulaVar heavy_twomudy_bin1("heavy_twomudy_bin1", "Heavy background yield in TwoMuDY, bin 1", 
 				   "@0*@1", RooArgList(tf_heavy_elemu_to_twomudy_bin1, *heavy_elemu_bin1));
