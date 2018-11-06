@@ -10,6 +10,7 @@ kmax * number of nuisance parameters
 
 shapes data_obs elemu param_ws.root wspace:data_obs_elemu
 shapes heavy    elemu param_ws.root wspace:heavy_elemu
+shapes light    elemu param_ws.root wspace:light_elemu
 
 -------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -17,10 +18,10 @@ bin         elemu
 observation -1
 -------------------------------------------------------------------------------------------------------------------------------------------
 # background rate must be taken from _norm param x 1      
-bin      elemu
-process  heavy     
-process  1
-rate     1
+bin      elemu  elemu
+process  heavy  light   
+process  1      2
+rate     1      840.712491
 -------------------------------------------------------------------------------------------------------------------------------------------
 #uncertainties
 -------------------------------------------------------------------------------------------------------------------------------------------

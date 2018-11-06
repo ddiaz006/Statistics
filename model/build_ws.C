@@ -163,7 +163,6 @@ void build_elemu(RooWorkspace *wspace){
   RooRealVar* ntags = wspace->var("ntags");
   RooArgList vars(*ntags);
 
-  //For now assume this region is 100% heavy background (TODO with RooDataHist like signal)
 
   //Data
   TFile* f_elemu = TFile::Open("../inputs/EleMuOSOF_nSelectedAODCaloJetTag_GH.root", "READ");
@@ -174,6 +173,17 @@ void build_elemu(RooWorkspace *wspace){
   data_elemu_th1.SetBinContent(3, data_elemu_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
   RooDataHist data_elemu_hist("data_obs_elemu", "Data observed in EleMu", vars, &data_elemu_th1);
   wspace->import(data_elemu_hist, RooFit::RecycleConflictNodes());  
+
+
+  //Light contamination
+  TH1F* light_elemu_th1_file = (TH1F*)f_elemu->Get("light");
+  TH1F light_elemu_th1("light_elemu","Light observed in EleMu", 3, -0.5, 2.5);
+  light_elemu_th1.SetBinContent(1, light_elemu_th1_file->GetBinContent(1));
+  light_elemu_th1.SetBinContent(2, light_elemu_th1_file->GetBinContent(2));
+  light_elemu_th1.SetBinContent(3, light_elemu_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
+  RooDataHist light_elemu_hist("light_elemu", "Light observed in EleMu", vars, &light_elemu_th1);
+  wspace->import(light_elemu_hist, RooFit::RecycleConflictNodes());  
+  //TODO Is this sufficient? Need norm??
 
   
   //Heavy background is freely floating
@@ -331,6 +341,16 @@ void build_twomudy(RooWorkspace* wspace){
 
   wspace->import(p_heavy_twomudy, RooFit::RecycleConflictNodes());
   wspace->import(p_heavy_twomudy_norm, RooFit::RecycleConflictNodes());
+
+
+  //Signal
+  TH1F* signal_twomudy_th1_file = (TH1F*)f_twomudy->Get(signal_string);
+  TH1F signal_twomudy_th1("signal_twomudy","Signal yield in TwoMuDY", 3, -0.5, 2.5);
+  signal_twomudy_th1.SetBinContent(1, signal_twomudy_th1_file->GetBinContent(1));
+  signal_twomudy_th1.SetBinContent(2, signal_twomudy_th1_file->GetBinContent(2));
+  signal_twomudy_th1.SetBinContent(3, signal_twomudy_th1_file->Integral(3,6));//assumes bin 6 is overflow
+  RooDataHist signal_twomudy_hist("signal_twomudy", "Signal yield in TwoMuDY", vars, &signal_twomudy_th1);
+  wspace->import(signal_twomudy_hist, RooFit::RecycleConflictNodes());
 
 }
 

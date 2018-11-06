@@ -12,7 +12,8 @@ build_ws()
 .q
 
 #combine data cards
-combineCards.py EleMu=card_elemu.txt OnePho=card_onepho.txt TwoMuZH=card_twomuzh.txt > card.txt
+#combineCards.py EleMu=card_elemu.txt OnePho=card_onepho.txt TwoMuZH=card_twomuzh.txt > card.txt
+combineCards.py EleMu=card_elemu.txt TwoMuDY=card_twomudy.txt TwoMuZH=card_twomuzh.txt > card.txt
 
 #create final workspace
 text2workspace.py card.txt

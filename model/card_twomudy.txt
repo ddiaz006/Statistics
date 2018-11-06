@@ -1,4 +1,4 @@
-TwoMuZH Datacard
+TwoMuDY Datacard
 
 imax * number of bins
 jmax * number of processes minus 1
@@ -8,18 +8,18 @@ kmax * number of nuisance parameters
 
 #shapes process channel file histogram [histogram_with_systematics]
 
-shapes data_obs twomuzh param_ws.root wspace:data_obs_twomuzh
-shapes light    twomuzh param_ws.root wspace:light_twomuzh
-shapes heavy    twomuzh param_ws.root wspace:heavy_twomuzh
-shapes signal   twomuzh param_ws.root wspace:signal_twomuzh
+shapes data_obs twomudy param_ws.root wspace:data_obs_twomudy
+shapes light    twomudy param_ws.root wspace:light_twomudy
+shapes heavy    twomudy param_ws.root wspace:heavy_twomudy
+shapes signal   twomudy param_ws.root wspace:signal_twomudy
 
 -------------------------------------------------------------------------------------------------------------------------------------------
 
-bin         twomuzh
+bin         twomudy
 observation -1
 -------------------------------------------------------------------------------------------------------------------------------------------
 # background rate must be taken from _norm param x 1      
-bin      twomuzh   twomuzh  twomuzh
+bin      twomudy   twomudy  twomudy
 process  light    heavy     signal
 process  1        2         0
 rate     1        1         -1
@@ -27,9 +27,7 @@ rate     1        1         -1
 #uncertainties
 -------------------------------------------------------------------------------------------------------------------------------------------
 #free floating parameters
-rrv_heavy_elemu_to_twomuzh_bin1  param 0 1
-rrv_heavy_elemu_to_twomuzh_bin2  param 0 1
-rrv_heavy_elemu_to_twomuzh_bin3  param 0 1
-rrv_light_onepho_to_twomuzh_bin1 param 0 1
-rrv_light_onepho_to_twomuzh_bin2 param 0 1
-rrv_light_onepho_to_twomuzh_bin3 param 0 1
+rrv_heavy_elemu_to_twomudy_bin1  param 0 1
+rrv_heavy_elemu_to_twomudy_bin2  param 0 1
+rrv_heavy_elemu_to_twomudy_bin3  param 0 1
+
