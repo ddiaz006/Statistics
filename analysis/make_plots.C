@@ -59,7 +59,7 @@ void make_one_plot(TString channel_name, TString fit_name){
   TCanvas c("c_"+channel_name, "c_"+channel_name, 640, 480);
   gStyle->SetOptStat(0);
   gPad->SetLogy(1);
-  THStack *bgstack = new THStack("bgstack","");
+  THStack *bgstack = new THStack("bgstack",fit_name+"/"+channel_name);
   if(h_heavy->Integral()>h_light->Integral()){
     bgstack->Add(h_other);
     bgstack->Add(h_light);
