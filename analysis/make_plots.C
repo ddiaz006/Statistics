@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "TFile.h"
 #include "TH1F.h"
 #include "TDirectory.h"
@@ -6,6 +8,16 @@
 #include "THStack.h"
 #include "TStyle.h"
 #include "TPad.h"
+
+
+void print_hist(TH1F* h, TString name){
+  std::cout << name << " ";
+  for(int i=1; i<=h->GetNbinsX(); i++){
+    std::cout << h->GetBinContent(i) << " ";
+  }
+  std::cout << endl;
+}
+
 
 void make_one_plot(TString channel_name, TString fit_name){
   
@@ -22,6 +34,11 @@ void make_one_plot(TString channel_name, TString fit_name){
   h_light = (TH1F*)fin->Get(fit_name+"/"+channel_name+"/light");
   h_other = (TH1F*)fin->Get(fit_name+"/"+channel_name+"/other");
   if(draw_signal) h_signal = (TH1F*)fin->Get(fit_name+"/"+channel_name+"/signal");
+
+  print_hist(h_heavy, fit_name+"/"+channel_name+"/heavy");
+  print_hist(h_light, fit_name+"/"+channel_name+"/light");
+  print_hist(h_other, fit_name+"/"+channel_name+"/other");
+  if(draw_signal) print_hist(h_signal, fit_name+"/"+channel_name+"/signal");
 
   TGraphAsymmErrors* gr_data = (TGraphAsymmErrors*)fin->Get(fit_name+"/"+channel_name+"/data");
  
@@ -65,7 +82,7 @@ void make_one_plot(TString channel_name, TString fit_name){
 void make_plots(){
   //"shapes_fit_s"; //shapes_prefit, shapes_fit_b
   
-  if(0){
+  /*
     //Prefit
     make_one_plot("TwoMuZH", "shapes_prefit");
     make_one_plot("EleMu", "shapes_prefit");
@@ -80,22 +97,28 @@ void make_plots(){
     make_one_plot("TwoMuZH", "shapes_fit_s");
     make_one_plot("EleMu", "shapes_fit_s");
     make_one_plot("OnePho", "shapes_fit_s");
-  }
-  else{
-    //Prefit
-    make_one_plot("TwoMuZH", "shapes_prefit");
-    make_one_plot("EleMu", "shapes_prefit");
-    make_one_plot("TwoMuDY", "shapes_prefit");
-    
-    //B only fit
-    make_one_plot("TwoMuZH", "shapes_fit_b");
-    make_one_plot("EleMu", "shapes_fit_b");
-    make_one_plot("TwoMuDY", "shapes_fit_b");
-    
-    //S+B fit
-    make_one_plot("TwoMuZH", "shapes_fit_s");
-    make_one_plot("EleMu", "shapes_fit_s");
-    make_one_plot("TwoMuDY", "shapes_fit_s");
-  }
+  */
+
+  //Prefit
+  make_one_plot("TwoMuZH", "shapes_prefit");
+  make_one_plot("TwoEleZH", "shapes_prefit");
+  make_one_plot("EleMu", "shapes_prefit");
+  make_one_plot("TwoMuDY", "shapes_prefit");
+  make_one_plot("TwoEleDY", "shapes_prefit");
+  
+  //B only fit
+  make_one_plot("TwoMuZH", "shapes_fit_b");
+  make_one_plot("TwoEleZH", "shapes_fit_b");
+  make_one_plot("EleMu", "shapes_fit_b");
+  make_one_plot("TwoMuDY", "shapes_fit_b");
+  make_one_plot("TwoEleDY", "shapes_fit_b");
+  
+  //S+B fit
+  make_one_plot("TwoMuZH", "shapes_fit_s");
+  make_one_plot("TwoEleZH", "shapes_fit_s");
+  make_one_plot("EleMu", "shapes_fit_s");
+  make_one_plot("TwoMuDY", "shapes_fit_s");
+  make_one_plot("TwoEleDY", "shapes_fit_s");
+
 }
 

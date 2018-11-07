@@ -14,7 +14,7 @@ float r_err(float n, float dn, float d, float dd){
 
 void print_hist(TH1F* h, TString name){
   std::cout << name << " ";
-  for(int i=1; i<h->GetNbinsX(); i++){
+  for(int i=1; i<=h->GetNbinsX(); i++){
     std::cout << h->GetBinContent(i) << " ";
   }
   std::cout << endl;
