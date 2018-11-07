@@ -31,4 +31,6 @@ rate     1        1         -1       -1
 rrv_heavy_elemu_to_twoeledy_bin1  param 0 1
 rrv_heavy_elemu_to_twoeledy_bin2  param 0 1
 rrv_heavy_elemu_to_twoeledy_bin3  param 0 1
-
+light_twoeledy_bin1 flatParam
+light_twoeledy_bin2 flatParam
+light_twoeledy_bin3 flatParam
