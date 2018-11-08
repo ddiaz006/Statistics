@@ -5,6 +5,7 @@
 #include "TH1.h"
 #include "TString.h"
 #include "TSystem.h"
+#include "TCanvas.h"
 
 #include "RooArgList.h"
 #include "RooWorkspace.h"
@@ -42,6 +43,13 @@ struct make_tf(TH1F* hnum, TH1F* hden){
   hrat->Divide(hden);
 }
 */
+
+void plot_r(TH1F* h, TString name){
+  TCanvas c(name, name, 640, 480);
+  h->SetTitle(name);
+  h->Draw("HIST E");
+  c.SaveAs(name+".pdf");
+}
 
 //---------------------------------------------------------------------------------------------------------------
 //TwoMuZH Region
@@ -85,6 +93,7 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "OnePho"){
   TH1F* h_heavy_twomuzh = (TH1F*)f_twomuzh->Get("heavy");
   TH1F* h_r_heavy_elemu_to_twomuzh = (TH1F*)h_heavy_twomuzh->Clone("h_r_heavy_elemu_to_twomuzh");
   h_r_heavy_elemu_to_twomuzh->Divide(h_heavy_elemu);
+  plot_r(h_r_heavy_elemu_to_twomuzh,"h_r_heavy_elemu_to_twomuzh");
   TString s_heavy_elemu_to_twomuzh_bin1="", s_heavy_elemu_to_twomuzh_bin2="", s_heavy_elemu_to_twomuzh_bin3="";
   TString s_heavy_elemu_to_twomuzh_bin1_err="", s_heavy_elemu_to_twomuzh_bin2_err="", s_heavy_elemu_to_twomuzh_bin3_err="";
   s_heavy_elemu_to_twomuzh_bin1     += h_r_heavy_elemu_to_twomuzh->GetBinContent(1);
@@ -145,6 +154,7 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "OnePho"){
     TH1F* h_light_twomuzh = (TH1F*)f_twomuzh->Get("light");
     TH1F* h_r_light_onepho_to_twomuzh = (TH1F*)h_light_twomuzh->Clone("h_r_light_onepho_to_twomuzh");
     h_r_light_onepho_to_twomuzh->Divide(h_light_onepho);
+    plot_r(h_r_light_onepho_to_twomuzh,"h_r_light_onepho_to_twomuzh");
     TString s_light_onepho_to_twomuzh_bin1="", s_light_onepho_to_twomuzh_bin2="", s_light_onepho_to_twomuzh_bin3="";
     TString s_light_onepho_to_twomuzh_bin1_err="", s_light_onepho_to_twomuzh_bin2_err="", s_light_onepho_to_twomuzh_bin3_err="";
     s_light_onepho_to_twomuzh_bin1     += h_r_light_onepho_to_twomuzh->GetBinContent(1);
@@ -204,6 +214,7 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "OnePho"){
     TH1F* h_light_twomuzh = (TH1F*)f_twomuzh->Get("light");
     TH1F* h_r_light_twomudy_to_twomuzh = (TH1F*)h_light_twomuzh->Clone("h_r_light_twomudy_to_twomuzh");
     h_r_light_twomudy_to_twomuzh->Divide(h_light_twomudy);
+    plot_r(h_r_light_twomudy_to_twomuzh,"h_r_light_twomudy_to_twomuzh");
     TString s_light_twomudy_to_twomuzh_bin1="", s_light_twomudy_to_twomuzh_bin2="", s_light_twomudy_to_twomuzh_bin3="";
     TString s_light_twomudy_to_twomuzh_bin1_err="", s_light_twomudy_to_twomuzh_bin2_err="", s_light_twomudy_to_twomuzh_bin3_err="";
     s_light_twomudy_to_twomuzh_bin1     += h_r_light_twomudy_to_twomuzh->GetBinContent(1);
@@ -311,6 +322,7 @@ void build_twoelezh(RooWorkspace* wspace, TString light_est = "OnePho"){
   TH1F* h_heavy_twoelezh = (TH1F*)f_twoelezh->Get("heavy");
   TH1F* h_r_heavy_elemu_to_twoelezh = (TH1F*)h_heavy_twoelezh->Clone("h_r_heavy_elemu_to_twoelezh");
   h_r_heavy_elemu_to_twoelezh->Divide(h_heavy_elemu);
+  plot_r(h_r_heavy_elemu_to_twoelezh,"h_r_heavy_elemu_to_twoelezh");
   TString s_heavy_elemu_to_twoelezh_bin1="", s_heavy_elemu_to_twoelezh_bin2="", s_heavy_elemu_to_twoelezh_bin3="";
   TString s_heavy_elemu_to_twoelezh_bin1_err="", s_heavy_elemu_to_twoelezh_bin2_err="", s_heavy_elemu_to_twoelezh_bin3_err="";
   s_heavy_elemu_to_twoelezh_bin1     += h_r_heavy_elemu_to_twoelezh->GetBinContent(1);
@@ -371,6 +383,7 @@ void build_twoelezh(RooWorkspace* wspace, TString light_est = "OnePho"){
     TH1F* h_light_twoelezh = (TH1F*)f_twoelezh->Get("light");
     TH1F* h_r_light_onepho_to_twoelezh = (TH1F*)h_light_twoelezh->Clone("h_r_light_onepho_to_twoelezh");
     h_r_light_onepho_to_twoelezh->Divide(h_light_onepho);
+    plot_r(h_r_light_onepho_to_twoelezh,"h_r_light_onepho_to_twoelezh");
     TString s_light_onepho_to_twoelezh_bin1="", s_light_onepho_to_twoelezh_bin2="", s_light_onepho_to_twoelezh_bin3="";
     TString s_light_onepho_to_twoelezh_bin1_err="", s_light_onepho_to_twoelezh_bin2_err="", s_light_onepho_to_twoelezh_bin3_err="";
     s_light_onepho_to_twoelezh_bin1     += h_r_light_onepho_to_twoelezh->GetBinContent(1);
@@ -430,6 +443,7 @@ void build_twoelezh(RooWorkspace* wspace, TString light_est = "OnePho"){
     TH1F* h_light_twoelezh = (TH1F*)f_twoelezh->Get("light");
     TH1F* h_r_light_twoeledy_to_twoelezh = (TH1F*)h_light_twoelezh->Clone("h_r_light_twoeledy_to_twoelezh");
     h_r_light_twoeledy_to_twoelezh->Divide(h_light_twoeledy);
+    plot_r(h_r_light_twoeledy_to_twoelezh,"h_r_light_twoeledy_to_twoelezh");
     TString s_light_twoeledy_to_twoelezh_bin1="", s_light_twoeledy_to_twoelezh_bin2="", s_light_twoeledy_to_twoelezh_bin3="";
     TString s_light_twoeledy_to_twoelezh_bin1_err="", s_light_twoeledy_to_twoelezh_bin2_err="", s_light_twoeledy_to_twoelezh_bin3_err="";
     s_light_twoeledy_to_twoelezh_bin1     += h_r_light_twoeledy_to_twoelezh->GetBinContent(1);
@@ -619,6 +633,7 @@ void build_onepho(RooWorkspace* wspace){
   TH1F* h_heavy_onepho = (TH1F*)f_onepho->Get("heavy");
   TH1F* h_r_heavy_elemu_to_onepho = (TH1F*)h_heavy_onepho->Clone("h_r_heavy_elemu_to_onepho");
   h_r_heavy_elemu_to_onepho->Divide(h_heavy_elemu);
+  plot_r(h_r_heavy_elemu_to_onepho,"h_r_heavy_elemu_to_onepho");
   TString s_heavy_elemu_to_onepho_bin1="", s_heavy_elemu_to_onepho_bin2="", s_heavy_elemu_to_onepho_bin3="";
   TString s_heavy_elemu_to_onepho_bin1_err="", s_heavy_elemu_to_onepho_bin2_err="", s_heavy_elemu_to_onepho_bin3_err="";
   s_heavy_elemu_to_onepho_bin1     += h_r_heavy_elemu_to_onepho->GetBinContent(1);
@@ -732,6 +747,7 @@ void build_twomudy(RooWorkspace* wspace){
   TH1F* h_heavy_twomudy = (TH1F*)f_twomudy->Get("heavy");
   TH1F* h_r_heavy_elemu_to_twomudy = (TH1F*)h_heavy_twomudy->Clone("h_r_heavy_elemu_to_twomudy");
   h_r_heavy_elemu_to_twomudy->Divide(h_heavy_elemu);
+  plot_r(h_r_heavy_elemu_to_twomudy,"h_r_heavy_elemu_to_twomudy");
   TString s_heavy_elemu_to_twomudy_bin1="", s_heavy_elemu_to_twomudy_bin2="", s_heavy_elemu_to_twomudy_bin3="";
   TString s_heavy_elemu_to_twomudy_bin1_err="", s_heavy_elemu_to_twomudy_bin2_err="", s_heavy_elemu_to_twomudy_bin3_err="";
   s_heavy_elemu_to_twomudy_bin1     += h_r_heavy_elemu_to_twomudy->GetBinContent(1);
@@ -854,6 +870,7 @@ void build_twoeledy(RooWorkspace* wspace){
   TH1F* h_heavy_twoeledy = (TH1F*)f_twoeledy->Get("heavy");
   TH1F* h_r_heavy_elemu_to_twoeledy = (TH1F*)h_heavy_twoeledy->Clone("h_r_heavy_elemu_to_twoeledy");
   h_r_heavy_elemu_to_twoeledy->Divide(h_heavy_elemu);
+  plot_r(h_r_heavy_elemu_to_twoeledy,"h_r_heavy_elemu_to_twoeledy");
   TString s_heavy_elemu_to_twoeledy_bin1="", s_heavy_elemu_to_twoeledy_bin2="", s_heavy_elemu_to_twoeledy_bin3="";
   TString s_heavy_elemu_to_twoeledy_bin1_err="", s_heavy_elemu_to_twoeledy_bin2_err="", s_heavy_elemu_to_twoeledy_bin3_err="";
   s_heavy_elemu_to_twoeledy_bin1     += h_r_heavy_elemu_to_twoeledy->GetBinContent(1);

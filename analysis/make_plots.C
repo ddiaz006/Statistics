@@ -19,6 +19,24 @@ void print_hist(TH1F* h, TString name){
 }
 
 
+void print_other_frac(TH1F* h_light, TH1F* h_heavy, TH1F* h_other, TString name){
+
+  TH1F* h_total = (TH1F*)h_light->Clone("h_total");
+  h_total->Add(h_heavy);
+  h_total->Add(h_other);
+
+  TH1F* h_frac = (TH1F*)h_other->Clone("h_frac");
+  h_frac->Divide(h_total);
+
+  std::cout << "OTHER FRACTION " << name << " ";
+  for(int i=1; i<=h_frac->GetNbinsX(); i++){
+    std::cout << h_frac->GetBinContent(i) << " ";
+  }
+  std::cout << endl;
+
+}
+
+
 void make_one_plot(TString channel_name, TString fit_name){
   
   TFile* fin = TFile::Open("../model/fitDiagnostics.root");
@@ -39,6 +57,8 @@ void make_one_plot(TString channel_name, TString fit_name){
   print_hist(h_light, fit_name+"/"+channel_name+"/light");
   print_hist(h_other, fit_name+"/"+channel_name+"/other");
   if(draw_signal) print_hist(h_signal, fit_name+"/"+channel_name+"/signal");
+
+  print_other_frac(h_light, h_heavy, h_other, fit_name+"/"+channel_name);
 
   TGraphAsymmErrors* gr_data = (TGraphAsymmErrors*)fin->Get(fit_name+"/"+channel_name+"/data");
  
