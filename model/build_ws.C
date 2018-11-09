@@ -54,49 +54,100 @@ TString translate(TString in){
 
 void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString to_name, vector<TString> sys_vec){
 
+  TString full_name = process+"_"+from_name+"_to_"+to_name;
+
   TFile* f_from = TFile::Open("../inputs/"+translate(from_name)+"_nSelectedAODCaloJetTag_GH.root", "READ");
   TH1F* h_from = (TH1F*)f_from->Get(process);
 
   TFile* f_to = TFile::Open("../inputs/"+translate(to_name)+"_nSelectedAODCaloJetTag_GH.root", "READ");
   TH1F* h_to = (TH1F*)f_to->Get(process);
 
-  TH1F* h_r = (TH1F*)h_to->Clone("h_r_"+process+"_"+from_name+"_to_"+to_name);
+  TH1F* h_r = (TH1F*)h_to->Clone("h_r_"+full_name);
   h_r->Divide(h_from);
 
-  plot_r(h_r,"h_r_"+process+"_"+from_name+"_to_"+to_name);
+  plot_r(h_r,"h_r_"+full_name);
 
-  //Redo code that follows, looping over bins and systematics?
-  
   TString s_bin1="", s_bin2="", s_bin3="";
   TString s_bin1_err="", s_bin2_err="", s_bin3_err="";
   s_bin1     += h_r->GetBinContent(1);
-  s_bin1_err += h_r->GetBinError(1)/h_r->GetBinContent(1);
+  s_bin1_err += h_r->GetBinError(1)/h_r->GetBinContent(1);//relative error
   s_bin2     += h_r->GetBinContent(2);
-  s_bin2_err += h_r->GetBinError(2)/h_r->GetBinContent(2);
+  s_bin2_err += h_r->GetBinError(2)/h_r->GetBinContent(2);//relative error
   if(h_r->GetBinContent(3)>0){
     s_bin3     += h_r->GetBinContent(3);
-    s_bin3_err += h_r->GetBinError(3)/h_r->GetBinContent(3);
+    s_bin3_err += h_r->GetBinError(3)/h_r->GetBinContent(3);//relative error
   }else{
-    cout << endl;
-    cout << "*** WARNING *** : Using 1 bin ratio for " << process << " " << from_name << " to " << to_name << endl; 
-    cout << endl;
+    cout << endl; cout << "*** WARNING *** : Using 1-tag ratio for " << process << " " << from_name << " to " << to_name << endl; cout << endl;
     s_bin3=s_bin2;
-    s_bin3_err="0.5";
+    s_bin3_err="0.5";//relative error
   }
 
-  RooRealVar rrv_bin1("rrv_"+process+"_"+from_name+"_to_"+to_name+"_bin1", process+" "+from_name+" to "+to_name+" bin 1",1);
-  RooRealVar rrv_bin2("rrv_"+process+"_"+from_name+"_to_"+to_name+"_bin2", process+" "+from_name+" to "+to_name+" bin 2",1);
-  RooRealVar rrv_bin3("rrv_"+process+"_"+from_name+"_to_"+to_name+"_bin3", process+" "+from_name+" to "+to_name+" bin 3",1);
+  RooRealVar rrv_bin1("rrv_"+full_name+"_bin1", process+" "+from_name+" to "+to_name+" bin 1",1);
+  RooRealVar rrv_bin2("rrv_"+full_name+"_bin2", process+" "+from_name+" to "+to_name+" bin 2",1);
+  RooRealVar rrv_bin3("rrv_"+full_name+"_bin3", process+" "+from_name+" to "+to_name+" bin 3",1);
 
-  RooFormulaVar tf_bin1("tf_"+process+"_"+from_name+"_to_"+to_name+"_bin1", process+" "+from_name+" to "+to_name+" transfer factor bin 1", 
-					       s_bin1+"*TMath::Power(1+"+s_bin1_err+",@0)", 
-					       RooArgList(rrv_bin1) );
-  RooFormulaVar tf_bin2("tf_"+process+"_"+from_name+"_to_"+to_name+"_bin2", process+" "+from_name+" to "+to_name+" transfer factor bin 2", 
-					       s_bin2+"*TMath::Power(1+"+s_bin2_err+",@0)", 
-					       RooArgList(rrv_bin2) );
-  RooFormulaVar tf_bin3("tf_"+process+"_"+from_name+"_to_"+to_name+"_bin3", process+" "+from_name+" to "+to_name+" transfer factor bin 3", 
-					       s_bin3+"*TMath::Power(1+"+s_bin3_err+",@0)", 
-					       RooArgList(rrv_bin3) );
+  RooArgList ral_bin1 = RooArgList(rrv_bin1);
+  RooArgList ral_bin2 = RooArgList(rrv_bin2);
+  RooArgList ral_bin3 = RooArgList(rrv_bin3);
+
+  TString rfv_bin1 = s_bin1+"*TMath::Power(1+"+s_bin1_err+",@0)";
+  TString rfv_bin2 = s_bin2+"*TMath::Power(1+"+s_bin2_err+",@0)";
+  TString rfv_bin3 = s_bin3+"*TMath::Power(1+"+s_bin3_err+",@0)";
+
+  int sys_cnt = 1;
+  for(unsigned int i=0; i<sys_vec.size(); i++){
+
+    //When files are ready, replace file names with Up/Down
+
+    TFile* f_from_up = TFile::Open("../inputs/"+translate(from_name)+"_nSelectedAODCaloJetTag_GH.root", "READ");
+    TH1F* h_from_up = (TH1F*)f_from_up->Get(process);
+    
+    TFile* f_to_up = TFile::Open("../inputs/"+translate(to_name)+"_nSelectedAODCaloJetTag_GH.root", "READ");
+    TH1F* h_to_up = (TH1F*)f_to_up->Get(process);
+
+    TH1F* h_r_up = (TH1F*)h_to_up->Clone("h_r_"+full_name+"_"+sys_vec[i]+"_up");
+    h_r_up->Divide(h_from_up);
+
+    TFile* f_from_down = TFile::Open("../inputs/"+translate(from_name)+"_nSelectedAODCaloJetTag_GH.root", "READ");
+    TH1F* h_from_down = (TH1F*)f_from_down->Get(process);
+    
+    TFile* f_to_down = TFile::Open("../inputs/"+translate(to_name)+"_nSelectedAODCaloJetTag_GH.root", "READ");
+    TH1F* h_to_down = (TH1F*)f_to_down->Get(process);
+
+    TH1F* h_r_down = (TH1F*)h_to_down->Clone("h_r_"+full_name+"_"+sys_vec[i]+"_down");
+    h_r_down->Divide(h_from_down);
+
+    //Symmetrize -- (up-down)/2
+    TH1F* h_r_symm = (TH1F*)h_r_up->Clone("h_r_symm_"+full_name+"_"+sys_vec[i]);
+    h_r_symm->Add(h_r_down, -1);
+    h_r_symm->Scale(0.5);
+    
+    //Make relative
+    TH1F* h_r_symm_rel = (TH1F*)h_r_symm->Clone("h_r_symm_rel_"+full_name+"_"+sys_vec[i]);
+    h_r_symm_rel->Divide(h_r);
+
+    //Now the RooFit part
+    TString s_bin1_syst = "", s_bin2_syst = "", s_bin3_syst = "";
+    s_bin1_syst += h_r_symm_rel->GetBinContent(1);
+    s_bin2_syst += h_r_symm_rel->GetBinContent(2);
+    s_bin3_syst += h_r_symm_rel->GetBinContent(3);
+    rfv_bin1 += "*TMath::Power(1+"; rfv_bin1 += s_bin1_syst; rfv_bin1 += ",@"; rfv_bin1 += sys_cnt; rfv_bin1+=")";
+    rfv_bin2 += "*TMath::Power(1+"; rfv_bin2 += s_bin2_syst; rfv_bin2 += ",@"; rfv_bin2 += sys_cnt; rfv_bin2+=")";
+    rfv_bin3 += "*TMath::Power(1+"; rfv_bin3 += s_bin3_syst; rfv_bin3 += ",@"; rfv_bin3 += sys_cnt; rfv_bin3+=")";
+    
+    RooRealVar* rrv_syst = wspace->var("rrv_"+sys_vec[i]);
+    ral_bin1.add(RooArgList(*rrv_syst));
+    ral_bin2.add(RooArgList(*rrv_syst));
+    ral_bin3.add(RooArgList(*rrv_syst));
+    
+    sys_cnt++;
+  }
+
+  cout << "RFV example: " << rfv_bin1 << endl;
+
+  RooFormulaVar tf_bin1("tf_"+full_name+"_bin1", process+" "+from_name+" to "+to_name+" transfer factor bin 1", rfv_bin1, ral_bin1);
+  RooFormulaVar tf_bin2("tf_"+full_name+"_bin2", process+" "+from_name+" to "+to_name+" transfer factor bin 2", rfv_bin2, ral_bin2);
+  RooFormulaVar tf_bin3("tf_"+full_name+"_bin3", process+" "+from_name+" to "+to_name+" transfer factor bin 3", rfv_bin3, ral_bin3);
 
   wspace->import(tf_bin1, RooFit::RecycleConflictNodes());
   wspace->import(tf_bin2, RooFit::RecycleConflictNodes());
@@ -694,7 +745,7 @@ void build_ws(){
   // As usual, load the combine library to get access to the RooParametricHist
   gSystem->Load("libHiggsAnalysisCombinedLimit.so");
 
-  sys_vec.push_back("TagVars");
+  //sys_vec.push_back("TagVars");
   //sys_vec.push_back("EGS");
   //sys_vec.push_back("MES");
   //sys_vec.push_back("JES");
