@@ -6,6 +6,7 @@
 #include "TString.h"
 #include "TSystem.h"
 #include "TCanvas.h"
+#include "TPad.h"
 
 #include "RooArgList.h"
 #include "RooWorkspace.h"
@@ -29,10 +30,34 @@ TString data_string = "bkgtotal"; //"Data";
 vector<TString> sys_vec;
 
 
-void plot_r(TH1F* h, TString name){
+void plot_h(TH1F* h, TString name){
   TCanvas c(name, name, 640, 480);
   h->SetTitle(name);
   h->Draw("HIST E");
+  c.SaveAs(name+".pdf");
+}
+
+
+void plot_syst(TH1F* h, TH1F* hu, TH1F* hd, TString name, bool doLog){
+
+  double max = h->GetMaximum();
+  if(hu->GetMaximum() > max) max = hu->GetMaximum();
+  if(hd->GetMaximum() > max) max = hd->GetMaximum();
+  h->SetMaximum(max*1.25);
+
+  if(doLog){
+    h->SetMinimum(1e-3);
+  }
+
+  h->SetLineWidth(3);
+  hu->SetLineColor(kGreen+1);
+  hd->SetLineColor(kRed+1);
+  TCanvas c(name, name, 640, 480);
+  gPad->SetLogy(doLog);
+  h->SetTitle(name);
+  h->Draw("HIST E");
+  hu->Draw("HIST E SAME");
+  hd->Draw("HIST E SAME");
   c.SaveAs(name+".pdf");
 }
 
@@ -65,7 +90,7 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
   TH1F* h_r = (TH1F*)h_to->Clone("h_r_"+full_name);
   h_r->Divide(h_from);
 
-  plot_r(h_r,"h_r_"+full_name);
+  plot_h(h_r,"h_r_"+full_name);
 
   TString s_bin1="", s_bin2="", s_bin3="";
   TString s_bin1_err="", s_bin2_err="", s_bin3_err="";
@@ -97,25 +122,27 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
   int sys_cnt = 1;
   for(unsigned int i=0; i<sys_vec.size(); i++){
 
-    //When files are ready, replace file names with Up/Down
-
-    TFile* f_from_up = TFile::Open("../inputs/"+translate(from_name)+"_nSelectedAODCaloJetTag_GH.root", "READ");
+    TFile* f_from_up = TFile::Open("../inputs/"+translate(from_name)+"_nSelectedAODCaloJetTag_GH_"+sys_vec[i]+"Up.root", "READ");
     TH1F* h_from_up = (TH1F*)f_from_up->Get(process);
     
-    TFile* f_to_up = TFile::Open("../inputs/"+translate(to_name)+"_nSelectedAODCaloJetTag_GH.root", "READ");
+    TFile* f_to_up = TFile::Open("../inputs/"+translate(to_name)+"_nSelectedAODCaloJetTag_GH_"+sys_vec[i]+"Up.root", "READ");
     TH1F* h_to_up = (TH1F*)f_to_up->Get(process);
 
     TH1F* h_r_up = (TH1F*)h_to_up->Clone("h_r_"+full_name+"_"+sys_vec[i]+"_up");
     h_r_up->Divide(h_from_up);
 
-    TFile* f_from_down = TFile::Open("../inputs/"+translate(from_name)+"_nSelectedAODCaloJetTag_GH.root", "READ");
+    TFile* f_from_down = TFile::Open("../inputs/"+translate(from_name)+"_nSelectedAODCaloJetTag_GH_"+sys_vec[i]+"Down.root", "READ");
     TH1F* h_from_down = (TH1F*)f_from_down->Get(process);
     
-    TFile* f_to_down = TFile::Open("../inputs/"+translate(to_name)+"_nSelectedAODCaloJetTag_GH.root", "READ");
+    TFile* f_to_down = TFile::Open("../inputs/"+translate(to_name)+"_nSelectedAODCaloJetTag_GH_"+sys_vec[i]+"Down.root", "READ");
     TH1F* h_to_down = (TH1F*)f_to_down->Get(process);
 
     TH1F* h_r_down = (TH1F*)h_to_down->Clone("h_r_"+full_name+"_"+sys_vec[i]+"_down");
     h_r_down->Divide(h_from_down);
+
+    plot_syst(h_from, h_from_up, h_from_down, "ntag_"+from_name+"_"+sys_vec[i], true);
+    plot_syst(h_from, h_to_up, h_to_down, "ntag_"+to_name+"_"+sys_vec[i], true);
+    plot_syst(h_r, h_r_up, h_r_down, full_name+"_"+sys_vec[i], false);
 
     //Symmetrize -- (up-down)/2
     TH1F* h_r_symm = (TH1F*)h_r_up->Clone("h_r_symm_"+full_name+"_"+sys_vec[i]);
@@ -745,9 +772,9 @@ void build_ws(){
   // As usual, load the combine library to get access to the RooParametricHist
   gSystem->Load("libHiggsAnalysisCombinedLimit.so");
 
-  //sys_vec.push_back("TagVars");
-  //sys_vec.push_back("EGS");
-  //sys_vec.push_back("MES");
+  sys_vec.push_back("TagVars");
+  sys_vec.push_back("EGS");
+  sys_vec.push_back("MES");
   //sys_vec.push_back("JES");
 
   // Output file and workspace
