@@ -34,3 +34,4 @@ rrv_heavy_elemu_to_twomuzh_bin3  param 0 1
 rrv_light_twomudy_to_twomuzh_bin1 param 0 1
 rrv_light_twomudy_to_twomuzh_bin2 param 0 1
 rrv_light_twomudy_to_twomuzh_bin3 param 0 1
+rrv_TagVars param 0 1

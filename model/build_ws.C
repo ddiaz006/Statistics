@@ -64,6 +64,8 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
   h_r->Divide(h_from);
 
   plot_r(h_r,"h_r_"+process+"_"+from_name+"_to_"+to_name);
+
+  //Redo code that follows, looping over bins and systematics?
   
   TString s_bin1="", s_bin2="", s_bin3="";
   TString s_bin1_err="", s_bin2_err="", s_bin3_err="";
@@ -76,7 +78,7 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
     s_bin3_err += h_r->GetBinError(3)/h_r->GetBinContent(3);
   }else{
     cout << endl;
-    cout << "*** WARNING *** h_r->GetBinContent(3) = " << h_r->GetBinContent(3) << endl;
+    cout << "*** WARNING *** : Using 1 bin ratio for " << process << " " << from_name << " to " << to_name << endl; 
     cout << endl;
     s_bin3=s_bin2;
     s_bin3_err="0.5";
@@ -693,8 +695,8 @@ void build_ws(){
   gSystem->Load("libHiggsAnalysisCombinedLimit.so");
 
   sys_vec.push_back("TagVars");
-  sys_vec.push_back("EGS");
-  sys_vec.push_back("MES");
+  //sys_vec.push_back("EGS");
+  //sys_vec.push_back("MES");
   //sys_vec.push_back("JES");
 
   // Output file and workspace
@@ -704,6 +706,12 @@ void build_ws(){
   //Search in ntags, define ntags as our variable
   RooRealVar ntags("ntags", "ntags", -.5, 2.5);
   wspace->import(ntags, RooFit::RecycleConflictNodes());
+  
+  //Make RRVs for systematics
+  for(unsigned int i=0; i<sys_vec.size(); i++){
+    RooRealVar r("rrv_"+sys_vec[i], "rrv_"+sys_vec[i], 1);
+    wspace->import(r, RooFit::RecycleConflictNodes()); 
+  }
 
   //TwoMuZH+EleMu+OnePho top-nontop
   //build_elemu(wspace);
