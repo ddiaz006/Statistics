@@ -96,7 +96,7 @@ void make_one_plot(TString channel_name, TString fit_name){
   bgstack->Draw("hist");
   gr_data->Draw("P");
 
-  c.SaveAs("c_"+fit_name+"_"+channel_name+".pdf");
+  c.SaveAs("plots/c_"+fit_name+"_"+channel_name+".pdf");
 }
 
 void make_plots(){

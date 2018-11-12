@@ -34,7 +34,7 @@ void plot_h(TH1F* h, TString name){
   TCanvas c(name, name, 640, 480);
   h->SetTitle(name);
   h->Draw("HIST E");
-  c.SaveAs(name+".pdf");
+  c.SaveAs("../analysis/plots/"+name+".pdf");
 }
 
 
@@ -58,7 +58,7 @@ void plot_syst(TH1F* h, TH1F* hu, TH1F* hd, TString name, bool doLog){
   h->Draw("HIST E");
   hu->Draw("HIST E SAME");
   hd->Draw("HIST E SAME");
-  c.SaveAs(name+".pdf");
+  c.SaveAs("../analysis/plots/"+name+".pdf");
 }
 
 
