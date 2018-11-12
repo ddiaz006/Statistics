@@ -141,7 +141,7 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
     h_r_down->Divide(h_from_down);
 
     plot_syst(h_from, h_from_up, h_from_down, "h_ntag_"+process+"_"+from_name+"_"+sys_vec[i], true);
-    plot_syst(h_from, h_to_up, h_to_down, "h_ntag_"+process+"_"+to_name+"_"+sys_vec[i], true);
+    plot_syst(h_to, h_to_up, h_to_down, "h_ntag_"+process+"_"+to_name+"_"+sys_vec[i], true);
     plot_syst(h_r, h_r_up, h_r_down, "h_r_"+full_name+"_"+sys_vec[i], false);
 
     //Symmetrize -- (up-down)/2
