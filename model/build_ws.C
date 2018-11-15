@@ -19,9 +19,10 @@
 
 using namespace std;
 
+
 //Todo:
 // - make constraint extraction integrate 2 and up
-// - add systematics
+// - add sig eff and other systematics
 
 
 //Global options
@@ -59,6 +60,7 @@ void plot_syst(TH1F* h, TH1F* hu, TH1F* hd, TString name, bool doLog){
   hu->Draw("HIST E SAME");
   hd->Draw("HIST E SAME");
   c.SaveAs("../analysis/plots/"+name+".pdf");
+
 }
 
 
@@ -145,23 +147,74 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
     plot_syst(h_r, h_r_up, h_r_down, "h_r_"+full_name+"_"+sys_vec[i], false);
 
     //Symmetrize -- (up-down)/2
+    //TH1F* h_r_symm = (TH1F*)h_r_up->Clone("h_r_symm_"+full_name+"_"+sys_vec[i]);
+    //h_r_symm->Add(h_r_down, -1);
+    //h_r_symm->Scale(0.5);
+
     TH1F* h_r_symm = (TH1F*)h_r_up->Clone("h_r_symm_"+full_name+"_"+sys_vec[i]);
-    h_r_symm->Add(h_r_down, -1);
-    h_r_symm->Scale(0.5);
-    
+    bool sys_samedir[3]={0,0,0};
+    for(int j=0; j<h_r_up->GetNbinsX(); j++){
+
+      double nom  = h_r->GetBinContent(j);
+      double up   = h_r_up->GetBinContent(j);
+      double down = h_r_up->GetBinContent(j);
+      
+      //Skip error because not used.  
+      //This is an error on an error.
+      double sym = 0;
+      double sym_err = 0;
+      
+      //both higher than nom
+      if(up>nom && down>nom){
+	sys_samedir[j]=1;
+	if(up>down) sym = up-nom;//positive
+	else sym = down-nom;//positive
+      }
+      //both lower than nom
+      else if(up<nom && down<nom){
+	sys_samedir[j]=1;
+	if(up<down) sym = up-nom;//negative
+	else sym = down-nom;//negative
+      }
+      //opposite directions w.r.t. nom
+      else{
+	sys_samedir[j]=0;
+	sym = 0.5 * (up-down);//positive if up>nom and down, else negative
+      }
+      
+      h_r_symm->SetBinContent(j,sym);
+      h_r_symm->SetBinError(j,sym_err);
+    }
+
     //Make relative
     TH1F* h_r_symm_rel = (TH1F*)h_r_symm->Clone("h_r_symm_rel_"+full_name+"_"+sys_vec[i]);
     h_r_symm_rel->Divide(h_r);
 
     //Now the RooFit part
+    //Might be cleaner to switch this to a loop over bins!
     TString s_bin1_syst = "", s_bin2_syst = "", s_bin3_syst = "";
+    TString s_bin1_abs = "", s_bin1_abs_end = "";
+    TString s_bin2_abs = "", s_bin2_abs_end = "";
+    TString s_bin3_abs = "", s_bin3_abs_end = "";
+    if(sys_samedir[0]==1){
+      s_bin1_abs = "TMath::Abs(";
+      s_bin1_abs_end = ")";
+    }
+    if(sys_samedir[1]==1){
+      s_bin2_abs = "TMath::Abs(";
+      s_bin2_abs_end = ")";
+    }
+    if(sys_samedir[2]==1){
+      s_bin3_abs = "TMath::Abs(";
+      s_bin3_abs_end = ")";
+    }
     s_bin1_syst += h_r_symm_rel->GetBinContent(1);
     s_bin2_syst += h_r_symm_rel->GetBinContent(2);
     s_bin3_syst += h_r_symm_rel->GetBinContent(3);
-    rfv_bin1 += "*TMath::Power(1+"; rfv_bin1 += s_bin1_syst; rfv_bin1 += ",@"; rfv_bin1 += sys_cnt; rfv_bin1+=")";
-    rfv_bin2 += "*TMath::Power(1+"; rfv_bin2 += s_bin2_syst; rfv_bin2 += ",@"; rfv_bin2 += sys_cnt; rfv_bin2+=")";
-    rfv_bin3 += "*TMath::Power(1+"; rfv_bin3 += s_bin3_syst; rfv_bin3 += ",@"; rfv_bin3 += sys_cnt; rfv_bin3+=")";
-    
+    rfv_bin1 += "*TMath::Power(1+"; rfv_bin1+=s_bin1_syst; rfv_bin1+=", "; rfv_bin1+=s_bin1_abs; rfv_bin1+="@"; rfv_bin1+=sys_cnt; rfv_bin1+=s_bin1_abs_end; rfv_bin1+=")";
+    rfv_bin2 += "*TMath::Power(1+"; rfv_bin2+=s_bin2_syst; rfv_bin2+=", "; rfv_bin2+=s_bin2_abs; rfv_bin2+="@"; rfv_bin2+=sys_cnt; rfv_bin2+=s_bin2_abs_end; rfv_bin2+=")";
+    rfv_bin3 += "*TMath::Power(1+"; rfv_bin3+=s_bin3_syst; rfv_bin3+=", "; rfv_bin3+=s_bin3_abs; rfv_bin3+="@"; rfv_bin3+=sys_cnt; rfv_bin3+=s_bin3_abs_end; rfv_bin3+=")";
+
     RooRealVar* rrv_syst = wspace->var("rrv_"+sys_vec[i]);
     ral_bin1.add(RooArgList(*rrv_syst));
     ral_bin2.add(RooArgList(*rrv_syst));
@@ -181,6 +234,7 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
   wspace->import(tf_bin3, RooFit::RecycleConflictNodes());
   
 }
+
 
 //---------------------------------------------------------------------------------------------------------------
 //TwoMuZH Region
@@ -210,7 +264,6 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "OnePho"){
   other_twomuzh_th1.SetBinContent(3, other_twomuzh_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
   RooDataHist other_twomuzh_hist("other_twomuzh", "Other yield in TwoMuZH", vars, &other_twomuzh_th1);
   wspace->import(other_twomuzh_hist);  
-  //TODO Is this sufficient? Need norm??
 
 
   //Heavy as function of heavy_elemu
@@ -340,7 +393,6 @@ void build_twoelezh(RooWorkspace* wspace, TString light_est = "OnePho"){
   other_twoelezh_th1.SetBinContent(3, other_twoelezh_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
   RooDataHist other_twoelezh_hist("other_twoelezh", "Other yield in TwoEleZH", vars, &other_twoelezh_th1);
   wspace->import(other_twoelezh_hist);  
-  //TODO Is this sufficient? Need norm??
 
 
   //Heavy as function of heavy_elemu
@@ -470,7 +522,6 @@ void build_elemu(RooWorkspace *wspace){
   light_elemu_th1.SetBinContent(3, light_elemu_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
   RooDataHist light_elemu_hist("light_elemu", "Light yield in EleMu", vars, &light_elemu_th1);
   wspace->import(light_elemu_hist);  
-  //TODO Is this sufficient? Need norm??
 
 
   //Other contamination
@@ -481,7 +532,6 @@ void build_elemu(RooWorkspace *wspace){
   other_elemu_th1.SetBinContent(3, other_elemu_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
   RooDataHist other_elemu_hist("other_elemu", "Other yield in EleMu", vars, &other_elemu_th1);
   wspace->import(other_elemu_hist);  
-  //TODO Is this sufficient? Need norm??
 
   
   //Heavy background
@@ -533,7 +583,6 @@ void build_onepho(RooWorkspace* wspace){
   other_onepho_th1.SetBinContent(3, other_onepho_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
   RooDataHist other_onepho_hist("other_onepho", "Other yield in OnePho", vars, &other_onepho_th1);
   wspace->import(other_onepho_hist);  
-  //TODO Is this sufficient? Need norm??
 
 
   //Light background 
@@ -614,7 +663,6 @@ void build_twomudy(RooWorkspace* wspace){
   other_twomudy_th1.SetBinContent(3, other_twomudy_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
   RooDataHist other_twomudy_hist("other_twomudy", "Other yield in TwoMuDY", vars, &other_twomudy_th1);
   wspace->import(other_twomudy_hist);  
-  //TODO Is this sufficient? Need norm??
 
 
   //Light background 
@@ -704,7 +752,6 @@ void build_twoeledy(RooWorkspace* wspace){
   other_twoeledy_th1.SetBinContent(3, other_twoeledy_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
   RooDataHist other_twoeledy_hist("other_twoeledy", "Other yield in TwoEleDY", vars, &other_twoeledy_th1);
   wspace->import(other_twoeledy_hist);  
-  //TODO Is this sufficient? Need norm??
 
 
   //Light background 
