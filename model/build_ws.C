@@ -157,7 +157,7 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
 
       double nom  = h_r->GetBinContent(j);
       double up   = h_r_up->GetBinContent(j);
-      double down = h_r_up->GetBinContent(j);
+      double down = h_r_down->GetBinContent(j);
       
       //Skip error because not used.  
       //This is an error on an error.
