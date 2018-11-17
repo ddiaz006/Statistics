@@ -80,6 +80,8 @@ TString translate(TString in){
 
 
 void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString to_name, vector<TString> sys_vec){
+  
+  bool missing3 = false;
 
   TString full_name = process+"_"+from_name+"_to_"+to_name;
 
@@ -104,25 +106,37 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
     s_bin3     += h_r->GetBinContent(3);
     s_bin3_err += h_r->GetBinError(3)/h_r->GetBinContent(3);//relative error
   }else{
+    missing3 = true;
     cout << endl; cout << "*** WARNING *** : Using 1-tag ratio for " << process << " " << from_name << " to " << to_name << endl; cout << endl;
     s_bin3=s_bin2;
     s_bin3_err="0.5";//relative error
+    //s_bin3="0";
+    //s_bin3_err="0.5";//relative error
   }
 
-  RooRealVar rrv_bin1("rrv_"+full_name+"_bin1", process+" "+from_name+" to "+to_name+" bin 1",1);
-  RooRealVar rrv_bin2("rrv_"+full_name+"_bin2", process+" "+from_name+" to "+to_name+" bin 2",1);
-  RooRealVar rrv_bin3("rrv_"+full_name+"_bin3", process+" "+from_name+" to "+to_name+" bin 3",1);
+  RooRealVar rrv_bin1("rrv_"+full_name+"_bin1", process+" "+from_name+" to "+to_name+" bin 1",0);
+  RooRealVar rrv_bin2("rrv_"+full_name+"_bin2", process+" "+from_name+" to "+to_name+" bin 2",0);
+  RooRealVar rrv_bin3("rrv_"+full_name+"_bin3", process+" "+from_name+" to "+to_name+" bin 3",0);
 
   RooArgList ral_bin1 = RooArgList(rrv_bin1);
   RooArgList ral_bin2 = RooArgList(rrv_bin2);
   RooArgList ral_bin3 = RooArgList(rrv_bin3);
 
-  TString rfv_bin1 = s_bin1+"*TMath::Power(1+"+s_bin1_err+",@0)";
-  TString rfv_bin2 = s_bin2+"*TMath::Power(1+"+s_bin2_err+",@0)";
-  TString rfv_bin3 = s_bin3+"*TMath::Power(1+"+s_bin3_err+",@0)";
+  TString rfv_bin1 = s_bin1+"*TMath::Power("+s_bin1_err+"+1,@0)";
+  TString rfv_bin2 = s_bin2+"*TMath::Power("+s_bin2_err+"+1,@0)";
+  TString rfv_bin3 = s_bin3+"*TMath::Power("+s_bin3_err+"+1,@0)";
 
   int sys_cnt = 1;
   for(unsigned int i=0; i<sys_vec.size(); i++){
+    
+    if(from_name=="twoeledy" && sys_vec[i]=="MES"){
+      cout << "SKIP SYS " << full_name << " " << sys_vec[i] << endl;
+      continue;
+    }
+    if(from_name=="twomudy" && sys_vec[i]=="EGS"){
+      cout << "SKIP SYS " << full_name << " " << sys_vec[i] << endl;
+      continue;
+    }
 
     TFile* f_from_up = TFile::Open("../inputs/"+translate(from_name)+"_nSelectedAODCaloJetTag_GH_"+sys_vec[i]+"Up.root", "READ");
     TH1F* h_from_up = (TH1F*)f_from_up->Get(process);
@@ -152,8 +166,8 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
     //h_r_symm->Scale(0.5);
 
     TH1F* h_r_symm = (TH1F*)h_r_up->Clone("h_r_symm_"+full_name+"_"+sys_vec[i]);
-    bool sys_samedir[3]={0,0,0};
-    for(int j=0; j<h_r_up->GetNbinsX(); j++){
+    bool sys_samedir[6]={0,0,0,0,0,0};
+    for(int j=1; j<=h_r_up->GetNbinsX(); j++){
 
       double nom  = h_r->GetBinContent(j);
       double up   = h_r_up->GetBinContent(j);
@@ -166,21 +180,24 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
       
       //both higher than nom
       if(up>nom && down>nom){
-	sys_samedir[j]=1;
+	sys_samedir[j-1]=1;
 	if(up>down) sym = up-nom;//positive
 	else sym = down-nom;//positive
       }
       //both lower than nom
       else if(up<nom && down<nom){
-	sys_samedir[j]=1;
+	sys_samedir[j-1]=1;
 	if(up<down) sym = up-nom;//negative
 	else sym = down-nom;//negative
       }
       //opposite directions w.r.t. nom
       else{
-	sys_samedir[j]=0;
+	sys_samedir[j-1]=0;
 	sym = 0.5 * (up-down);//positive if up>nom and down, else negative
       }
+
+      cout<< "RAW SYS " << full_name << sys_vec[i] << " " << sym << endl;
+      cout<< "   up " << up << " nom " << nom << " down " << down << endl;
       
       h_r_symm->SetBinContent(j,sym);
       h_r_symm->SetBinError(j,sym_err);
@@ -193,9 +210,11 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
     //Now the RooFit part
     //Might be cleaner to switch this to a loop over bins!
     TString s_bin1_syst = "", s_bin2_syst = "", s_bin3_syst = "";
+    TString s_bin1_sign = "", s_bin2_sign = "", s_bin3_sign = "";
     TString s_bin1_abs = "", s_bin1_abs_end = "";
     TString s_bin2_abs = "", s_bin2_abs_end = "";
     TString s_bin3_abs = "", s_bin3_abs_end = "";
+
     if(sys_samedir[0]==1){
       s_bin1_abs = "TMath::Abs(";
       s_bin1_abs_end = ")";
@@ -208,12 +227,28 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
       s_bin3_abs = "TMath::Abs(";
       s_bin3_abs_end = ")";
     }
+    
+    if(h_r_symm_rel->GetBinContent(1)<0) s_bin1_sign="-";
+    if(h_r_symm_rel->GetBinContent(2)<0) s_bin2_sign="-";
+
     s_bin1_syst += h_r_symm_rel->GetBinContent(1);
     s_bin2_syst += h_r_symm_rel->GetBinContent(2);
-    s_bin3_syst += h_r_symm_rel->GetBinContent(3);
-    rfv_bin1 += "*TMath::Power(1+"; rfv_bin1+=s_bin1_syst; rfv_bin1+=", "; rfv_bin1+=s_bin1_abs; rfv_bin1+="@"; rfv_bin1+=sys_cnt; rfv_bin1+=s_bin1_abs_end; rfv_bin1+=")";
-    rfv_bin2 += "*TMath::Power(1+"; rfv_bin2+=s_bin2_syst; rfv_bin2+=", "; rfv_bin2+=s_bin2_abs; rfv_bin2+="@"; rfv_bin2+=sys_cnt; rfv_bin2+=s_bin2_abs_end; rfv_bin2+=")";
-    rfv_bin3 += "*TMath::Power(1+"; rfv_bin3+=s_bin3_syst; rfv_bin3+=", "; rfv_bin3+=s_bin3_abs; rfv_bin3+="@"; rfv_bin3+=sys_cnt; rfv_bin3+=s_bin3_abs_end; rfv_bin3+=")";
+    //TEMP
+    if(missing3 && h_r_symm_rel->GetBinContent(2)>0){
+      s_bin3_syst = "0.5";
+    }
+    else if(missing3 && h_r_symm_rel->GetBinContent(2)<0){
+      s_bin3_syst = "-0.5";
+      s_bin3_sign="-";
+    }
+    else{ 
+      s_bin3_syst += h_r_symm_rel->GetBinContent(3);
+      if(h_r_symm_rel->GetBinContent(3)<0) s_bin3_sign="-";
+    }     
+    
+    rfv_bin1 += "*TMath::Power( TMath::Abs("; rfv_bin1+=s_bin1_syst; rfv_bin1+=")+1,"; rfv_bin1+=s_bin1_sign; rfv_bin1+=s_bin1_abs; rfv_bin1+="@"; rfv_bin1+=sys_cnt; rfv_bin1+=s_bin1_abs_end; rfv_bin1+=")";
+    rfv_bin2 += "*TMath::Power( TMath::Abs("; rfv_bin2+=s_bin2_syst; rfv_bin2+=")+1,"; rfv_bin2+=s_bin2_sign; rfv_bin2+=s_bin2_abs; rfv_bin2+="@"; rfv_bin2+=sys_cnt; rfv_bin2+=s_bin2_abs_end; rfv_bin2+=")";
+    rfv_bin3 += "*TMath::Power( TMath::Abs("; rfv_bin3+=s_bin3_syst; rfv_bin3+=")+1,"; rfv_bin3+=s_bin3_sign; rfv_bin3+=s_bin3_abs; rfv_bin3+="@"; rfv_bin3+=sys_cnt; rfv_bin3+=s_bin3_abs_end; rfv_bin3+=")";
 
     RooRealVar* rrv_syst = wspace->var("rrv_"+sys_vec[i]);
     ral_bin1.add(RooArgList(*rrv_syst));
@@ -223,7 +258,12 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
     sys_cnt++;
   }
 
-  cout << "RFV example: " << rfv_bin1 << endl;
+  cout << "RFV1: " << rfv_bin1 << endl;
+  ral_bin1.Print();
+  cout << "RFV2: " << rfv_bin2 << endl;
+  ral_bin2.Print();
+  cout << "RFV3: " << rfv_bin3 << endl;
+  ral_bin3.Print();
 
   RooFormulaVar tf_bin1("tf_"+full_name+"_bin1", process+" "+from_name+" to "+to_name+" transfer factor bin 1", rfv_bin1, ral_bin1);
   RooFormulaVar tf_bin2("tf_"+full_name+"_bin2", process+" "+from_name+" to "+to_name+" transfer factor bin 2", rfv_bin2, ral_bin2);
