@@ -22,6 +22,20 @@ float r_err_n0(float n, float dn, float d, float dd){
 }
 
 
+void wavg(std::vector<TH1F*> hvec, int bin, float& a, float& da){
+  float num = 0;
+  float den = 0;
+  for(unsigned int i=0; i<hvec.size(); i++){
+    if(hvec[i]->GetBinContent(bin)<1e-9) continue; //skip zeros for now
+    float w = 1.0 / ( hvec[i]->GetBinError(bin)*hvec[i]->GetBinError(bin) );
+    num+=w*hvec[i]->GetBinContent(bin);
+    den+=w;
+  }
+  a = num/den;
+  da = 1.0 / TMath::Sqrt(den);
+}
+
+
 TString translate(TString in){
   TString out = "";
   if(in=="elemu") out = "EleMuOSOF";
@@ -47,6 +61,15 @@ void print_hist(TH1F* h, TString name){
 }
 
 
+void print_hist_err(TH1F* h, TString name){
+  std::cout << name << " ";
+  for(int i=1; i<=h->GetNbinsX(); i++){
+    std::cout << h->GetBinContent(i) << " +/- " << h->GetBinError(i) << " " ;
+  }
+  std::cout << endl;
+}
+
+
 TH1F* make_h_r(TString process, TString from_name, TString to_name, TString SB){
 
   TString full_name = process+"_"+from_name+"_to_"+to_name;  
@@ -63,9 +86,11 @@ TH1F* make_h_r(TString process, TString from_name, TString to_name, TString SB){
   
   h_r->SetTitle(SB);
 
+  /*
   print_hist(h_to, full_name+" TO");
   print_hist(h_from, full_name+" FROM");
   print_hist(h_r, full_name);
+  */
 
   /*
   //2 tag bin
@@ -88,9 +113,13 @@ TH1F* make_h_r(TString process, TString from_name, TString to_name, TString SB){
 void plot_tf(TString process, TString from_name, TString to_name){
   
   TString full_name = process+"_"+from_name+"_to_"+to_name;
-  
+
+  ////////////////
+  //Prepare TFs
+  /////////////////
   TH1F* h_r = make_h_r(process, from_name, to_name, "");//SIG
   h_r->SetTitle(full_name);
+  print_hist_err(h_r, full_name);
 
   std::vector<TH1F*> rvec;
   rvec.push_back(make_h_r(process, from_name, to_name, "SB1"));
@@ -101,6 +130,23 @@ void plot_tf(TString process, TString from_name, TString to_name){
   rvec.push_back(make_h_r(process, from_name, to_name, "SB6"));
   rvec.push_back(make_h_r(process, from_name, to_name, "SB7"));
 
+  /////////////////////
+  // Weighted average
+  /////////////////////
+  float a0, a1, a2;
+  float da0, da1, da2;
+  wavg(rvec,1,a0,da0);
+  wavg(rvec,2,a1,da1);
+  wavg(rvec,3,a2,da2);
+  cout << "Weighted average of SBs, 0 tag: " << a0 << " +/- " << da0 << endl;
+  cout << "Weighted average of SBs, 1 tag: " << a1 << " +/- " << da1 << endl;
+  cout << "Weighted average of SBs, 2 tag: " << a2 << " +/- " << da2 << endl;
+
+
+  ///////////////
+  // Plot 
+  ///////////////
+  h_r->SetTitle(full_name);
   h_r->SetLineColor(kBlack);
   h_r->SetLineWidth(3);
   h_r->SetMarkerStyle(8);
@@ -109,14 +155,13 @@ void plot_tf(TString process, TString from_name, TString to_name){
     rvec[i]->SetLineColor(2+i);
     rvec[i]->SetLineWidth(2);
   }
-  
+
+  //Compute max
   double max = h_r->GetMaximum();
   for(unsigned int i=0; i<rvec.size(); i++){
     if(rvec[i]->GetMaximum()>max) max = rvec[i]->GetMaximum();
   }
   h_r->SetMaximum(max*1.5);
-  
-  h_r->SetTitle(full_name);
 
   TLegend *leg;
   leg = new TLegend(0.15,0.7,0.6,0.88);
@@ -135,7 +180,6 @@ void plot_tf(TString process, TString from_name, TString to_name){
     rvec[i]->Draw("HIST E1 SAME");
   }
   leg->Draw();
-
   c.SaveAs("sb_"+full_name+".pdf");
 
 }
