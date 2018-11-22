@@ -110,8 +110,76 @@ TH1F* make_h_r(TString process, TString from_name, TString to_name, TString SB){
 }
 
 
+void sb_data(TString from_name, TString to_name){
+
+  TString SB = "SB"; //SB, SBL
+  TString full_name = "DataMC_"+from_name+"_to_"+to_name;
+  
+  std::vector<TH1F*> rvec_mc;
+  rvec_mc.push_back(make_h_r("bkgtotal", from_name, to_name, SB+"1"));
+  rvec_mc.push_back(make_h_r("bkgtotal", from_name, to_name, SB+"2"));
+  rvec_mc.push_back(make_h_r("bkgtotal", from_name, to_name, SB+"3"));
+  rvec_mc.push_back(make_h_r("bkgtotal", from_name, to_name, SB+"4"));
+  rvec_mc.push_back(make_h_r("bkgtotal", from_name, to_name, SB+"5"));
+  rvec_mc.push_back(make_h_r("bkgtotal", from_name, to_name, SB+"6"));
+  rvec_mc.push_back(make_h_r("bkgtotal", from_name, to_name, SB+"7"));
+
+  std::vector<TH1F*> rvec_data;
+  rvec_data.push_back(make_h_r("Data", from_name, to_name, SB+"1"));
+  rvec_data.push_back(make_h_r("Data", from_name, to_name, SB+"2"));
+  rvec_data.push_back(make_h_r("Data", from_name, to_name, SB+"3"));
+  rvec_data.push_back(make_h_r("Data", from_name, to_name, SB+"4"));
+  rvec_data.push_back(make_h_r("Data", from_name, to_name, SB+"5"));
+  rvec_data.push_back(make_h_r("Data", from_name, to_name, SB+"6"));
+  rvec_data.push_back(make_h_r("Data", from_name, to_name, SB+"7"));
+
+  for(unsigned int i=0; i<rvec_data.size(); i++){
+    
+    rvec_mc[i]->SetTitle(full_name+"_"+rvec_mc[i]->GetTitle());
+    rvec_mc[i]->SetLineWidth(2);
+    rvec_mc[i]->SetLineColor(kRed);
+    rvec_mc[i]->SetFillStyle(0);
+    rvec_data[i]->SetLineWidth(2);
+    rvec_data[i]->SetLineColor(kBlack);
+    rvec_data[i]->SetFillStyle(0);
+
+    TString name = rvec_data[i]->GetTitle(); name+= +"_data_mc";
+    TH1F* h_data_mc = (TH1F*)rvec_data[i]->Clone(name);
+    h_data_mc->Divide(rvec_mc[i]);
+    h_data_mc->SetTitle("Data/MC");
+
+    float max = rvec_mc[i]->GetMaximum();
+    if(rvec_data[i]->GetMaximum()>max) max = rvec_data[i]->GetMaximum();
+    if(max>10){
+      max = 2;
+      rvec_mc[i]->SetMinimum(-.2);
+    }
+    rvec_mc[i]->SetMaximum(1.25*max);
+
+    TLegend *leg;
+    leg = new TLegend(0.15,0.78,0.4,0.88);
+    leg->SetBorderSize(0);
+    leg->SetNColumns(2);
+    leg->SetFillStyle(0);
+    leg->AddEntry(rvec_mc[i], "MC", "l");
+    leg->AddEntry(rvec_data[i], "Data", "l");
+    
+    TCanvas c("c", "c", 640, 2*480);
+    c.Divide(1,2);
+    c.cd(1);
+    rvec_mc[i]->Draw("HIST E1");
+    rvec_data[i]->Draw("HIST E1 SAME");
+    leg->Draw();
+    c.cd(2);
+    h_data_mc->Draw("HIST E1");
+    c.SaveAs(full_name+"_"+rvec_data[i]->GetTitle()+".pdf");
+  }
+
+}
+
 void plot_tf(TString process, TString from_name, TString to_name){
   
+  TString SB = "SB";//SB, SBL
   TString full_name = process+"_"+from_name+"_to_"+to_name;
 
   ////////////////
@@ -122,13 +190,14 @@ void plot_tf(TString process, TString from_name, TString to_name){
   print_hist_err(h_r, full_name);
 
   std::vector<TH1F*> rvec;
-  rvec.push_back(make_h_r(process, from_name, to_name, "SB1"));
-  rvec.push_back(make_h_r(process, from_name, to_name, "SB2"));
-  rvec.push_back(make_h_r(process, from_name, to_name, "SB3"));
-  rvec.push_back(make_h_r(process, from_name, to_name, "SB4"));
-  rvec.push_back(make_h_r(process, from_name, to_name, "SB5"));
-  rvec.push_back(make_h_r(process, from_name, to_name, "SB6"));
-  rvec.push_back(make_h_r(process, from_name, to_name, "SB7"));
+  rvec.push_back(make_h_r(process, from_name, to_name, SB+"1"));
+  rvec.push_back(make_h_r(process, from_name, to_name, SB+"2"));
+  rvec.push_back(make_h_r(process, from_name, to_name, SB+"3"));
+  rvec.push_back(make_h_r(process, from_name, to_name, SB+"4"));
+  rvec.push_back(make_h_r(process, from_name, to_name, SB+"5"));
+  rvec.push_back(make_h_r(process, from_name, to_name, SB+"6"));
+  rvec.push_back(make_h_r(process, from_name, to_name, SB+"7"));
+
 
   /////////////////////
   // Weighted average
@@ -138,9 +207,9 @@ void plot_tf(TString process, TString from_name, TString to_name){
   wavg(rvec,1,a0,da0);
   wavg(rvec,2,a1,da1);
   wavg(rvec,3,a2,da2);
-  cout << "Weighted average of SBs, 0 tag: " << a0 << " +/- " << da0 << endl;
-  cout << "Weighted average of SBs, 1 tag: " << a1 << " +/- " << da1 << endl;
-  cout << "Weighted average of SBs, 2 tag: " << a2 << " +/- " << da2 << endl;
+  cout << "Weighted average of "+SB+"s, 0 tag: " << a0 << " +/- " << da0 << endl;
+  cout << "Weighted average of "+SB+"s, 1 tag: " << a1 << " +/- " << da1 << endl;
+  cout << "Weighted average of "+SB+"s, 2 tag: " << a2 << " +/- " << da2 << endl;
 
 
   ///////////////
@@ -180,7 +249,7 @@ void plot_tf(TString process, TString from_name, TString to_name){
     rvec[i]->Draw("HIST E1 SAME");
   }
   leg->Draw();
-  c.SaveAs("sb_"+full_name+".pdf");
+  c.SaveAs(SB+"_"+full_name+".pdf");
 
 }
 
