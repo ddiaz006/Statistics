@@ -112,7 +112,7 @@ TH1F* make_h_r(TString process, TString from_name, TString to_name, TString SB){
 
 void sb_data(TString from_name, TString to_name){
 
-  TString SB = "SB"; //SB, SBL
+  TString SB = "SBL"; //SB, SBL
   TString full_name = "DataMC_"+from_name+"_to_"+to_name;
   
   std::vector<TH1F*> rvec_mc;
@@ -179,7 +179,7 @@ void sb_data(TString from_name, TString to_name){
 
 void plot_tf(TString process, TString from_name, TString to_name){
   
-  TString SB = "SB";//SB, SBL
+  TString SB = "SBL";//SB, SBL
   TString full_name = process+"_"+from_name+"_to_"+to_name;
 
   ////////////////
@@ -210,7 +210,9 @@ void plot_tf(TString process, TString from_name, TString to_name){
   cout << "Weighted average of "+SB+"s, 0 tag: " << a0 << " +/- " << da0 << endl;
   cout << "Weighted average of "+SB+"s, 1 tag: " << a1 << " +/- " << da1 << endl;
   cout << "Weighted average of "+SB+"s, 2 tag: " << a2 << " +/- " << da2 << endl;
-
+  cout << "Signal tagger, 0 tag: " << h_r->GetBinContent(1) << " +/- " << h_r->GetBinError(1) << endl; 
+  cout << "Signal tagger, 1 tag: " << h_r->GetBinContent(2) << " +/- " << h_r->GetBinError(2) << endl; 
+  cout << "Signal tagger, 2 tag: " << h_r->GetBinContent(3) << " +/- " << h_r->GetBinError(3) << endl; 
 
   ///////////////
   // Plot 
