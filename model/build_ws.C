@@ -67,6 +67,7 @@ void plot_syst(TH1F* h, TH1F* hu, TH1F* hd, TString name, bool doLog){
 TString translate(TString in){
   TString out = "";
   if(in=="elemu") out = "EleMuOSOF";
+  else if(in == "elemul") out = "EleMuOSOFL";
   else if(in == "twomuzh") out = "TwoMuZH";
   else if(in == "twomudy") out = "TwoMuDY";
   else if(in == "twoelezh") out = "TwoEleZH";
@@ -596,6 +597,67 @@ void build_elemu(RooWorkspace *wspace){
 
 
 //---------------------------------------------------------------------------------------------------------------
+//EleMu-Loose Region
+//---------------------------------------------------------------------------------------------------------------
+void build_elemul(RooWorkspace *wspace){
+
+  RooRealVar* ntags = wspace->var("ntags");
+  RooArgList vars(*ntags);
+
+
+  //Data
+  TFile* f_elemul = TFile::Open("../inputs/EleMuOSOFL_nSelectedAODCaloJetTag_GH.root", "READ");
+  TH1F* data_elemul_th1_file = (TH1F*)f_elemul->Get(data_string);
+  TH1F data_elemul_th1("data_obs_elemul","Data observed in EleMuL", 3, -0.5, 2.5);
+  data_elemul_th1.SetBinContent(1, data_elemul_th1_file->GetBinContent(1));
+  data_elemul_th1.SetBinContent(2, data_elemul_th1_file->GetBinContent(2));
+  data_elemul_th1.SetBinContent(3, data_elemul_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
+  RooDataHist data_elemul_hist("data_obs_elemul", "Data observed in EleMuL", vars, &data_elemul_th1);
+  wspace->import(data_elemul_hist);  
+
+  
+  //Light contamination
+  TH1F* light_elemul_th1_file = (TH1F*)f_elemul->Get("light");
+  TH1F light_elemul_th1("light_elemul","Light yield in EleMuL", 3, -0.5, 2.5);
+  light_elemul_th1.SetBinContent(1, light_elemul_th1_file->GetBinContent(1));
+  light_elemul_th1.SetBinContent(2, light_elemul_th1_file->GetBinContent(2));
+  light_elemul_th1.SetBinContent(3, light_elemul_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
+  RooDataHist light_elemul_hist("light_elemul", "Light yield in EleMuL", vars, &light_elemul_th1);
+  wspace->import(light_elemul_hist);  
+
+
+  //Other contamination
+  TH1F* other_elemul_th1_file = (TH1F*)f_elemul->Get("other");
+  TH1F other_elemul_th1("other_elemul","Other yield in EleMuL", 3, -0.5, 2.5);
+  other_elemul_th1.SetBinContent(1, other_elemul_th1_file->GetBinContent(1));
+  other_elemul_th1.SetBinContent(2, other_elemul_th1_file->GetBinContent(2));
+  other_elemul_th1.SetBinContent(3, other_elemul_th1_file->Integral(3,6));//assumes bin 6 is overflow TODO
+  RooDataHist other_elemul_hist("other_elemul", "Other yield in EleMuL", vars, &other_elemul_th1);
+  wspace->import(other_elemul_hist);  
+
+  
+  //Heavy background
+  //Create one parameter per bin representing the yield 
+  TH1F* h_heavy_elemul = (TH1F*)f_elemul->Get("heavy");
+  RooRealVar heavy_elemul_bin1("heavy_elemul_bin1", "Heavy background yield in EleMuL, bin 1", 
+			      h_heavy_elemul->GetBinContent(1), h_heavy_elemul->GetBinContent(1)*0.5,h_heavy_elemul->GetBinContent(1)*1.5 );
+  RooRealVar heavy_elemul_bin2("heavy_elemul_bin2", "Heavy background yield in EleMuL, bin 2", 
+			      h_heavy_elemul->GetBinContent(2), h_heavy_elemul->GetBinContent(2)*0.5,h_heavy_elemul->GetBinContent(2)*1.5 );
+  RooRealVar heavy_elemul_bin3("heavy_elemul_bin3", "Heavy background yield in EleMuL, bin 3", 
+			      h_heavy_elemul->GetBinContent(3), 0, 20);
+  RooArgList heavy_elemul_bins;
+  heavy_elemul_bins.add(heavy_elemul_bin1);
+  heavy_elemul_bins.add(heavy_elemul_bin2);
+  heavy_elemul_bins.add(heavy_elemul_bin3);
+  RooParametricHist p_heavy_elemul("heavy_elemul", "Heavy PDF in EleMuL Region", *ntags, heavy_elemul_bins, data_elemul_th1);
+  RooAddition p_heavy_elemul_norm("heavy_elemul_norm", "Total number of heavy events in EleMuL Region", heavy_elemul_bins);
+  wspace->import(p_heavy_elemul);
+  wspace->import(p_heavy_elemul_norm, RooFit::RecycleConflictNodes());
+  
+}
+
+
+//---------------------------------------------------------------------------------------------------------------
 //OnePho Region
 //---------------------------------------------------------------------------------------------------------------
 void build_onepho(RooWorkspace* wspace){
@@ -725,21 +787,21 @@ void build_twomudy(RooWorkspace* wspace){
 
   
   //Get heavy 
-  build_tf(wspace, "heavy", "elemu", "twomudy", sys_vec);
-  RooFormulaVar* tf_heavy_elemu_to_twomudy_bin1 = (RooFormulaVar*)wspace->arg("tf_heavy_elemu_to_twomudy_bin1");
-  RooFormulaVar* tf_heavy_elemu_to_twomudy_bin2 = (RooFormulaVar*)wspace->arg("tf_heavy_elemu_to_twomudy_bin2");
-  RooFormulaVar* tf_heavy_elemu_to_twomudy_bin3 = (RooFormulaVar*)wspace->arg("tf_heavy_elemu_to_twomudy_bin3");
+  build_tf(wspace, "heavy", "elemul", "twomudy", sys_vec);
+  RooFormulaVar* tf_heavy_elemul_to_twomudy_bin1 = (RooFormulaVar*)wspace->arg("tf_heavy_elemul_to_twomudy_bin1");
+  RooFormulaVar* tf_heavy_elemul_to_twomudy_bin2 = (RooFormulaVar*)wspace->arg("tf_heavy_elemul_to_twomudy_bin2");
+  RooFormulaVar* tf_heavy_elemul_to_twomudy_bin3 = (RooFormulaVar*)wspace->arg("tf_heavy_elemul_to_twomudy_bin3");
 
-  RooRealVar* heavy_elemu_bin1 = wspace->var("heavy_elemu_bin1");
-  RooRealVar* heavy_elemu_bin2 = wspace->var("heavy_elemu_bin2");
-  RooRealVar* heavy_elemu_bin3 = wspace->var("heavy_elemu_bin3");
+  RooRealVar* heavy_elemul_bin1 = wspace->var("heavy_elemul_bin1");
+  RooRealVar* heavy_elemul_bin2 = wspace->var("heavy_elemul_bin2");
+  RooRealVar* heavy_elemul_bin3 = wspace->var("heavy_elemul_bin3");
 
   RooFormulaVar heavy_twomudy_bin1("heavy_twomudy_bin1", "Heavy background yield in TwoMuDY, bin 1", 
-				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twomudy_bin1, *heavy_elemu_bin1));
+				   "@0*@1", RooArgList(*tf_heavy_elemul_to_twomudy_bin1, *heavy_elemul_bin1));
   RooFormulaVar heavy_twomudy_bin2("heavy_twomudy_bin2", "Heavy background yield in TwoMuDY, bin 2", 
-				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twomudy_bin2, *heavy_elemu_bin2));
+				   "@0*@1", RooArgList(*tf_heavy_elemul_to_twomudy_bin2, *heavy_elemul_bin2));
   RooFormulaVar heavy_twomudy_bin3("heavy_twomudy_bin3", "Heavy background yield in TwoMuDY, bin 3", 
-				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twomudy_bin3, *heavy_elemu_bin3));
+				   "@0*@1", RooArgList(*tf_heavy_elemul_to_twomudy_bin3, *heavy_elemul_bin3));
 
   RooArgList heavy_twomudy_bins;
   heavy_twomudy_bins.add(heavy_twomudy_bin1);
@@ -814,21 +876,21 @@ void build_twoeledy(RooWorkspace* wspace){
 
   
   //Get heavy 
-  RooRealVar* heavy_elemu_bin1 = wspace->var("heavy_elemu_bin1");
-  RooRealVar* heavy_elemu_bin2 = wspace->var("heavy_elemu_bin2");
-  RooRealVar* heavy_elemu_bin3 = wspace->var("heavy_elemu_bin3");
+  RooRealVar* heavy_elemul_bin1 = wspace->var("heavy_elemul_bin1");
+  RooRealVar* heavy_elemul_bin2 = wspace->var("heavy_elemul_bin2");
+  RooRealVar* heavy_elemul_bin3 = wspace->var("heavy_elemul_bin3");
 
-  build_tf(wspace, "heavy", "elemu", "twoeledy", sys_vec);
-  RooFormulaVar* tf_heavy_elemu_to_twoeledy_bin1 = (RooFormulaVar*)wspace->arg("tf_heavy_elemu_to_twoeledy_bin1");
-  RooFormulaVar* tf_heavy_elemu_to_twoeledy_bin2 = (RooFormulaVar*)wspace->arg("tf_heavy_elemu_to_twoeledy_bin2");
-  RooFormulaVar* tf_heavy_elemu_to_twoeledy_bin3 = (RooFormulaVar*)wspace->arg("tf_heavy_elemu_to_twoeledy_bin3");
+  build_tf(wspace, "heavy", "elemul", "twoeledy", sys_vec);
+  RooFormulaVar* tf_heavy_elemul_to_twoeledy_bin1 = (RooFormulaVar*)wspace->arg("tf_heavy_elemul_to_twoeledy_bin1");
+  RooFormulaVar* tf_heavy_elemul_to_twoeledy_bin2 = (RooFormulaVar*)wspace->arg("tf_heavy_elemul_to_twoeledy_bin2");
+  RooFormulaVar* tf_heavy_elemul_to_twoeledy_bin3 = (RooFormulaVar*)wspace->arg("tf_heavy_elemul_to_twoeledy_bin3");
   
   RooFormulaVar heavy_twoeledy_bin1("heavy_twoeledy_bin1", "Heavy background yield in TwoEleDY, bin 1", 
-				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twoeledy_bin1, *heavy_elemu_bin1));
+				   "@0*@1", RooArgList(*tf_heavy_elemul_to_twoeledy_bin1, *heavy_elemul_bin1));
   RooFormulaVar heavy_twoeledy_bin2("heavy_twoeledy_bin2", "Heavy background yield in TwoEleDY, bin 2", 
-				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twoeledy_bin2, *heavy_elemu_bin2));
+				   "@0*@1", RooArgList(*tf_heavy_elemul_to_twoeledy_bin2, *heavy_elemul_bin2));
   RooFormulaVar heavy_twoeledy_bin3("heavy_twoeledy_bin3", "Heavy background yield in TwoEleDY, bin 3", 
-				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twoeledy_bin3, *heavy_elemu_bin3));
+				   "@0*@1", RooArgList(*tf_heavy_elemul_to_twoeledy_bin3, *heavy_elemul_bin3));
 
   RooArgList heavy_twoeledy_bins;
   heavy_twoeledy_bins.add(heavy_twoeledy_bin1);
@@ -883,8 +945,9 @@ void build_ws(){
   //build_onepho(wspace);
   //build_twomuzh(wspace);
   
-  //ZH+EleMu+DY top-nontop-other-signal
+  //ZH+EleMu+EleMuL+DY top-nontop-other-signal
   build_elemu(wspace);
+  build_elemul(wspace);
   build_twomudy(wspace);
   build_twoeledy(wspace);
   build_twomuzh(wspace, "DY");
