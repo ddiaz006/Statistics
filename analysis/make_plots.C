@@ -123,6 +123,7 @@ void make_plots(){
   make_one_plot("TwoMuZH", "shapes_prefit");
   make_one_plot("TwoEleZH", "shapes_prefit");
   make_one_plot("EleMu", "shapes_prefit");
+  make_one_plot("EleMuL", "shapes_prefit");
   make_one_plot("TwoMuDY", "shapes_prefit");
   make_one_plot("TwoEleDY", "shapes_prefit");
   
@@ -130,6 +131,7 @@ void make_plots(){
   make_one_plot("TwoMuZH", "shapes_fit_b");
   make_one_plot("TwoEleZH", "shapes_fit_b");
   make_one_plot("EleMu", "shapes_fit_b");
+  make_one_plot("EleMuL", "shapes_fit_b");
   make_one_plot("TwoMuDY", "shapes_fit_b");
   make_one_plot("TwoEleDY", "shapes_fit_b");
   
@@ -137,6 +139,7 @@ void make_plots(){
   make_one_plot("TwoMuZH", "shapes_fit_s");
   make_one_plot("TwoEleZH", "shapes_fit_s");
   make_one_plot("EleMu", "shapes_fit_s");
+  make_one_plot("EleMuL", "shapes_fit_s");
   make_one_plot("TwoMuDY", "shapes_fit_s");
   make_one_plot("TwoEleDY", "shapes_fit_s");
 
