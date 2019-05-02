@@ -31,6 +31,6 @@ rate     1        1         -1       -1
 rrv_heavy_elemu_to_twoelezh_bin1  param 0 1
 rrv_heavy_elemu_to_twoelezh_bin2  param 0 1
 rrv_heavy_elemu_to_twoelezh_bin3  param 0 1
-rrv_light_twomudy_to_twoelezh_bin1 param 0 1
-rrv_light_twomudy_to_twoelezh_bin2 param 0 1
-rrv_light_twomudy_to_twoelezh_bin3 param 0 1
+rrv_light_twoeledy_to_twoelezh_bin1 param 0 1
+rrv_light_twoeledy_to_twoelezh_bin2 param 0 1
+rrv_light_twoeledy_to_twoelezh_bin3 param 0 1
