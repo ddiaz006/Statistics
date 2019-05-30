@@ -30,4 +30,4 @@ $(TARGET) : $(OBJ)
 	@echo $@
 	@echo $<
 clean :
-	rm -f *.o src/*.o include/*.o $(TARGET) *~
+	rm -f *.o src/*.o include/*.o $(TARGET) $(COMMON)/src/*.o *~
