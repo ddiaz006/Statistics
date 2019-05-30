@@ -1,9 +1,9 @@
 # Instructions
 
-cmsenv
 ## Setup
 ```
 #build workspace
+cmsenv
 make
 ./MakeWorkspace --signal_model=Sig_MS15ct1
 #signal_model can be any of the model names listed in data/signal_model_list.txt
@@ -29,5 +29,7 @@ combine -M FitDiagnostics -v 3 card.root --saveShapes
 combine -M AsymptoticLimits card.root --run blind
 ```
 
-#To run all limits do
+# To run all limits do
+```
 source  scripts/make_all_signal_models.sh --input_list data/signal_model_list.txt --output_dir <your_directory>
+```
