@@ -17,7 +17,8 @@
 #include <TLatex.h>
 #include <TLegend.h>
 //LOCAL INCLUDES
-#include "CommandLineInput.hh"
+#include <CommandLineInput.hh>
+#include <helper_functions.hh>
 
 struct Limit
 {
@@ -33,6 +34,7 @@ struct Limit
 const bool _info  = true;
 const bool _debug = false;
 
+/*
 const float lumi = 5;
 //Axis
 const float axisTitleSize = 0.06;
@@ -59,7 +61,7 @@ TString extraText   = "Preliminary";
 //TString lumiText = "2.32 fb^{-1} (13 TeV)";
 //TString lumiText = "35.9 fb^{-1} (13 TeV)";
 TString lumiText = "16.2 fb^{-1} (13 TeV)";
-
+*/
 bool AddCMS( TCanvas* C );
 
 int main( int argc, char** argv )
@@ -93,9 +95,18 @@ int main( int argc, char** argv )
     std::cout << "[INFO]: validation region name: " << vrName << std::endl;
   }
 
+  //-----------------
+  //Getting ROOT file
+  //-----------------
   TFile* fin = new TFile( inputFile.c_str(), "READ");
-  TDirectory* dir_prefit_two_ee_dy = (TDirectory*)(((TDirectory*)fin->Get("shapes_prefit"))->Get("TwoEleDY"));
 
+  //----------------------------------------------------------
+  //GETTING PRE-FIT RESULTS FROM COMBINE
+  //----------------------------------------------------------
+  //---------------------
+  //TwoEleDY
+  //---------------------
+  TDirectory* dir_prefit_two_ee_dy = (TDirectory*)(((TDirectory*)fin->Get("shapes_prefit"))->Get("TwoEleDY"));
   TH1F* light_two_ee_dy = (TH1F*)dir_prefit_two_ee_dy->Get("light");
   TH1F* heavy_two_ee_dy = (TH1F*)dir_prefit_two_ee_dy->Get("heavy");
   TH1F* other_two_ee_dy = (TH1F*)dir_prefit_two_ee_dy->Get("other");
@@ -103,8 +114,192 @@ int main( int argc, char** argv )
   TH1F* signal_two_ee_dy = (TH1F*)dir_prefit_two_ee_dy->Get("total_signal");
   TGraphAsymmErrors* data_two_ee_dy = (TGraphAsymmErrors*)dir_prefit_two_ee_dy->Get("data");
 
+  THStack* stack_two_ee_dy = new THStack( "two_ee_dy_prefit" , "two_ee_dy combine-prefit" );
+  create_stack( stack_two_ee_dy, light_two_ee_dy, heavy_two_ee_dy, other_two_ee_dy);
+  create_ratio_plot(data_two_ee_dy, stack_two_ee_dy, bkg_total_two_ee_dy,
+     Form("two_ee_dy_prefit_%s",vrName.c_str()), light_two_ee_dy, heavy_two_ee_dy, other_two_ee_dy);
+
+  //---------------------
+  //TwoMuDY
+  //---------------------
+  TDirectory* dir_prefit_two_mumu_dy = (TDirectory*)(((TDirectory*)fin->Get("shapes_prefit"))->Get("TwoMuDY"));
+  TH1F* light_two_mumu_dy = (TH1F*)dir_prefit_two_mumu_dy->Get("light");
+  TH1F* heavy_two_mumu_dy = (TH1F*)dir_prefit_two_mumu_dy->Get("heavy");
+  TH1F* other_two_mumu_dy = (TH1F*)dir_prefit_two_mumu_dy->Get("other");
+  TH1F* bkg_total_two_mumu_dy = (TH1F*)dir_prefit_two_mumu_dy->Get("total_background");
+  TH1F* signal_two_mumu_dy = (TH1F*)dir_prefit_two_mumu_dy->Get("total_signal");
+  TGraphAsymmErrors* data_two_mumu_dy = (TGraphAsymmErrors*)dir_prefit_two_mumu_dy->Get("data");
+
+  THStack* stack_two_mumu_dy = new THStack( "two_mumu_dy_prefit" , "two_mumu_dy combine-prefit" );
+  create_stack( stack_two_mumu_dy, light_two_mumu_dy, heavy_two_mumu_dy, other_two_mumu_dy);
+  create_ratio_plot(data_two_mumu_dy, stack_two_mumu_dy, bkg_total_two_mumu_dy,
+     Form("two_mumu_dy_prefit_%s",vrName.c_str()), light_two_mumu_dy, heavy_two_mumu_dy, other_two_mumu_dy);
+
+  //---------------------
+  //EleMu
+  //---------------------
+  TDirectory* dir_prefit_elemu_dy = (TDirectory*)(((TDirectory*)fin->Get("shapes_prefit"))->Get("EleMu"));
+  TH1F* light_elemu_dy = (TH1F*)dir_prefit_elemu_dy->Get("light");
+  TH1F* heavy_elemu_dy = (TH1F*)dir_prefit_elemu_dy->Get("heavy");
+  TH1F* other_elemu_dy = (TH1F*)dir_prefit_elemu_dy->Get("other");
+  TH1F* bkg_total_elemu_dy = (TH1F*)dir_prefit_elemu_dy->Get("total_background");
+  TH1F* signal_elemu_dy = (TH1F*)dir_prefit_elemu_dy->Get("total_signal");
+  TGraphAsymmErrors* data_elemu_dy = (TGraphAsymmErrors*)dir_prefit_elemu_dy->Get("data");
+
+  THStack* stack_elemu_dy = new THStack( "elemu_dy_prefit" , "elemu_dy combine-prefit" );
+  create_stack( stack_elemu_dy, light_elemu_dy, heavy_elemu_dy, other_elemu_dy);
+  create_ratio_plot(data_elemu_dy, stack_elemu_dy, bkg_total_elemu_dy,
+    Form("elemu_dy_prefit_%s",vrName.c_str()), light_elemu_dy, heavy_elemu_dy, other_elemu_dy);
+
+  //---------------------
+  //EleMuL
+  //---------------------
+  TDirectory* dir_prefit_elemul_dy = (TDirectory*)(((TDirectory*)fin->Get("shapes_prefit"))->Get("EleMuL"));
+  TH1F* light_elemul_dy = (TH1F*)dir_prefit_elemul_dy->Get("light");
+  TH1F* heavy_elemul_dy = (TH1F*)dir_prefit_elemul_dy->Get("heavy");
+  TH1F* other_elemul_dy = (TH1F*)dir_prefit_elemul_dy->Get("other");
+  TH1F* bkg_total_elemul_dy = (TH1F*)dir_prefit_elemul_dy->Get("total_background");
+  TH1F* signal_elemul_dy = (TH1F*)dir_prefit_elemul_dy->Get("total_signal");
+  TGraphAsymmErrors* data_elemul_dy = (TGraphAsymmErrors*)dir_prefit_elemul_dy->Get("data");
+
+  THStack* stack_elemul_dy = new THStack( "elemul_dy_prefit" , "elemul_dy combine-prefit" );
+  create_stack( stack_elemul_dy, light_elemul_dy, heavy_elemul_dy, other_elemul_dy);
+  create_ratio_plot(data_elemul_dy, stack_elemul_dy, bkg_total_elemul_dy,
+     Form("elemul_dy_prefit_%s",vrName.c_str()), light_elemul_dy, heavy_elemul_dy, other_elemul_dy);
+
+  //---------------------
+  //TwoEleZH
+  //---------------------
+  TDirectory* dir_prefit_two_ee_zh = (TDirectory*)(((TDirectory*)fin->Get("shapes_prefit"))->Get("TwoEleZH"));
+  TH1F* light_two_ee_zh = (TH1F*)dir_prefit_two_ee_zh->Get("light");
+  TH1F* heavy_two_ee_zh = (TH1F*)dir_prefit_two_ee_zh->Get("heavy");
+  TH1F* other_two_ee_zh = (TH1F*)dir_prefit_two_ee_zh->Get("other");
+  TH1F* bkg_total_two_ee_zh = (TH1F*)dir_prefit_two_ee_zh->Get("total_background");
+  TH1F* signal_two_ee_zh = (TH1F*)dir_prefit_two_ee_zh->Get("total_signal");
+  TGraphAsymmErrors* data_two_ee_zh = (TGraphAsymmErrors*)dir_prefit_two_ee_zh->Get("data");
+
+  THStack* stack_two_ee_zh = new THStack( "two_ee_zh_prefit" , "two_ee_zh combine-prefit" );
+  create_stack( stack_two_ee_zh, light_two_ee_zh, heavy_two_ee_zh, other_two_ee_zh);
+  create_ratio_plot(data_two_ee_zh, stack_two_ee_zh, bkg_total_two_ee_zh,
+     Form("two_ee_zh_prefit_%s",vrName.c_str()), light_two_ee_zh, heavy_two_ee_zh, other_two_ee_zh);
+
+  //---------------------
+  //TwoMuZH
+  //---------------------
+  TDirectory* dir_prefit_two_mumu_zh = (TDirectory*)(((TDirectory*)fin->Get("shapes_prefit"))->Get("TwoMuZH"));
+  TH1F* light_two_mumu_zh = (TH1F*)dir_prefit_two_mumu_zh->Get("light");
+  TH1F* heavy_two_mumu_zh = (TH1F*)dir_prefit_two_mumu_zh->Get("heavy");
+  TH1F* other_two_mumu_zh = (TH1F*)dir_prefit_two_mumu_zh->Get("other");
+  TH1F* bkg_total_two_mumu_zh = (TH1F*)dir_prefit_two_mumu_zh->Get("total_background");
+  TH1F* signal_two_mumu_zh = (TH1F*)dir_prefit_two_mumu_zh->Get("total_signal");
+  TGraphAsymmErrors* data_two_mumu_zh = (TGraphAsymmErrors*)dir_prefit_two_mumu_zh->Get("data");
+
+  THStack* stack_two_mumu_zh = new THStack( "two_mumu_zh_prefit" , "two_mumu_zh combine-prefit" );
+  create_stack( stack_two_mumu_zh, light_two_mumu_zh, heavy_two_mumu_zh, other_two_mumu_zh);
+  create_ratio_plot(data_two_mumu_zh, stack_two_mumu_zh, bkg_total_two_mumu_zh,
+     Form("two_mumu_zh_prefit_%s",vrName.c_str()), light_two_mumu_zh, heavy_two_mumu_zh, other_two_mumu_zh);
 
 
+  //----------------------------------------------------------
+  //GETTING POST-FIT RESULTS FROM COMBINE
+  //----------------------------------------------------------
+  //---------------------
+  //TwoEleDY
+  //---------------------
+  TDirectory* dir_postfit_two_ee_dy = (TDirectory*)(((TDirectory*)fin->Get("shapes_fit_b"))->Get("TwoEleDY"));
+  TH1F* light_two_ee_dy_pf = (TH1F*)dir_postfit_two_ee_dy->Get("light");
+  TH1F* heavy_two_ee_dy_pf = (TH1F*)dir_postfit_two_ee_dy->Get("heavy");
+  TH1F* other_two_ee_dy_pf = (TH1F*)dir_postfit_two_ee_dy->Get("other");
+  TH1F* bkg_total_two_ee_dy_pf = (TH1F*)dir_postfit_two_ee_dy->Get("total_background");
+  TH1F* signal_two_ee_dy_pf = (TH1F*)dir_postfit_two_ee_dy->Get("total_signal");
+  TGraphAsymmErrors* data_two_ee_dy_pf = (TGraphAsymmErrors*)dir_postfit_two_ee_dy->Get("data");
+
+  THStack* stack_two_ee_dy_pf = new THStack( "two_ee_dy_postfit" , "two_ee_dy combine-postfit" );
+  create_stack( stack_two_ee_dy_pf, light_two_ee_dy_pf, heavy_two_ee_dy_pf, other_two_ee_dy_pf);
+  create_ratio_plot(data_two_ee_dy_pf, stack_two_ee_dy_pf, bkg_total_two_ee_dy_pf,
+    Form("two_ee_dy_postfit_%s",vrName.c_str()), light_two_ee_dy_pf, heavy_two_ee_dy_pf, other_two_ee_dy_pf);
+
+  //---------------------
+  //TwoMuDY
+  //---------------------
+  TDirectory* dir_postfit_two_mumu_dy = (TDirectory*)(((TDirectory*)fin->Get("shapes_fit_b"))->Get("TwoMuDY"));
+  TH1F* light_two_mumu_dy_pf = (TH1F*)dir_postfit_two_mumu_dy->Get("light");
+  TH1F* heavy_two_mumu_dy_pf = (TH1F*)dir_postfit_two_mumu_dy->Get("heavy");
+  TH1F* other_two_mumu_dy_pf = (TH1F*)dir_postfit_two_mumu_dy->Get("other");
+  TH1F* bkg_total_two_mumu_dy_pf = (TH1F*)dir_postfit_two_mumu_dy->Get("total_background");
+  TH1F* signal_two_mumu_dy_pf = (TH1F*)dir_postfit_two_mumu_dy->Get("total_signal");
+  TGraphAsymmErrors* data_two_mumu_dy_pf = (TGraphAsymmErrors*)dir_postfit_two_mumu_dy->Get("data");
+
+  THStack* stack_two_mumu_dy_pf = new THStack( "two_mumu_dy_postfit" , "two_mumu_dy combine-postfit" );
+  create_stack( stack_two_mumu_dy_pf, light_two_mumu_dy_pf, heavy_two_mumu_dy_pf, other_two_mumu_dy_pf);
+  create_ratio_plot(data_two_mumu_dy_pf, stack_two_mumu_dy_pf, bkg_total_two_mumu_dy_pf,
+     Form("two_mumu_dy_postfit_%s",vrName.c_str()), light_two_mumu_dy_pf, heavy_two_mumu_dy_pf, other_two_mumu_dy_pf);
+
+  //---------------------
+  //EleMu
+  //---------------------
+  TDirectory* dir_postfit_elemu_dy = (TDirectory*)(((TDirectory*)fin->Get("shapes_fit_b"))->Get("EleMu"));
+  TH1F* light_elemu_dy_pf = (TH1F*)dir_postfit_elemu_dy->Get("light");
+  TH1F* heavy_elemu_dy_pf = (TH1F*)dir_postfit_elemu_dy->Get("heavy");
+  TH1F* other_elemu_dy_pf = (TH1F*)dir_postfit_elemu_dy->Get("other");
+  TH1F* bkg_total_elemu_dy_pf = (TH1F*)dir_postfit_elemu_dy->Get("total_background");
+  TH1F* signal_elemu_dy_pf = (TH1F*)dir_postfit_elemu_dy->Get("total_signal");
+  TGraphAsymmErrors* data_elemu_dy_pf = (TGraphAsymmErrors*)dir_postfit_elemu_dy->Get("data");
+
+  THStack* stack_elemu_dy_pf = new THStack( "elemu_dy_postfit" , "elemu_dy combine-postfit" );
+  create_stack( stack_elemu_dy_pf, light_elemu_dy_pf, heavy_elemu_dy_pf, other_elemu_dy_pf);
+  create_ratio_plot(data_elemu_dy_pf, stack_elemu_dy_pf, bkg_total_elemu_dy_pf,
+     Form("elemu_dy_postfit_%s",vrName.c_str()), light_elemu_dy_pf, heavy_elemu_dy_pf, other_elemu_dy_pf);
+
+  //---------------------
+  //EleMuL
+  //---------------------
+  TDirectory* dir_postfit_elemul_dy = (TDirectory*)(((TDirectory*)fin->Get("shapes_fit_b"))->Get("EleMuL"));
+  TH1F* light_elemul_dy_pf = (TH1F*)dir_postfit_elemul_dy->Get("light");
+  TH1F* heavy_elemul_dy_pf = (TH1F*)dir_postfit_elemul_dy->Get("heavy");
+  TH1F* other_elemul_dy_pf = (TH1F*)dir_postfit_elemul_dy->Get("other");
+  TH1F* bkg_total_elemul_dy_pf = (TH1F*)dir_postfit_elemul_dy->Get("total_background");
+  TH1F* signal_elemul_dy_pf = (TH1F*)dir_postfit_elemul_dy->Get("total_signal");
+  TGraphAsymmErrors* data_elemul_dy_pf = (TGraphAsymmErrors*)dir_postfit_elemul_dy->Get("data");
+
+  THStack* stack_elemul_dy_pf = new THStack( "elemul_dy_postfit" , "elemul_dy combine-postfit" );
+  create_stack( stack_elemul_dy_pf, light_elemul_dy_pf, heavy_elemul_dy_pf, other_elemul_dy_pf);
+  create_ratio_plot(data_elemul_dy_pf, stack_elemul_dy_pf, bkg_total_elemul_dy_pf,
+     Form("elemul_dy_postfit_%s",vrName.c_str()), light_elemul_dy_pf, heavy_elemul_dy_pf, other_elemul_dy_pf);
+
+  //---------------------
+  //TwoEleZH
+  //---------------------
+  TDirectory* dir_postfit_two_ee_zh = (TDirectory*)(((TDirectory*)fin->Get("shapes_fit_b"))->Get("TwoEleZH"));
+  TH1F* light_two_ee_zh_pf = (TH1F*)dir_postfit_two_ee_zh->Get("light");
+  TH1F* heavy_two_ee_zh_pf = (TH1F*)dir_postfit_two_ee_zh->Get("heavy");
+  TH1F* other_two_ee_zh_pf = (TH1F*)dir_postfit_two_ee_zh->Get("other");
+  TH1F* bkg_total_two_ee_zh_pf = (TH1F*)dir_postfit_two_ee_zh->Get("total_background");
+  TH1F* signal_two_ee_zh_pf = (TH1F*)dir_postfit_two_ee_zh->Get("total_signal");
+  TGraphAsymmErrors* data_two_ee_zh_pf = (TGraphAsymmErrors*)dir_postfit_two_ee_zh->Get("data");
+
+  THStack* stack_two_ee_zh_pf = new THStack( "two_ee_zh_postfit" , "two_ee_zh combine-postfit" );
+  create_stack( stack_two_ee_zh_pf, light_two_ee_zh_pf, heavy_two_ee_zh_pf, other_two_ee_zh_pf);
+  create_ratio_plot(data_two_ee_zh_pf, stack_two_ee_zh_pf, bkg_total_two_ee_zh_pf,
+     Form("two_ee_zh_postfit_%s",vrName.c_str()), light_two_ee_zh_pf, heavy_two_ee_zh_pf, other_two_ee_zh_pf);
+
+  //---------------------
+  //TwoMuZH
+  //---------------------
+  TDirectory* dir_postfit_two_mumu_zh = (TDirectory*)(((TDirectory*)fin->Get("shapes_fit_b"))->Get("TwoMuZH"));
+  TH1F* light_two_mumu_zh_pf = (TH1F*)dir_postfit_two_mumu_zh->Get("light");
+  TH1F* heavy_two_mumu_zh_pf = (TH1F*)dir_postfit_two_mumu_zh->Get("heavy");
+  TH1F* other_two_mumu_zh_pf = (TH1F*)dir_postfit_two_mumu_zh->Get("other");
+  TH1F* bkg_total_two_mumu_zh_pf = (TH1F*)dir_postfit_two_mumu_zh->Get("total_background");
+  TH1F* signal_two_mumu_zh_pf = (TH1F*)dir_postfit_two_mumu_zh->Get("total_signal");
+  TGraphAsymmErrors* data_two_mumu_zh_pf = (TGraphAsymmErrors*)dir_postfit_two_mumu_zh->Get("data");
+
+  THStack* stack_two_mumu_zh_pf = new THStack( "two_mumu_zh_postfit" , "two_mumu_zh combine-postfit" );
+  create_stack( stack_two_mumu_zh_pf, light_two_mumu_zh_pf, heavy_two_mumu_zh_pf, other_two_mumu_zh_pf);
+  create_ratio_plot(data_two_mumu_zh_pf, stack_two_mumu_zh_pf, bkg_total_two_mumu_zh_pf,
+     Form("two_mumu_zh_postfit_%s",vrName.c_str()), light_two_mumu_zh_pf, heavy_two_mumu_zh_pf, other_two_mumu_zh_pf);
+
+  /*
   TCanvas* c = new TCanvas( "c", "c", 2119, 33, 800, 700 );
   c->SetHighLightColor(2);
   c->SetFillColor(0);
@@ -119,7 +314,7 @@ int main( int argc, char** argv )
   //c->SetLogy();
   //c->SetLogx();
 
-  bkg_total_two_ee_dy->Draw("HISTO");
+  stack_two_ee_dy->Draw();
   data_two_ee_dy->Draw("P");
 
   gStyle->SetPaintTextFormat("4.3f");
@@ -190,46 +385,6 @@ int main( int argc, char** argv )
   //gTwoS->Write("gTwoS");
 
   //out->Close();
+  */
   return 0;
 }
-
-
-bool AddCMS( TCanvas* C )
-{
-  C->cd();
-  float lumix = 0.955;
-  float lumiy = 0.945;
-  float lumifont = 42;
-
-  float cmsx = 0.25;
-  float cmsy = 0.94;
-  float cmsTextFont   = 61;  // default is helvetic-bold
-  float extrax = cmsx +0.20;
-  float extray = cmsy;
-  //float extrax = cmsx + 0.078;
-  //float extray = cmsy - 0.04;
-  float extraTextFont = 52;  // default is helvetica-italics
-  // ratio of "CMS" and extra text size
-  float extraOverCmsTextSize  = 0.76;
-  float cmsSize = 0.06;
-  TLatex latex;
-  latex.SetNDC();
-  latex.SetTextAngle(0);
-  latex.SetTextColor(kBlack);
-  float extraTextSize = extraOverCmsTextSize*cmsSize;
-  latex.SetTextFont(lumifont);
-  latex.SetTextAlign(31);
-  latex.SetTextSize(cmsSize);
-  latex.DrawLatex(lumix, lumiy,lumiText);
-
-  latex.SetTextFont(cmsTextFont);
-  latex.SetTextAlign(31);
-  latex.SetTextSize(cmsSize);
-  latex.DrawLatex(cmsx, cmsy, CMSText);
-
-  latex.SetTextFont(extraTextFont);
-  latex.SetTextAlign(31);
-  latex.SetTextSize(extraTextSize);
-  latex.DrawLatex(extrax, extray, extraText);
-  return true;
-};
