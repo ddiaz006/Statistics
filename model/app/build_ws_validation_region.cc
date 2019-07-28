@@ -73,8 +73,8 @@ using namespace std;
 //Global options
 TString dummy_syst = "0.5";
 //TString xvar = "nSelectedAODCaloJetTag";
-TString xvar = "nSelectedAODCaloJetTagSB7";
-TString xvar_suffix = "_GH_log";
+TString xvar = "nSelectedAODCaloJetTagSB5";
+TString xvar_suffix = "_GH";
 TString signal_string = "Sig_MS55ct1000";
 //TString data_string = "bkgtotal"; //"Data";
 TString data_string = "Data";
@@ -1008,9 +1008,9 @@ int main( int argc, char* argv[] ){
 
   signal_string = signal_model.c_str();
   //sys_vec.push_back("TagVars");
-  sys_vec.push_back("AMax");
-  sys_vec.push_back("IPSig");
-  sys_vec.push_back("TA");
+  sys_vec.push_back("AMax");//use
+  sys_vec.push_back("IPSig");//use
+  sys_vec.push_back("TA");//use
   //sys_vec.push_back("EGS");
   //sys_vec.push_back("MES");
   //sys_vec.push_back("JES");
