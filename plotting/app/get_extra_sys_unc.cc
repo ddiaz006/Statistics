@@ -94,7 +94,7 @@ int main( int argc, char** argv )
         double delta_y_rel = delta_y/bkg_total_two_ee_zh_pf->GetBinContent(i);
         double y_unc       = bkg_total_two_ee_zh_pf->GetBinError(i);
 
-        if( fabs( delta_y ) > y_unc && y_data != 0.0 )
+        if( fabs( delta_y ) > 2.*y_unc && y_data != 0.0 )
         {
           std::cout << "ee->"<< i-1 << " " << delta_y_rel<< std::endl;
           err_ee[i-1] += pow(delta_y_rel,2.0);
@@ -118,7 +118,7 @@ int main( int argc, char** argv )
         double delta_y_rel = delta_y/bkg_total_two_mumu_zh_pf->GetBinContent(i);
         double y_unc       = bkg_total_two_mumu_zh_pf->GetBinError(i);
         //std::cout << i-1 << " " << delta_y_rel<< std::endl;
-        if( fabs( delta_y ) > y_unc && y_data != 0.0 )
+        if( fabs( delta_y ) > 2.*y_unc && y_data != 0.0 )
         {
           std::cout << "mumu->"<< i-1 << " " << delta_y_rel<< std::endl;
           err_mumu[i-1] += pow(delta_y_rel,2.0);
