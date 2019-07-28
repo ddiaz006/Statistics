@@ -1,0 +1,44 @@
+TwoMuZH Datacard
+
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+#shapes process channel file histogram [histogram_with_systematics]
+
+shapes data_obs twomuzh param_ws.root wspace:data_obs_twomuzh
+shapes light    twomuzh param_ws.root wspace:light_twomuzh
+shapes heavy    twomuzh param_ws.root wspace:heavy_twomuzh
+shapes other    twomuzh param_ws.root wspace:other_twomuzh
+shapes signal   twomuzh param_ws.root wspace:signal_twomuzh
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+bin         twomuzh
+observation -1
+-------------------------------------------------------------------------------------------------------------------------------------------
+# background rate must be taken from _norm param x 1      
+bin      twomuzh   twomuzh  twomuzh  twomuzh
+process  light    heavy     signal   other
+process  1        2         0        3
+rate     1        1         -1       -1
+-------------------------------------------------------------------------------------------------------------------------------------------
+#uncertainties
+-------------------------------------------------------------------------------------------------------------------------------------------
+#free floating parameters
+rrv_heavy_elemu_to_twomuzh_bin1  param 0 1
+rrv_heavy_elemu_to_twomuzh_bin2  param 0 1
+rrv_heavy_elemu_to_twomuzh_bin3  param 0 1
+rrv_light_twomudy_to_twomuzh_bin1 param 0 1
+rrv_light_twomudy_to_twomuzh_bin2 param 0 1
+rrv_light_twomudy_to_twomuzh_bin3 param 0 1
+rrv_AMax param 0 1
+rrv_IPSig param 0 1
+rrv_TA param 0 1
+rrv_MES param 0 1
+rrv_EGS param 0 1
+
+#log-Normal uncertainty
+#method_add_sys_mu_ch lnN           1.0414535   -   -	  -

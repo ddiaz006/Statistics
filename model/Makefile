@@ -12,15 +12,24 @@ LDFLAGS := $(shell root-config --glibs) $(STDLIBDIR)  -lRooFit -lRooFitCore -L$(
 CPPFLAGS += -g -std=c++1y
 
 TARGET = MakeWorkspace
+TARGET2 = MakeWorkspace_VR
 
 SRC = $(REPO)/build_ws.cc $(COMMON)/src/CommandLineInput.cc
+SRC2 = $(REPO)/app/build_ws_validation_region.cc $(COMMON)/src/CommandLineInput.cc
 
 OBJ = $(SRC:.cc=.o)
+OBJ2 = $(SRC2:.cc=.o)
 
-all : $(TARGET) 
+all : $(TARGET) $(TARGET2)
 
 $(TARGET) : $(OBJ)
 	$(LD) $(CPPFLAGS) -o $(TARGET) $(OBJ) $(LDFLAGS)
+	@echo $@
+	@echo $<
+	@echo $^
+
+$(TARGET2) : $(OBJ2)
+	$(LD) $(CPPFLAGS) -o $(TARGET2) $(OBJ2) $(LDFLAGS)
 	@echo $@
 	@echo $<
 	@echo $^
@@ -29,5 +38,6 @@ $(TARGET) : $(OBJ)
 	$(CXX) $(CPPFLAGS) -o $@ -c $<
 	@echo $@
 	@echo $<
+
 clean :
-	rm -f *.o src/*.o include/*.o $(TARGET) $(COMMON)/src/*.o *~
+	rm -f *.o src/*.o include/*.o $(TARGET) $(TARGET2) $(COMMON)/src/*.o *~

@@ -1,0 +1,39 @@
+TwoEleDY Datacard
+
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+#shapes process channel file histogram [histogram_with_systematics]
+
+shapes data_obs twoeledy param_ws.root wspace:data_obs_twoeledy
+shapes light    twoeledy param_ws.root wspace:light_twoeledy
+shapes heavy    twoeledy param_ws.root wspace:heavy_twoeledy
+shapes other    twoeledy param_ws.root wspace:other_twoeledy
+shapes signal   twoeledy param_ws.root wspace:signal_twoeledy
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+bin         twoeledy
+observation -1
+-------------------------------------------------------------------------------------------------------------------------------------------
+# background rate must be taken from _norm param x 1      
+bin      twoeledy   twoeledy  twoeledy  twoeledy
+process  light    heavy     signal   other
+process  1        2         0        3
+rate     1        1         -1       -1
+-------------------------------------------------------------------------------------------------------------------------------------------
+#uncertainties
+-------------------------------------------------------------------------------------------------------------------------------------------
+#free floating parameters
+rrv_heavy_elemul_to_twoeledy_bin1  param 0 1
+rrv_heavy_elemul_to_twoeledy_bin2  param 0 1
+rrv_heavy_elemul_to_twoeledy_bin3  param 0 1
+light_twoeledy_bin1 flatParam
+light_twoeledy_bin2 flatParam
+light_twoeledy_bin3 flatParam
+
+#log-Normal uncertainty
+#method_add_sys_ele_ch lnN           0.928072   -   -    -
