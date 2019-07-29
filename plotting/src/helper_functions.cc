@@ -5,10 +5,10 @@
 //------------------------
 //CMS COSMETICS DEFINITION
 //------------------------
-const float lumi = 5;
+//const float lumi = 5;
 //Axis
-const float axisTitleSize = 0.06;
-const float axisTitleOffset = .8;
+//const float axisTitleSize = 0.06;
+//const float axisTitleOffset = .8;
 
 const float axisTitleSizeRatioX   = 0.18;
 const float axisLabelSizeRatioX   = 0.12;

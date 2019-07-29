@@ -10,21 +10,24 @@ CPPFLAGS := $(shell root-config --cflags) -I$(REPO)/include -I$(COMMON)/include 
 #LDFLAGS := $(shell root-config --glibs) $(STDLIBDIR)  -lRooFit -lRooFitCore -L$(CMSSW_INC)/lib/slc6_amd64_gcc530/ -lHiggsAnalysisCombinedLimit
 LDFLAGS := $(shell root-config --glibs) $(STDLIBDIR)  -lRooFit -lRooFitCore -L$(CMSSW_INC)/lib/slc6_amd64_gcc530/
 
-CPPFLAGS += -g -std=c++1y
+CPPFLAGS += -g -std=c++1y -fsanitize=address -Wall -Wextra -Wno-sign-compare
 
 TARGET = PlotLimits
 TARGET2 = PlotVR
 TARGET3 = GetExtraSysUnc
+TARGET4 = GetZ_TF_InclusiveCorrection
 
 SRC = $(REPO)/app/plot_limits.cc $(COMMON)/src/CommandLineInput.cc
 SRC2 = $(REPO)/app/plot_validation_region.cc $(REPO)/src/helper_functions.cc $(COMMON)/src/CommandLineInput.cc
 SRC3 = $(REPO)/app/get_extra_sys_unc.cc $(REPO)/src/helper_functions.cc $(COMMON)/src/CommandLineInput.cc
+SRC4 = $(REPO)/app/get_Z_tf_inclusive_correction.cc $(REPO)/src/helper_functions.cc $(COMMON)/src/CommandLineInput.cc
 
 OBJ = $(SRC:.cc=.o)
 OBJ2 = $(SRC2:.cc=.o)
 OBJ3 = $(SRC3:.cc=.o)
+OBJ4 = $(SRC4:.cc=.o)
 
-all : $(TARGET) $(TARGET2) $(TARGET3)
+all : $(TARGET) $(TARGET2) $(TARGET3) $(TARGET4)
 
 $(TARGET) : $(OBJ)
 	$(LD) $(CPPFLAGS) -o $(TARGET) $(OBJ) $(LDFLAGS)
@@ -45,6 +48,12 @@ $(TARGET3) : $(OBJ3)
 	@echo $<
 	@echo $^
 
+$(TARGET4) : $(OBJ4)
+	$(LD) $(CPPFLAGS) -o $(TARGET4) $(OBJ4) $(LDFLAGS)
+	@echo $@
+	@echo $<
+	@echo $^
+
 
 %.o : %.cc
 	$(CXX) $(CPPFLAGS) -o $@ -c $<
@@ -52,4 +61,4 @@ $(TARGET3) : $(OBJ3)
 	@echo $<
 
 clean :
-	rm -f *.o app/*.o src/*.o include/*.o $(TARGET) $(TARGET2) $(TARGET3) *~
+	rm -f *.o app/*.o src/*.o include/*.o $(TARGET) $(TARGET2) $(TARGET3) $(TARGET4) *~
