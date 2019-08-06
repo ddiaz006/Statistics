@@ -78,8 +78,8 @@ int main( int argc, char** argv )
   TString dy_mumu_dy  = "/TwoMuDY/GH/TwoMuDY_nSelectedAODCaloJetTag_GH.root";
   TString dy_ee_dy    = "/TwoEleDY/GH/TwoEleDY_nSelectedAODCaloJetTag_GH.root";
   //-----------------------
-  TString top_emu_zh  = "/EleMuOSOF/GH/EleMuOSOF_nSelectedAODCaloJetTag_GH.root";
-  TString topl_emu_dy = "/EleMuOSOFL/GH/EleMuOSOFL_nSelectedAODCaloJetTag_GH.root";
+  TString top_emu  = "/EleMuOSOF/GH/EleMuOSOF_nSelectedAODCaloJetTag_GH.root";
+  TString top_emul = "/EleMuOSOFL/GH/EleMuOSOFL_nSelectedAODCaloJetTag_GH.root";
 
 
 
@@ -100,29 +100,53 @@ int main( int argc, char** argv )
   //get light from mumuZH
   std::cout << tmp_file << std::endl;
   TH1F* h_dy_mumu_zh = (TH1F*)fin->Get("light");
-  delete fin;
+  TH1F* h_top_mumu_zh = (TH1F*)fin->Get("heavy");
+  //h_dy_mumu_zh->Integral();
   //get light from eeZH
   tmp_file = inputDir.c_str() + dy_ee_zh;
   std::cout << tmp_file << std::endl;
   fin = new TFile( tmp_file, "READ");
   TH1F* h_dy_ee_zh   = (TH1F*)fin->Get("light");
-  delete fin;
+  TH1F* h_top_ee_zh = (TH1F*)fin->Get("heavy");
+  //delete fin;
 
   //get light from mumuDY
   tmp_file = inputDir.c_str() + dy_mumu_dy;
   std::cout << tmp_file << std::endl;
   fin = new TFile( tmp_file, "READ");
   TH1F* h_dy_mumu_dy = (TH1F*)fin->Get("light");
-  delete fin;
+  TH1F* h_top_mumu_dy = (TH1F*)fin->Get("heavy");
+  //delete fin;
   //get light from eeDY
   tmp_file = inputDir.c_str() + dy_ee_dy;
   std::cout << tmp_file << std::endl;
   fin = new TFile( tmp_file, "READ");
   TH1F* h_dy_ee_dy   = (TH1F*)fin->Get("light");
-  delete fin;
+  TH1F* h_top_ee_dy = (TH1F*)fin->Get("heavy");
+  //get heavy from emu
+  tmp_file = inputDir.c_str() + top_emu;
+  std::cout << tmp_file << std::endl;
+  fin = new TFile( tmp_file, "READ");
+  TH1F* h_top_emu   = (TH1F*)fin->Get("heavy");
+  //get heavy from emul
+  tmp_file = inputDir.c_str() + top_emul;
+  std::cout << tmp_file << std::endl;
+  fin = new TFile( tmp_file, "READ");
+  TH1F* h_top_emul   = (TH1F*)fin->Get("heavy");
+
+
+  //delete fin;
 
   create_tf_plot(h_dy_mumu_zh, h_dy_mumu_dy, "tf_z_mumu");
+  create_tf_plot(h_dy_ee_zh, h_dy_ee_dy, "tf_z_ee");
 
+  create_tf_plot(h_top_mumu_zh, h_top_emu, "tf_top_ZHmumu_emu");
+  create_tf_plot(h_top_ee_zh, h_top_emu, "tf_top_ZHee_emu");
+
+  create_tf_plot(h_top_mumu_dy, h_top_emul, "tf_top_DYmumu_emul");
+  create_tf_plot(h_top_ee_dy, h_top_emul, "tf_top_DYee_emul");
+
+  delete fin;
 
   return 0;
 }

@@ -7,8 +7,8 @@
 //------------------------
 //const float lumi = 5;
 //Axis
-//const float axisTitleSize = 0.06;
-//const float axisTitleOffset = .8;
+const float axisTitleSize = 0.06;
+const float axisTitleOffset = .8;
 
 const float axisTitleSizeRatioX   = 0.18;
 const float axisLabelSizeRatioX   = 0.12;
@@ -284,21 +284,20 @@ bool create_tf_plot(TH1F* h_to, TH1F* h_from, TString plot_name)
   //Set Uncertainty to only the poisson, remove the one from bkg
   ratio->SetMarkerStyle( 20 );
   ratio->SetMarkerSize( 1.0 );
-  ratio->GetXaxis()->SetTitleSize( axisTitleSizeRatioX );
-  ratio->GetXaxis()->SetLabelSize( axisLabelSizeRatioX );
-  ratio->GetXaxis()->SetTitleOffset( axisTitleOffsetRatioX );
-  ratio->GetYaxis()->SetTitleSize( axisTitleSizeRatioY );
-  ratio->GetYaxis()->SetLabelSize( axisLabelSizeRatioY );
-  ratio->GetYaxis()->SetTitleOffset( axisTitleOffsetRatioY );
+  ratio->GetXaxis()->SetTitleSize( axisTitleSize );
+  ratio->GetXaxis()->SetTitleOffset( axisTitleOffset );
+  ratio->GetYaxis()->SetTitleSize( axisTitleSize );
+  ratio->GetYaxis()->SetTitleOffset( axisTitleOffset );
   ratio->SetMarkerColor( kBlack );
   ratio->SetLineColor( kBlack );
   ratio->SetLineWidth( 2 );
-  ratio->GetYaxis()->SetRangeUser( 0.0, 3.0 );
+  //ratio->GetYaxis()->SetRangeUser( 0.0, 3.0 );
+  ratio->GetXaxis()->SetRangeUser( 0.0, 3.0 );
   ratio->SetTitle("");
-  ratio->GetYaxis()->SetTitle("data / mc");
-  ratio->GetXaxis()->SetTitle("nJet_{tags}");
-  ratio->GetYaxis()->CenterTitle( true );
-  ratio->GetYaxis()->SetNdivisions( 10, false );
+  ratio->GetYaxis()->SetTitle("MC Transfer Factor");
+  ratio->GetXaxis()->SetTitle("N^{dis}_{j}");
+  //ratio->GetYaxis()->CenterTitle( true );
+  //ratio->GetYaxis()->SetNdivisions( 10, false );
   ratio->SetStats( 0 );
   ratio->Draw("E1");
 

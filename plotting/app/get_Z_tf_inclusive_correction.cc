@@ -102,10 +102,10 @@ int main( int argc, char** argv )
   //get control region yields
   //-------------------------
   //(binning is 10 GeV from 0-500)
-  double dataCR_yield  = data->Integral(2,10);//from 10 to 100 GeV
-  double lightCR_yield = light->Integral(2,10);//from 10 to 100 GeV
-  double heavyCR_yield = heavy->Integral(2,10);//from 10 to 100 GeV
-  double otherCR_yield = other->Integral(2,10);//from 10 to 100 GeV
+  double dataCR_yield  = data->Integral(1,10);//from 10 to 100 GeV
+  double lightCR_yield = light->Integral(1,10);//from 10 to 100 GeV
+  double heavyCR_yield = heavy->Integral(1,10);//from 10 to 100 GeV
+  double otherCR_yield = other->Integral(1,10);//from 10 to 100 GeV
 
   //-------------------------
   //get signal region yields
