@@ -16,18 +16,21 @@ TARGET = PlotLimits
 TARGET2 = PlotVR
 TARGET3 = GetExtraSysUnc
 TARGET4 = GetZ_TF_InclusiveCorrection
+TARGET5 = Plot_TF
 
 SRC = $(REPO)/app/plot_limits.cc $(COMMON)/src/CommandLineInput.cc
 SRC2 = $(REPO)/app/plot_validation_region.cc $(REPO)/src/helper_functions.cc $(COMMON)/src/CommandLineInput.cc
 SRC3 = $(REPO)/app/get_extra_sys_unc.cc $(REPO)/src/helper_functions.cc $(COMMON)/src/CommandLineInput.cc
 SRC4 = $(REPO)/app/get_Z_tf_inclusive_correction.cc $(REPO)/src/helper_functions.cc $(COMMON)/src/CommandLineInput.cc
+SRC5 = $(REPO)/app/plot_tf.cc $(REPO)/src/helper_functions.cc $(COMMON)/src/CommandLineInput.cc
 
 OBJ = $(SRC:.cc=.o)
 OBJ2 = $(SRC2:.cc=.o)
 OBJ3 = $(SRC3:.cc=.o)
 OBJ4 = $(SRC4:.cc=.o)
+OBJ5 = $(SRC5:.cc=.o)
 
-all : $(TARGET) $(TARGET2) $(TARGET3) $(TARGET4)
+all : $(TARGET) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5)
 
 $(TARGET) : $(OBJ)
 	$(LD) $(CPPFLAGS) -o $(TARGET) $(OBJ) $(LDFLAGS)
@@ -54,6 +57,12 @@ $(TARGET4) : $(OBJ4)
 	@echo $<
 	@echo $^
 
+$(TARGET5) : $(OBJ5)
+	$(LD) $(CPPFLAGS) -o $(TARGET5) $(OBJ5) $(LDFLAGS)
+	@echo $@
+	@echo $<
+	@echo $^
+
 
 %.o : %.cc
 	$(CXX) $(CPPFLAGS) -o $@ -c $<
@@ -61,4 +70,4 @@ $(TARGET4) : $(OBJ4)
 	@echo $<
 
 clean :
-	rm -f *.o app/*.o src/*.o include/*.o $(TARGET) $(TARGET2) $(TARGET3) $(TARGET4) *~
+	rm -f *.o app/*.o src/*.o include/*.o $(TARGET) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) *~

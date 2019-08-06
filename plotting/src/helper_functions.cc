@@ -240,7 +240,76 @@ bool create_ratio_plot(TGraphAsymmErrors* data, THStack* stack, TH1F* total_bkg,
   return true;
 };
 
+bool create_tf_plot(TH1F* h_to, TH1F* h_from, TString plot_name)
+{
+  TCanvas* c = new TCanvas( "c", "c", 2119, 33, 800, 700 );
+  c->SetHighLightColor(2);
+  c->SetFillColor(0);
+  c->SetBorderMode(0);
+  c->SetBorderSize(2);
+  c->SetLeftMargin( leftMargin );
+  c->SetRightMargin( rightMargin );
+  c->SetTopMargin( topMargin );
+  c->SetBottomMargin( bottomMargin );
+  c->SetFrameBorderMode(0);
+  c->SetFrameBorderMode(0);
+  c->cd();
+  //-----------------
+  //Legend
+  //------------------
+  TLegend* leg = new TLegend( 0.73, 0.65, 0.93, 0.88, NULL, "brNDC" );
+  leg->SetBorderSize(0);
+  leg->SetLineColor(1);
+  leg->SetLineStyle(1);
+  leg->SetLineWidth(1);
+  leg->SetFillColor(0);
+  leg->SetFillStyle(1001);
+  leg->SetTextSize(0.04);
+  //leg->AddEntry( data, "  data", "lep" );
+  //leg->AddEntry( light, "  Z/#gamma^{*}", "f" );
+  //leg->AddEntry( heavy, "  t#bar{t}+t", "f" );
+  //leg->AddEntry( other, "  other", "f" );
 
+  leg->Draw();
+
+
+  //------------------
+  //Ratio Plot
+  //------------------
+  c->cd();
+
+
+  TH1F* ratio = new TH1F( *h_to );
+  ratio->Divide( h_from );
+  //Set Uncertainty to only the poisson, remove the one from bkg
+  ratio->SetMarkerStyle( 20 );
+  ratio->SetMarkerSize( 1.0 );
+  ratio->GetXaxis()->SetTitleSize( axisTitleSizeRatioX );
+  ratio->GetXaxis()->SetLabelSize( axisLabelSizeRatioX );
+  ratio->GetXaxis()->SetTitleOffset( axisTitleOffsetRatioX );
+  ratio->GetYaxis()->SetTitleSize( axisTitleSizeRatioY );
+  ratio->GetYaxis()->SetLabelSize( axisLabelSizeRatioY );
+  ratio->GetYaxis()->SetTitleOffset( axisTitleOffsetRatioY );
+  ratio->SetMarkerColor( kBlack );
+  ratio->SetLineColor( kBlack );
+  ratio->SetLineWidth( 2 );
+  ratio->GetYaxis()->SetRangeUser( 0.0, 3.0 );
+  ratio->SetTitle("");
+  ratio->GetYaxis()->SetTitle("data / mc");
+  ratio->GetXaxis()->SetTitle("nJet_{tags}");
+  ratio->GetYaxis()->CenterTitle( true );
+  ratio->GetYaxis()->SetNdivisions( 10, false );
+  ratio->SetStats( 0 );
+  ratio->Draw("E1");
+
+
+  //ratio->Draw("E1+SAME");
+
+  c->SaveAs(plot_name+".pdf");
+  c->SaveAs(plot_name+".C");
+
+  return true;
+};
 
 bool AddCMS( TCanvas* C )
 {
