@@ -71,15 +71,16 @@ int main( int argc, char** argv )
     std::cout << "[INFO]: input directory: " << inputDir << std::endl;
   }
 
+  TString var_name = "nSelectedAODCaloJetTag_GH.root";
   //-----------------------
-  TString dy_mumu_zh  = "/TwoMuZH/GH/TwoMuZH_nSelectedAODCaloJetTag_GH.root";
-  TString dy_ee_zh    = "/TwoEleZH/GH/TwoEleZH_nSelectedAODCaloJetTag_GH.root";
+  TString dy_mumu_zh  = "/TwoMuZH/GH/TwoMuZH_" + var_name;
+  TString dy_ee_zh    = "/TwoEleZH/GH/TwoEleZH_" + var_name;
   //-----------------------
-  TString dy_mumu_dy  = "/TwoMuDY/GH/TwoMuDY_nSelectedAODCaloJetTag_GH.root";
-  TString dy_ee_dy    = "/TwoEleDY/GH/TwoEleDY_nSelectedAODCaloJetTag_GH.root";
+  TString dy_mumu_dy  = "/TwoMuDY/GH/TwoMuDY_" + var_name;
+  TString dy_ee_dy    = "/TwoEleDY/GH/TwoEleDY_" + var_name;
   //-----------------------
-  TString top_emu  = "/EleMuOSOF/GH/EleMuOSOF_nSelectedAODCaloJetTag_GH.root";
-  TString top_emul = "/EleMuOSOFL/GH/EleMuOSOFL_nSelectedAODCaloJetTag_GH.root";
+  TString top_emu  = "/EleMuOSOF/GH/EleMuOSOF_" + var_name;
+  TString top_emul = "/EleMuOSOFL/GH/EleMuOSOFL_" + var_name;
 
 
 
