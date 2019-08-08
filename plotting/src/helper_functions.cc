@@ -1,5 +1,8 @@
 #include <iostream>
 #include <TLegend.h>
+#include <TGraphErrors.h>
+#include <TROOT.h>
+#include <TStyle.h>
 #include <helper_functions.hh>
 
 //------------------------
@@ -278,6 +281,11 @@ bool create_tf_plot(TH1F* h_to, TH1F* h_from, TString plot_name)
   //------------------
   c->cd();
 
+  //gROOT->LoadMacro("AtlasStyle.C")
+  //gROOT->SetStyle("ATLAS");
+  //atlasStyle->SetErrorX(0.5);
+  //gStyle->SetErrorX(0);
+  //gStyle->SetErrorY(0);
 
   TH1F* ratio = new TH1F( *h_to );
   ratio->Divide( h_from );
@@ -298,8 +306,25 @@ bool create_tf_plot(TH1F* h_to, TH1F* h_from, TString plot_name)
   ratio->GetXaxis()->SetTitle("N^{dis}_{j}");
   //ratio->GetYaxis()->CenterTitle( true );
   //ratio->GetYaxis()->SetNdivisions( 10, false );
+  TH1F* ratio2 = new TH1F( *ratio );
+
   ratio->SetStats( 0 );
-  ratio->Draw("E1");
+  ratio->SetFillColor( kAzure-4 );
+  TGraphErrors* graph = new TGraphErrors(3);
+  graph->SetPoint(0, 0.0, ratio->GetBinContent(1));
+  graph->SetPoint(1, 1.0, ratio->GetBinContent(2));
+  graph->SetPoint(2, 2.0, ratio->GetBinContent(3));
+  graph->SetPointError(0, 0.5, 0);
+  graph->SetPointError(1, 0.5, 0);
+  graph->SetPointError(2, 0.5, 0);
+  //ratio->Draw("B");
+  //ratio2->SetBinError(1,0);
+  //ratio2->SetBinError(2,0);
+  //ratio2->SetBinError(3,0);
+  //ratio2->SetBinError(4,0);
+  ratio->Draw("E2");
+  graph->Draw("P+same");
+  //ratio2->Draw("HISTO+SAME+][");
 
 
   //ratio->Draw("E1+SAME");
