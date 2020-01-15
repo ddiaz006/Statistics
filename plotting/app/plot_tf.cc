@@ -66,21 +66,38 @@ int main( int argc, char** argv )
     return -1;
   }
 
+  //-----------------
+  //Append filename
+  //-----------------
+  std::string outputName = ParseCommandLine( argc, argv, "-outputName=" );
+  if (  outputName == "" )
+  {
+    std::cerr << "[WARNING]: please provide an outputName. Use --outputName=" << std::endl;
+    //return -1;
+  }
+
   if( _info )
   {
     std::cout << "[INFO]: input directory: " << inputDir << std::endl;
   }
 
-  TString var_name = "nSelectedAODCaloJetTag_GH.root";
+  TString var_name = "nSelectedAODCaloJetTag_log.root";
   //-----------------------
-  TString dy_mumu_zh  = "/TwoMuZH/GH/TwoMuZH_" + var_name;
-  TString dy_ee_zh    = "/TwoEleZH/GH/TwoEleZH_" + var_name;
+  //TString dy_mumu_zh  = "/TwoMuZH/log/TwoMuZH_" + var_name;
+  //TString dy_ee_zh    = "/TwoEleZH/log/TwoEleZH_" + var_name;
+  TString dy_mumu_zh  = "/TwoMuZH_" + var_name;
+  TString dy_ee_zh    = "/TwoEleZH_" + var_name;
+
   //-----------------------
-  TString dy_mumu_dy  = "/TwoMuDY/GH/TwoMuDY_" + var_name;
-  TString dy_ee_dy    = "/TwoEleDY/GH/TwoEleDY_" + var_name;
+  //TString dy_mumu_dy  = "/TwoMuDY/log/TwoMuDY_" + var_name;
+  //TString dy_ee_dy    = "/TwoEleDY/log/TwoEleDY_" + var_name;
+  TString dy_mumu_dy  = "/TwoMuDY_" + var_name;
+  TString dy_ee_dy    = "/TwoEleDY_" + var_name;
   //-----------------------
-  TString top_emu  = "/EleMuOSOF/GH/EleMuOSOF_" + var_name;
-  TString top_emul = "/EleMuOSOFL/GH/EleMuOSOFL_" + var_name;
+  //TString top_emu  = "/EleMuOSOF/log/EleMuOSOF_" + var_name;
+  //TString top_emul = "/EleMuOSOFL/log/EleMuOSOFL_" + var_name;
+  TString top_emu  = "/EleMuOSOF_" + var_name;
+  TString top_emul = "/EleMuOSOFL_" + var_name;
 
 
 
@@ -111,14 +128,14 @@ int main( int argc, char** argv )
   TH1F* h_top_ee_zh = (TH1F*)fin->Get("heavy");
   //delete fin;
 
-  //get light from mumuDY
+  //get light from mumulight
   tmp_file = inputDir.c_str() + dy_mumu_dy;
   std::cout << tmp_file << std::endl;
   fin = new TFile( tmp_file, "READ");
   TH1F* h_dy_mumu_dy = (TH1F*)fin->Get("light");
   TH1F* h_top_mumu_dy = (TH1F*)fin->Get("heavy");
   //delete fin;
-  //get light from eeDY
+  //get light from eelight
   tmp_file = inputDir.c_str() + dy_ee_dy;
   std::cout << tmp_file << std::endl;
   fin = new TFile( tmp_file, "READ");
@@ -137,15 +154,15 @@ int main( int argc, char** argv )
 
 
   //delete fin;
+  TString output_Name_str = outputName.c_str();
+  create_tf_plot(h_dy_mumu_zh, h_dy_mumu_dy, "tf_z_mumu_"+output_Name_str);
+  create_tf_plot(h_dy_ee_zh, h_dy_ee_dy, "tf_z_ee_"+output_Name_str);
 
-  create_tf_plot(h_dy_mumu_zh, h_dy_mumu_dy, "tf_z_mumu");
-  create_tf_plot(h_dy_ee_zh, h_dy_ee_dy, "tf_z_ee");
+  create_tf_plot(h_top_mumu_zh, h_top_emu, "tf_top_ZHmumu_emu_"+output_Name_str);
+  create_tf_plot(h_top_ee_zh, h_top_emu, "tf_top_ZHee_emu_"+output_Name_str);
 
-  create_tf_plot(h_top_mumu_zh, h_top_emu, "tf_top_ZHmumu_emu");
-  create_tf_plot(h_top_ee_zh, h_top_emu, "tf_top_ZHee_emu");
-
-  create_tf_plot(h_top_mumu_dy, h_top_emul, "tf_top_DYmumu_emul");
-  create_tf_plot(h_top_ee_dy, h_top_emul, "tf_top_DYee_emul");
+  create_tf_plot(h_top_mumu_dy, h_top_emul, "tf_top_DYmumu_emul_"+output_Name_str);
+  create_tf_plot(h_top_ee_dy, h_top_emul, "tf_top_DYee_emul_"+output_Name_str);
 
   delete fin;
 

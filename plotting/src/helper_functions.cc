@@ -300,17 +300,26 @@ bool create_tf_plot(TH1F* h_to, TH1F* h_from, TString plot_name)
   ratio->SetLineColor( kBlack );
   ratio->SetLineWidth( 2 );
   //ratio->GetYaxis()->SetRangeUser( 0.0, 3.0 );
-  ratio->GetXaxis()->SetRangeUser( 0.0, 3.0 );
+  ratio->GetXaxis()->SetRangeUser( 0.0, 2.5 );
+  ratio->GetYaxis()->SetRangeUser( 0.0, 20 );
   ratio->SetTitle("");
   ratio->GetYaxis()->SetTitle("MC Transfer Factor");
   ratio->GetXaxis()->SetTitle("N^{dis}_{j}");
-  //ratio->GetYaxis()->CenterTitle( true );
+  ratio->GetYaxis()->CenterTitle( true );
   //ratio->GetYaxis()->SetNdivisions( 10, false );
   TH1F* ratio2 = new TH1F( *ratio );
 
   ratio->SetStats( 0 );
-  ratio->SetFillColor( kAzure-4 );
+  ratio->SetFillColor( kRed-9 );
+  ratio->SetMarkerColor( kRed-9 );
+  ratio->SetMarkerSize( 0.0 );
   TGraphErrors* graph = new TGraphErrors(3);
+
+  graph->SetLineWidth( 3.0 );
+  graph->SetLineStyle( 2 );
+  graph->SetMarkerSize( 0.0 );
+  graph->SetMarkerColor( kBlue-4 );
+  graph->SetLineColor( kBlue-4 );
   graph->SetPoint(0, 0.0, ratio->GetBinContent(1));
   graph->SetPoint(1, 1.0, ratio->GetBinContent(2));
   graph->SetPoint(2, 2.0, ratio->GetBinContent(3));
