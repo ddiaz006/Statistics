@@ -299,6 +299,31 @@ int main( int argc, char** argv )
   create_ratio_plot(data_two_mumu_zh_pf, stack_two_mumu_zh_pf, bkg_total_two_mumu_zh_pf,
      Form("two_mumu_zh_postfit_%s",vrName.c_str()), light_two_mumu_zh_pf, heavy_two_mumu_zh_pf, other_two_mumu_zh_pf);
 
+
+  //---------------------------
+  //pre-fit
+  //---------------------------
+  std::cout << "=================================================" << std::endl;
+  std::cout << "Z pre-fit yiedls: " << light_two_mumu_zh->GetBinContent(1)
+  << " " << light_two_mumu_zh->GetBinContent(2)
+  << " " << light_two_mumu_zh->GetBinContent(3) << std::endl;
+
+  std::cout << "tt pre-fit yiedls: " << heavy_two_mumu_zh->GetBinContent(1)
+  << " " << heavy_two_mumu_zh->GetBinContent(2)
+  << " " << heavy_two_mumu_zh->GetBinContent(3) << std::endl;
+
+
+  std::cout << "=================================================" << std::endl; 
+  //----------------------------
+  //post-fit
+  //----------------------------
+  std::cout << "Z postfit yiedls: " << light_two_mumu_zh_pf->GetBinContent(1)
+  << " " << light_two_mumu_zh_pf->GetBinContent(2)
+  << " " << light_two_mumu_zh_pf->GetBinContent(3) << std::endl;
+
+  std::cout << "tt postfit yiedls: " << heavy_two_mumu_zh_pf->GetBinContent(1)
+  << " " << heavy_two_mumu_zh_pf->GetBinContent(2)
+  << " " << heavy_two_mumu_zh_pf->GetBinContent(3) << std::endl;
   /*
   TCanvas* c = new TCanvas( "c", "c", 2119, 33, 800, 700 );
   c->SetHighLightColor(2);

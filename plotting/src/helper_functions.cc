@@ -163,7 +163,7 @@ bool create_ratio_plot(TGraphAsymmErrors* data, THStack* stack, TH1F* total_bkg,
   ratio->SetMarkerColor( kBlack );
   ratio->SetLineColor( kBlack );
   ratio->SetLineWidth( 2 );
-  ratio->GetYaxis()->SetRangeUser( 0.0, 3.0 );
+  ratio->GetYaxis()->SetRangeUser( 0.5, 1.5 );
   ratio->SetTitle("");
   ratio->GetYaxis()->SetTitle("data / mc");
   ratio->GetXaxis()->SetTitle("nJet_{tags}");
@@ -220,7 +220,7 @@ bool create_ratio_plot(TGraphAsymmErrors* data, THStack* stack, TH1F* total_bkg,
   //ratio3->SetFillColorAlpha(kBlue-9, 0.35);
   //ratio2->SetFillColor( kBlue-9 );
   ratio3->SetLineWidth( 2 );
-  ratio3->GetYaxis()->SetRangeUser( 0.0, 3.0 );
+  ratio3->GetYaxis()->SetRangeUser( 0.25, 1.75 );
   ratio3->SetTitle("");
   ratio3->GetYaxis()->SetTitle("data / mc");
   ratio3->GetXaxis()->SetTitle("nJet_{tags}");
