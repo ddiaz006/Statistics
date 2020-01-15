@@ -347,22 +347,76 @@ int main( int argc, char** argv )
     << " " << tmp_y[1]
     << " " << tmp_y[2] << std::endl;
 
+    std::cout << "====================================================" << std::endl;
+    data_two_mumu_dy_pf->GetPoint(0,tmp_x[0],tmp_y[0]);
+    data_two_mumu_dy_pf->GetPoint(1,tmp_x[1],tmp_y[1]);
+    data_two_mumu_dy_pf->GetPoint(2,tmp_x[2],tmp_y[2]);
+    printf ("data: %4.2f %4.2f %4.2f \n", tmp_y[0], tmp_y[1], tmp_y[2]);
+    printf("\\begin{table*}[!tbp]\n");
+    printf("\\centering\n");
+    printf("\\topcaption{$\\mathrm{VR}_{xx}$ results for the \\twolldy search region.}\n");
+    printf("\\label{tab:SignalSystematics}\n");
+    printf("\\begin{tabular}{cccc}\n\\hline\n");
+    printf("number of displaced jets & pre-fit & post-fit & observed \\\\\n\\hline\n");
+    printf("0 & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.0f\\\\\n",
+    bkg_total_two_mumu_dy->GetBinContent(1), bkg_total_two_mumu_dy->GetBinError(1),
+    bkg_total_two_mumu_dy_pf->GetBinContent(1), bkg_total_two_mumu_dy_pf->GetBinError(1), tmp_y[0]);
+    printf("1 & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.0f\\\\\n",
+    bkg_total_two_mumu_dy->GetBinContent(2), bkg_total_two_mumu_dy->GetBinError(2),
+    bkg_total_two_mumu_dy_pf->GetBinContent(2), bkg_total_two_mumu_dy_pf->GetBinError(2), tmp_y[1]);
+    printf("2 & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.0f\\\\\n",
+    bkg_total_two_mumu_dy->GetBinContent(3), bkg_total_two_mumu_dy->GetBinError(3),
+    bkg_total_two_mumu_dy_pf->GetBinContent(3), bkg_total_two_mumu_dy_pf->GetBinError(3), tmp_y[2]);
+    printf("\\hline\n\\end{tabular}\n\\end{table*}\n");
+
+    std::cout << "====================================================" << std::endl;
+    data_two_mumu_dy_pf->GetPoint(0,tmp_x[0],tmp_y[0]);
+    data_two_mumu_dy_pf->GetPoint(1,tmp_x[1],tmp_y[1]);
+    data_two_mumu_dy_pf->GetPoint(2,tmp_x[2],tmp_y[2]);
+    printf ("data: %4.2f %4.2f %4.2f \n", tmp_y[0], tmp_y[1], tmp_y[2]);
+    printf("\\begin{table*}[!tbp]\n");
+    printf("\\centering\n");
+    printf("\\topcaption{$\\mathrm{VR}_{xx}$ results for the \\twolldy search region.}\n");
+    printf("\\label{tab:SignalSystematics}\n");
+    printf("\\begin{tabular}{cccc}\n\\hline\n");
+    printf("number of displaced jets & pre-fit & post-fit & observed \\\\\n\\hline\n");
+    printf("0 & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.0f\\\\\n",
+    bkg_total_two_mumu_dy->GetBinContent(1), bkg_total_two_mumu_dy->GetBinError(1),
+    bkg_total_two_mumu_dy_pf->GetBinContent(1), bkg_total_two_mumu_dy_pf->GetBinError(1), tmp_y[0]);
+    printf("1 & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.0f\\\\\n",
+    bkg_total_two_mumu_dy->GetBinContent(2), bkg_total_two_mumu_dy->GetBinError(2),
+    bkg_total_two_mumu_dy_pf->GetBinContent(2), bkg_total_two_mumu_dy_pf->GetBinError(2), tmp_y[1]);
+    printf("2 & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.0f\\\\\n",
+    bkg_total_two_mumu_dy->GetBinContent(3), bkg_total_two_mumu_dy->GetBinError(3),
+    bkg_total_two_mumu_dy_pf->GetBinContent(3), bkg_total_two_mumu_dy_pf->GetBinError(3), tmp_y[2]);
+    printf("\\hline\n\\end{tabular}\n\\end{table*}\n");
+
+    std::cout << "====================================================" << std::endl;
+    data_two_mumu_zh_pf->GetPoint(0,tmp_x[0],tmp_y[0]);
+    data_two_mumu_zh_pf->GetPoint(1,tmp_x[1],tmp_y[1]);
+    data_two_mumu_zh_pf->GetPoint(2,tmp_x[2],tmp_y[2]);
     printf ("data: %4.2f %4.2f %4.2f \n", tmp_y[0], tmp_y[1], tmp_y[2]);
     printf("\\begin{table*}[!tbp]\n");
     printf("\\centering\n");
     printf("\\topcaption{$\\mathrm{VR}_{xx}$ results for the \\twollzh search region.}\n");
     printf("\\label{tab:SignalSystematics}\n");
-    printf("\\begin{tabular}{cccc}\n\\hline\n");
-    printf("number of displaced jets & pre-fit & post-fit & observed \\\\\n\\hline\n");
-    printf("0 & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.0f\\\\\n",
+    printf("\\begin{tabular}{cccccccccc}\n\\hline\n");
+    printf("number of displaced jets & Z pre-fit & Z post-fit & $t\\bar{t}$ pre-fit & $t\\bar{t}$ post-fit  & other pre-fit & other post-fit & total pre-fit & total post-fit & observed \\\\\n\\hline\n");
+    printf("0 & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.0f\\\\\n",
+    light_two_mumu_zh->GetBinContent(1), light_two_mumu_zh->GetBinError(1),
+    light_two_mumu_zh_pf->GetBinContent(1), light_two_mumu_zh_pf->GetBinError(1),
+    heavy_two_mumu_zh->GetBinContent(1), heavy_two_mumu_zh->GetBinError(1),
+    heavy_two_mumu_zh_pf->GetBinContent(1), heavy_two_mumu_zh_pf->GetBinError(1),
+    other_two_mumu_zh->GetBinContent(1), other_two_mumu_zh->GetBinError(1),
+    other_two_mumu_zh_pf->GetBinContent(1), other_two_mumu_zh_pf->GetBinError(1),
     bkg_total_two_mumu_zh->GetBinContent(1), bkg_total_two_mumu_zh->GetBinError(1),
     bkg_total_two_mumu_zh_pf->GetBinContent(1), bkg_total_two_mumu_zh_pf->GetBinError(1), tmp_y[0]);
-    printf("1 & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.0f\\\\\n",
-    bkg_total_two_mumu_zh->GetBinContent(2), bkg_total_two_mumu_zh->GetBinError(2),
-    bkg_total_two_mumu_zh_pf->GetBinContent(2), bkg_total_two_mumu_zh_pf->GetBinError(2), tmp_y[1]);
-    printf("2 & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.0f\\\\\n",
-    bkg_total_two_mumu_zh->GetBinContent(3), bkg_total_two_mumu_zh->GetBinError(3),
-    bkg_total_two_mumu_zh_pf->GetBinContent(3), bkg_total_two_mumu_zh_pf->GetBinError(3), tmp_y[2]);
+    // printf("1 & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.0f\\\\\n",
+    // bkg_total_two_mumu_zh->GetBinContent(2), bkg_total_two_mumu_zh->GetBinError(2),
+    // bkg_total_two_mumu_zh_pf->GetBinContent(2), bkg_total_two_mumu_zh_pf->GetBinError(2), tmp_y[1]);
+    // printf("2 & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.0f\\\\\n",
+    // bkg_total_two_mumu_zh->GetBinContent(3), bkg_total_two_mumu_zh->GetBinError(3),
+    // bkg_total_two_mumu_zh_pf->GetBinContent(3), bkg_total_two_mumu_zh_pf->GetBinError(3), tmp_y[2]);
     printf("\\hline\n\\end{tabular}\n\\end{table*}\n");
     // \end{tabular}
     // \end{table*}
