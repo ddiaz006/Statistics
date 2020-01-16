@@ -356,7 +356,7 @@ int main( int argc, char** argv )
     printf("\\centering\n");
     printf("\\topcaption{$\\mathrm{VR}_{xx}$ results for the \\elemul control region.}\n");
     printf("\\label{tab:SignalSystematics}\n");
-    printf("\\begin{tabular}{cccc}\n\\hline\n");
+    printf("\\begin{tabular}{llll}\n\\hline\n");
     printf("process & 0-displaced jets & 1-displaced jets & 2-displaced jets \\\\\n\\hline\n");
     printf("Z pre-fit & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f\\\\\n",
     light_elemul_dy->GetBinContent(1), light_elemul_dy->GetBinError(1),
@@ -406,7 +406,7 @@ int main( int argc, char** argv )
     printf("\\centering\n");
     printf("\\topcaption{$\\mathrm{VR}_{xx}$ results for the \\elemu control region.}\n");
     printf("\\label{tab:SignalSystematics}\n");
-    printf("\\begin{tabular}{cccc}\n\\hline\n");
+    printf("\\begin{tabular}{llll}\n\\hline\n");
     printf("process & 0-displaced jets & 1-displaced jets & 2-displaced jets \\\\\n\\hline\n");
     printf("Z pre-fit & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f\\\\\n",
     light_elemu_dy->GetBinContent(1), light_elemu_dy->GetBinError(1),
@@ -456,7 +456,7 @@ int main( int argc, char** argv )
     printf("\\centering\n");
     printf("\\topcaption{$\\mathrm{VR}_{xx}$ results for the \\twolldy control region.}\n");
     printf("\\label{tab:SignalSystematics}\n");
-    printf("\\begin{tabular}{cccc}\n\\hline\n");
+    printf("\\begin{tabular}{llll}\n\\hline\n");
     printf("process & 0-displaced jets & 1-displaced jets & 2-displaced jets \\\\\n\\hline\n");
     printf("Z pre-fit & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f\\\\\n",
     light_two_mumu_dy->GetBinContent(1), light_two_mumu_dy->GetBinError(1),
@@ -506,7 +506,7 @@ int main( int argc, char** argv )
     printf("\\centering\n");
     printf("\\topcaption{$\\mathrm{VR}_{xx}$ results for the \\twollzh search region.}\n");
     printf("\\label{tab:SignalSystematics}\n");
-    printf("\\begin{tabular}{cccc}\n\\hline\n");
+    printf("\\begin{tabular}{llll}\n\\hline\n");
     printf("process & 0-displaced jets & 1-displaced jets & 2-displaced jets \\\\\n\\hline\n");
     printf("Z pre-fit & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f & %.1f $\\pm$ %.1f\\\\\n",
     light_two_mumu_zh->GetBinContent(1), light_two_mumu_zh->GetBinError(1),

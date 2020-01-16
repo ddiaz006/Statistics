@@ -181,6 +181,11 @@ bool create_ratio_plot(TGraphAsymmErrors* data, THStack* stack, TH1F* total_bkg,
   {
     ratio2->SetBinContent(i,1.0);
     double rel_unc = total_bkg->GetBinError(i)/total_bkg->GetBinContent(i);
+    if(rel_unc == 0)
+    {
+      std::cout << "relative uncertainty is ZERO!" << std::endl;
+      rel_unc = 1e-6;
+    }
     ratio2->SetBinError(i,rel_unc);
 
     ratio3->SetBinContent(i,1.0);
