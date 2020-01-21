@@ -41,4 +41,4 @@ rrv_MES param 0 1
 rrv_EGS param 0 1
 
 #log-Normal uncertainty
-#method_add_sys_mu_ch lnN           1.0414535   -   -	  -
+method_add_sys_mu_ch lnN           0.99699044   -   -	  -

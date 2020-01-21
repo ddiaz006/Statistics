@@ -71,11 +71,13 @@ using namespace std;
 
 
 //Global options
-TString dummy_syst = "0.5";
-//TString xvar = "nSelectedAODCaloJetTag";
-TString xvar = "nSelectedAODCaloJetTagSB5";
-TString xvar_suffix = "_GH";
-TString signal_string = "Sig_MS55ct1000";
+bool _additional_method_sys = true;
+TString dummy_syst = "0.01";
+TString xvar = "nSelectedAODCaloJetTag";
+//TString xvar = "nSelectedAODCaloJetTagSB7";
+//TString xvar_suffix = "_GH";
+TString xvar_suffix = "_log";
+TString signal_string = "Sig_MS55ct100";
 //TString data_string = "bkgtotal"; //"Data";
 TString data_string = "Data";
 vector<TString> sys_vec;
@@ -154,14 +156,18 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
   s_bin2     += h_r->GetBinContent(2);
   s_bin2_err += h_r->GetBinError(2)/h_r->GetBinContent(2);//relative error
   if(h_r->GetBinContent(3)>0){
-  //if(0){
     s_bin3     += h_r->GetBinContent(3);
     s_bin3_err += h_r->GetBinError(3)/h_r->GetBinContent(3);//relative error
+    if(s_bin3_err.Atof() > 0.5) 
+      {
+	s_bin3 = s_bin2;
+	s_bin3_err = "0.5"; 
+      }
   }else{
     missing3 = true;
     cout << endl; cout << "*** WARNING *** : Using 1-tag ratio for " << process << " " << from_name << " to " << to_name << endl; cout << endl;
     s_bin3=s_bin2;
-    s_bin3_err=dummy_syst;//relative error
+    s_bin3_err=s_bin2_err;//relative error
     //s_bin3="0";
     //s_bin3_err="0.5";//relative error
   }
@@ -169,15 +175,21 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
   //TEST TF DUMMY UNCERTAINTY
   if( from_name=="twoeledy" )
   {
-    s_bin1_err = "0.01";
-    s_bin2_err = "0.01";
-    s_bin3_err = "0.01";
+    //s_bin1_err = s_bin2_err = s_bin3_err = "0.01";
+    //s_bin1 += "*1.06371";//2016 correction on pt
+    //s_bin2 += "*1.06371";//2016 correction on pt
+    //s_bin3 = "0.68945861";//add-hoc, mu and ele combination
+    //s_bin3_err = "0.83582353";
+    //s_bin3 += "*1.06371";//2016 correction on pt
   }
   else if( from_name=="twomudy" )
   {
-    s_bin1_err = "0.01";
-    s_bin2_err = "0.01";
-    s_bin3_err = "0.01";
+    //s_bin1_err = s_bin2_err = s_bin3_err = "0.01";
+    //s_bin1 += "*0.995138";//2016 correction on pt
+    //s_bin2 += "*0.995138";//2016 correction on pt
+    //s_bin3 = "0.68945861";//add-hoc, mu and ele combination
+    //s_bin3_err = "0.83582353";
+    //s_bin3 += "*0.995138";//2016 correction on pt
   }
 
   RooRealVar rrv_bin1("rrv_"+full_name+"_bin1", process+" "+from_name+" to "+to_name+" bin 1",0);
@@ -345,7 +357,7 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
 //---------------------------------------------------------------------------------------------------------------
 //TwoMuZH Region
 //---------------------------------------------------------------------------------------------------------------
-void build_twomuzh(RooWorkspace* wspace, TString light_est = "OnePho"){
+void build_twomuzh(RooWorkspace* wspace, TString light_est = "DY"){
 
   RooRealVar* ntags = wspace->var("ntags");
   RooArgList vars(*ntags);
@@ -361,6 +373,14 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "OnePho"){
   RooDataHist data_twomuzh_hist("data_obs_twomuzh", "Data observed in TwoMuZH", vars, &data_twomuzh_th1);
   wspace->import(data_twomuzh_hist);
 
+  //----------------------------------------------------
+  //setting up to add additional systematic uncertainty
+  //----------------------------------------------------
+  //std::string add_logN_systematic = "TMath::Power(1+0.1,@0)";
+  std::string add_logN_systematic = "TMath::Power(1+0.3,@0)";
+  RooRealVar rrv_twomuzh_add_sys_bin1("rrv_twomuzh_add_sys_bin1","rrv_twomuzh_add_sys_bin1", 1.0);
+  RooRealVar rrv_twomuzh_add_sys_bin2("rrv_twomuzh_add_sys_bin2","rrv_twomuzh_add_sys_bin2", 1.0);
+  RooRealVar rrv_twomuzh_add_sys_bin3("rrv_twomuzh_add_sys_bin3","rrv_twomuzh_add_sys_bin3", 1.0);
 
   //Other contamination
   TH1F* other_twomuzh_th1_file = (TH1F*)f_twomuzh->Get("other");
@@ -382,17 +402,43 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "OnePho"){
   RooRealVar* heavy_elemu_bin2 = wspace->var("heavy_elemu_bin2");
   RooRealVar* heavy_elemu_bin3 = wspace->var("heavy_elemu_bin3");
 
-  RooFormulaVar heavy_twomuzh_bin1("heavy_twomuzh_bin1", "Heavy background yield in TwoMuZH, bin 1",
-				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twomuzh_bin1, *heavy_elemu_bin1));
-  RooFormulaVar heavy_twomuzh_bin2("heavy_twomuzh_bin2", "Heavy background yield in TwoMuZH, bin 2",
-				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twomuzh_bin2, *heavy_elemu_bin2));
-  RooFormulaVar heavy_twomuzh_bin3("heavy_twomuzh_bin3", "Heavy background yield in TwoMuZH, bin 3",
-				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twomuzh_bin3, *heavy_elemu_bin3));
+  //---------------------------------------------------------
+  //Include additional systematic uncertainty for the method
+  //---------------------------------------------------------
+  RooFormulaVar heavy_twomuzh_logN_add_sys_bin1("heavy_twomuzh_logN_add_sys_bin1", "additional log-normal for method, bin 1",
+  add_logN_systematic.c_str(), RooArgList(rrv_twomuzh_add_sys_bin1));
+  RooFormulaVar heavy_twomuzh_logN_add_sys_bin2("heavy_twomuzh_logN_add_sys_bin2", "additional log-normal for method, bin 2",
+  add_logN_systematic.c_str(), RooArgList(rrv_twomuzh_add_sys_bin2));
+  RooFormulaVar heavy_twomuzh_logN_add_sys_bin3("heavy_twomuzh_logN_add_sys_bin3", "additional log-normal for method, bin 3",
+  add_logN_systematic.c_str(), RooArgList(rrv_twomuzh_add_sys_bin3));
+
+
+  RooFormulaVar* heavy_twomuzh_bin1;
+  RooFormulaVar* heavy_twomuzh_bin2;
+  RooFormulaVar* heavy_twomuzh_bin3;
+  if(_additional_method_sys)
+  {
+    heavy_twomuzh_bin1 = new RooFormulaVar("heavy_twomuzh_bin1", "Heavy background yield in twomuzh, bin 1",
+             "@0*@1*@2", RooArgList(*tf_heavy_elemu_to_twomuzh_bin1, *heavy_elemu_bin1, heavy_twomuzh_logN_add_sys_bin1));
+    heavy_twomuzh_bin2 = new RooFormulaVar("heavy_twomuzh_bin2", "Heavy background yield in twomuzh, bin 2",
+             "@0*@1*@2", RooArgList(*tf_heavy_elemu_to_twomuzh_bin2, *heavy_elemu_bin2, heavy_twomuzh_logN_add_sys_bin2));
+    heavy_twomuzh_bin3 = new RooFormulaVar("heavy_twomuzh_bin3", "Heavy background yield in twomuzh, bin 3",
+             "@0*@1*@2", RooArgList(*tf_heavy_elemu_to_twomuzh_bin3, *heavy_elemu_bin3, heavy_twomuzh_logN_add_sys_bin3));
+  }
+  else
+  {
+    heavy_twomuzh_bin1 = new RooFormulaVar("heavy_twomuzh_bin1", "Heavy background yield in twomuzh, bin 1",
+  				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twomuzh_bin1, *heavy_elemu_bin1));
+    heavy_twomuzh_bin2 = new RooFormulaVar("heavy_twomuzh_bin2", "Heavy background yield in twomuzh, bin 2",
+  				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twomuzh_bin2, *heavy_elemu_bin2));
+    heavy_twomuzh_bin3 = new RooFormulaVar("heavy_twomuzh_bin3", "Heavy background yield in twomuzh, bin 3",
+  				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twomuzh_bin3, *heavy_elemu_bin3));
+  }
 
   RooArgList heavy_twomuzh_bins;
-  heavy_twomuzh_bins.add(heavy_twomuzh_bin1);
-  heavy_twomuzh_bins.add(heavy_twomuzh_bin2);
-  heavy_twomuzh_bins.add(heavy_twomuzh_bin3);
+  heavy_twomuzh_bins.add(*heavy_twomuzh_bin1);
+  heavy_twomuzh_bins.add(*heavy_twomuzh_bin2);
+  heavy_twomuzh_bins.add(*heavy_twomuzh_bin3);
   RooParametricHist p_heavy_twomuzh("heavy_twomuzh", "Heavy PDF in TwoMuZH Region", *ntags, heavy_twomuzh_bins, data_twomuzh_th1);
   RooAddition p_heavy_twomuzh_norm("heavy_twomuzh_norm", "Total number of heavy events in TwoMuZH Region", heavy_twomuzh_bins);
 
@@ -437,17 +483,43 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "OnePho"){
     RooRealVar* light_twomudy_bin2 = wspace->var("light_twomudy_bin2");
     RooRealVar* light_twomudy_bin3 = wspace->var("light_twomudy_bin3");
 
-    RooFormulaVar light_twomuzh_bin1("light_twomuzh_bin1", "Light background yield in TwoMuZH, bin 1",
-				     "@0*@1", RooArgList(*tf_light_twomudy_to_twomuzh_bin1, *light_twomudy_bin1));
-    RooFormulaVar light_twomuzh_bin2("light_twomuzh_bin2", "Light background yield in TwoMuZH, bin 2",
-				     "@0*@1", RooArgList(*tf_light_twomudy_to_twomuzh_bin2, *light_twomudy_bin2));
-    RooFormulaVar light_twomuzh_bin3("light_twomuzh_bin3", "Light background yield in TwoMuZH, bin 3",
-				     "@0*@1", RooArgList(*tf_light_twomudy_to_twomuzh_bin3, *light_twomudy_bin3));
+    //---------------------------------------------------------
+    //Include additional systematic uncertainty for the method
+    //---------------------------------------------------------
+    RooFormulaVar light_twomuzh_logN_add_sys_bin1("light_twomuzh_logN_add_sys_bin1", "additional log-normal for method, bin 1",
+    add_logN_systematic.c_str(), RooArgList(rrv_twomuzh_add_sys_bin1));
+    RooFormulaVar light_twomuzh_logN_add_sys_bin2("light_twomuzh_logN_add_sys_bin2", "additional log-normal for method, bin 2",
+    add_logN_systematic.c_str(), RooArgList(rrv_twomuzh_add_sys_bin2));
+    RooFormulaVar light_twomuzh_logN_add_sys_bin3("light_twomuzh_logN_add_sys_bin3", "additional log-normal for method, bin 3",
+    add_logN_systematic.c_str(), RooArgList(rrv_twomuzh_add_sys_bin3));
+
+    RooFormulaVar* light_twomuzh_bin1;
+    RooFormulaVar* light_twomuzh_bin2;
+    RooFormulaVar* light_twomuzh_bin3;
+    if(_additional_method_sys)
+    {
+      light_twomuzh_bin1 = new RooFormulaVar("light_twomuzh_bin1", "Light background yield in twomuzh, bin 1",
+               "@0*@1*@2", RooArgList(*tf_light_twomudy_to_twomuzh_bin1, *light_twomudy_bin1, light_twomuzh_logN_add_sys_bin1));
+      light_twomuzh_bin2 = new RooFormulaVar("light_twomuzh_bin2", "Light background yield in twomuzh, bin 2",
+               "@0*@1*@2", RooArgList(*tf_light_twomudy_to_twomuzh_bin2, *light_twomudy_bin2, light_twomuzh_logN_add_sys_bin2));
+      light_twomuzh_bin3 = new RooFormulaVar("light_twomuzh_bin3", "Light background yield in twomuzh, bin 3",
+               "@0*@1*@2", RooArgList(*tf_light_twomudy_to_twomuzh_bin3, *light_twomudy_bin3, light_twomuzh_logN_add_sys_bin3));
+    }
+    else
+    {
+      light_twomuzh_bin1 = new RooFormulaVar("light_twomuzh_bin1", "Light background yield in twomuzh, bin 1",
+  				     "@0*@1", RooArgList(*tf_light_twomudy_to_twomuzh_bin1, *light_twomudy_bin1));
+      light_twomuzh_bin2 = new RooFormulaVar("light_twomuzh_bin2", "Light background yield in twomuzh, bin 2",
+  				     "@0*@1", RooArgList(*tf_light_twomudy_to_twomuzh_bin2, *light_twomudy_bin2));
+      light_twomuzh_bin3 = new RooFormulaVar("light_twomuzh_bin3", "Light background yield in twomuzh, bin 3",
+  				     "@0*@1", RooArgList(*tf_light_twomudy_to_twomuzh_bin3, *light_twomudy_bin3));
+    }
+
 
     RooArgList light_twomuzh_bins;
-    light_twomuzh_bins.add(light_twomuzh_bin1);
-    light_twomuzh_bins.add(light_twomuzh_bin2);
-    light_twomuzh_bins.add(light_twomuzh_bin3);
+    light_twomuzh_bins.add(*light_twomuzh_bin1);
+    light_twomuzh_bins.add(*light_twomuzh_bin2);
+    light_twomuzh_bins.add(*light_twomuzh_bin3);
     RooParametricHist p_light_twomuzh("light_twomuzh", "Light PDF in TwoMuZH Region", *ntags, light_twomuzh_bins, data_twomuzh_th1);
     RooAddition p_light_twomuzh_norm("light_twomuzh_norm", "Total number of light events in TwoMuZH Region", light_twomuzh_bins);
 
@@ -474,7 +546,7 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "OnePho"){
 //---------------------------------------------------------------------------------------------------------------
 //TwoEleZH Region
 //---------------------------------------------------------------------------------------------------------------
-void build_twoelezh(RooWorkspace* wspace, TString light_est = "OnePho"){
+void build_twoelezh(RooWorkspace* wspace, TString light_est = "DY"){
 
   RooRealVar* ntags = wspace->var("ntags");
   RooArgList vars(*ntags);
@@ -490,6 +562,15 @@ void build_twoelezh(RooWorkspace* wspace, TString light_est = "OnePho"){
   RooDataHist data_twoelezh_hist("data_obs_twoelezh", "Data observed in TwoEleZH", vars, &data_twoelezh_th1);
   wspace->import(data_twoelezh_hist);
 
+
+  //----------------------------------------------------
+  //setting up to add additional systematic uncertainty
+  //----------------------------------------------------
+  //std::string add_logN_systematic = "TMath::Power(1+0.1,@0)";
+  std::string add_logN_systematic = "TMath::Power(1+0.3,@0)";
+  RooRealVar rrv_twoelezh_add_sys_bin1("rrv_twoelezh_add_sys_bin1","rrv_twoelezh_add_sys_bin1", 1.0);
+  RooRealVar rrv_twoelezh_add_sys_bin2("rrv_twoelezh_add_sys_bin2","rrv_twoelezh_add_sys_bin2", 1.0);
+  RooRealVar rrv_twoelezh_add_sys_bin3("rrv_twoelezh_add_sys_bin3","rrv_twoelezh_add_sys_bin3", 1.0);
 
   //Other contamination
   TH1F* other_twoelezh_th1_file = (TH1F*)f_twoelezh->Get("other");
@@ -511,17 +592,43 @@ void build_twoelezh(RooWorkspace* wspace, TString light_est = "OnePho"){
   RooRealVar* heavy_elemu_bin2 = wspace->var("heavy_elemu_bin2");
   RooRealVar* heavy_elemu_bin3 = wspace->var("heavy_elemu_bin3");
 
-  RooFormulaVar heavy_twoelezh_bin1("heavy_twoelezh_bin1", "Heavy background yield in TwoEleZH, bin 1",
-				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twoelezh_bin1, *heavy_elemu_bin1));
-  RooFormulaVar heavy_twoelezh_bin2("heavy_twoelezh_bin2", "Heavy background yield in TwoEleZH, bin 2",
-				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twoelezh_bin2, *heavy_elemu_bin2));
-  RooFormulaVar heavy_twoelezh_bin3("heavy_twoelezh_bin3", "Heavy background yield in TwoEleZH, bin 3",
-				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twoelezh_bin3, *heavy_elemu_bin3));
+  //---------------------------------------------------------
+  //Include additional systematic uncertainty for the method
+  //---------------------------------------------------------
+  RooFormulaVar heavy_twoelezh_logN_add_sys_bin1("heavy_twoelezh_logN_add_sys_bin1", "additional log-normal for method, bin 1",
+  add_logN_systematic.c_str(), RooArgList(rrv_twoelezh_add_sys_bin1));
+  RooFormulaVar heavy_twoelezh_logN_add_sys_bin2("heavy_twoelezh_logN_add_sys_bin2", "additional log-normal for method, bin 2",
+  add_logN_systematic.c_str(), RooArgList(rrv_twoelezh_add_sys_bin2));
+  RooFormulaVar heavy_twoelezh_logN_add_sys_bin3("heavy_twoelezh_logN_add_sys_bin3", "additional log-normal for method, bin 3",
+  add_logN_systematic.c_str(), RooArgList(rrv_twoelezh_add_sys_bin3));
 
+
+  RooFormulaVar* heavy_twoelezh_bin1;
+  RooFormulaVar* heavy_twoelezh_bin2;
+  RooFormulaVar* heavy_twoelezh_bin3;
+  if(_additional_method_sys)
+  {
+    heavy_twoelezh_bin1 = new RooFormulaVar("heavy_twoelezh_bin1", "Heavy background yield in TwoEleZH, bin 1",
+             "@0*@1*@2", RooArgList(*tf_heavy_elemu_to_twoelezh_bin1, *heavy_elemu_bin1, heavy_twoelezh_logN_add_sys_bin1));
+    heavy_twoelezh_bin2 = new RooFormulaVar("heavy_twoelezh_bin2", "Heavy background yield in TwoEleZH, bin 2",
+             "@0*@1*@2", RooArgList(*tf_heavy_elemu_to_twoelezh_bin2, *heavy_elemu_bin2, heavy_twoelezh_logN_add_sys_bin2));
+    heavy_twoelezh_bin3 = new RooFormulaVar("heavy_twoelezh_bin3", "Heavy background yield in TwoEleZH, bin 3",
+             "@0*@1*@2", RooArgList(*tf_heavy_elemu_to_twoelezh_bin3, *heavy_elemu_bin3, heavy_twoelezh_logN_add_sys_bin3));
+  }
+  else
+  {
+    heavy_twoelezh_bin1 = new RooFormulaVar("heavy_twoelezh_bin1", "Heavy background yield in TwoEleZH, bin 1",
+  				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twoelezh_bin1, *heavy_elemu_bin1));
+    heavy_twoelezh_bin2 = new RooFormulaVar("heavy_twoelezh_bin2", "Heavy background yield in TwoEleZH, bin 2",
+  				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twoelezh_bin2, *heavy_elemu_bin2));
+    heavy_twoelezh_bin3 = new RooFormulaVar("heavy_twoelezh_bin3", "Heavy background yield in TwoEleZH, bin 3",
+  				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twoelezh_bin3, *heavy_elemu_bin3));
+  }
+  //std::cout << "EleZH heavy bin1: " << heavy_twoelezh_bin1.Print() << std::endl;
   RooArgList heavy_twoelezh_bins;
-  heavy_twoelezh_bins.add(heavy_twoelezh_bin1);
-  heavy_twoelezh_bins.add(heavy_twoelezh_bin2);
-  heavy_twoelezh_bins.add(heavy_twoelezh_bin3);
+  heavy_twoelezh_bins.add(*heavy_twoelezh_bin1);
+  heavy_twoelezh_bins.add(*heavy_twoelezh_bin2);
+  heavy_twoelezh_bins.add(*heavy_twoelezh_bin3);
   RooParametricHist p_heavy_twoelezh("heavy_twoelezh", "Heavy PDF in TwoEleZH Region", *ntags, heavy_twoelezh_bins, data_twoelezh_th1);
   RooAddition p_heavy_twoelezh_norm("heavy_twoelezh_norm", "Total number of heavy events in TwoEleZH Region", heavy_twoelezh_bins);
 
@@ -566,17 +673,43 @@ void build_twoelezh(RooWorkspace* wspace, TString light_est = "OnePho"){
     RooRealVar* light_twoeledy_bin2 = wspace->var("light_twoeledy_bin2");
     RooRealVar* light_twoeledy_bin3 = wspace->var("light_twoeledy_bin3");
 
-    RooFormulaVar light_twoelezh_bin1("light_twoelezh_bin1", "Light background yield in TwoEleZH, bin 1",
-				     "@0*@1", RooArgList(*tf_light_twoeledy_to_twoelezh_bin1, *light_twoeledy_bin1));
-    RooFormulaVar light_twoelezh_bin2("light_twoelezh_bin2", "Light background yield in TwoEleZH, bin 2",
-				     "@0*@1", RooArgList(*tf_light_twoeledy_to_twoelezh_bin2, *light_twoeledy_bin2));
-    RooFormulaVar light_twoelezh_bin3("light_twoelezh_bin3", "Light background yield in TwoEleZH, bin 3",
-				     "@0*@1", RooArgList(*tf_light_twoeledy_to_twoelezh_bin3, *light_twoeledy_bin3));
+    //---------------------------------------------------------
+    //Include additional systematic uncertainty for the method
+    //---------------------------------------------------------
+    RooFormulaVar light_twoelezh_logN_add_sys_bin1("light_twoelezh_logN_add_sys_bin1", "additional log-normal for method, bin 1",
+    add_logN_systematic.c_str(), RooArgList(rrv_twoelezh_add_sys_bin1));
+    RooFormulaVar light_twoelezh_logN_add_sys_bin2("light_twoelezh_logN_add_sys_bin2", "additional log-normal for method, bin 2",
+    add_logN_systematic.c_str(), RooArgList(rrv_twoelezh_add_sys_bin2));
+    RooFormulaVar light_twoelezh_logN_add_sys_bin3("light_twoelezh_logN_add_sys_bin3", "additional log-normal for method, bin 3",
+    add_logN_systematic.c_str(), RooArgList(rrv_twoelezh_add_sys_bin3));
+
+
+    RooFormulaVar* light_twoelezh_bin1;
+    RooFormulaVar* light_twoelezh_bin2;
+    RooFormulaVar* light_twoelezh_bin3;
+    if(_additional_method_sys)
+    {
+      light_twoelezh_bin1 = new RooFormulaVar("light_twoelezh_bin1", "Light background yield in TwoEleZH, bin 1",
+               "@0*@1*@2", RooArgList(*tf_light_twoeledy_to_twoelezh_bin1, *light_twoeledy_bin1, light_twoelezh_logN_add_sys_bin1));
+      light_twoelezh_bin2 = new RooFormulaVar("light_twoelezh_bin2", "Light background yield in TwoEleZH, bin 2",
+               "@0*@1*@2", RooArgList(*tf_light_twoeledy_to_twoelezh_bin2, *light_twoeledy_bin2, light_twoelezh_logN_add_sys_bin2));
+      light_twoelezh_bin3 = new RooFormulaVar("light_twoelezh_bin3", "Light background yield in TwoEleZH, bin 3",
+               "@0*@1*@2", RooArgList(*tf_light_twoeledy_to_twoelezh_bin3, *light_twoeledy_bin3, light_twoelezh_logN_add_sys_bin3));
+    }
+    else
+    {
+      light_twoelezh_bin1 = new RooFormulaVar("light_twoelezh_bin1", "Light background yield in TwoEleZH, bin 1",
+  				     "@0*@1", RooArgList(*tf_light_twoeledy_to_twoelezh_bin1, *light_twoeledy_bin1));
+      light_twoelezh_bin2 = new RooFormulaVar("light_twoelezh_bin2", "Light background yield in TwoEleZH, bin 2",
+  				     "@0*@1", RooArgList(*tf_light_twoeledy_to_twoelezh_bin2, *light_twoeledy_bin2));
+      light_twoelezh_bin3 = new RooFormulaVar("light_twoelezh_bin3", "Light background yield in TwoEleZH, bin 3",
+  				     "@0*@1", RooArgList(*tf_light_twoeledy_to_twoelezh_bin3, *light_twoeledy_bin3));
+    }
 
     RooArgList light_twoelezh_bins;
-    light_twoelezh_bins.add(light_twoelezh_bin1);
-    light_twoelezh_bins.add(light_twoelezh_bin2);
-    light_twoelezh_bins.add(light_twoelezh_bin3);
+    light_twoelezh_bins.add(*light_twoelezh_bin1);
+    light_twoelezh_bins.add(*light_twoelezh_bin2);
+    light_twoelezh_bins.add(*light_twoelezh_bin3);
     RooParametricHist p_light_twoelezh("light_twoelezh", "Light PDF in TwoEleZH Region", *ntags, light_twoelezh_bins, data_twoelezh_th1);
     RooAddition p_light_twoelezh_norm("light_twoelezh_norm", "Total number of light events in TwoEleZH Region", light_twoelezh_bins);
 
@@ -1008,9 +1141,9 @@ int main( int argc, char* argv[] ){
 
   signal_string = signal_model.c_str();
   //sys_vec.push_back("TagVars");
-  sys_vec.push_back("AMax");//use
-  sys_vec.push_back("IPSig");//use
-  sys_vec.push_back("TA");//use
+  //sys_vec.push_back("AMax");//use
+  //sys_vec.push_back("IPSig");//use
+  //sys_vec.push_back("TA");//use
   //sys_vec.push_back("EGS");
   //sys_vec.push_back("MES");
   //sys_vec.push_back("JES");

@@ -5,10 +5,10 @@
 //------------------------
 //CMS COSMETICS DEFINITION
 //------------------------
-const float lumi = 5;
+//const float lumi = 5;
 //Axis
-const float axisTitleSize = 0.06;
-const float axisTitleOffset = .8;
+//const float axisTitleSize = 0.06;
+//const float axisTitleOffset = .8;
 
 const float axisTitleSizeRatioX   = 0.18;
 const float axisLabelSizeRatioX   = 0.12;
@@ -160,7 +160,7 @@ bool create_ratio_plot(TGraphAsymmErrors* data, THStack* stack, TH1F* total_bkg,
   ratio->SetMarkerColor( kBlack );
   ratio->SetLineColor( kBlack );
   ratio->SetLineWidth( 2 );
-  ratio->GetYaxis()->SetRangeUser( 0.4, 1.6 );
+  ratio->GetYaxis()->SetRangeUser( 0.0, 3.0 );
   ratio->SetTitle("");
   ratio->GetYaxis()->SetTitle("data / mc");
   ratio->GetXaxis()->SetTitle("nJet_{tags}");
@@ -196,7 +196,7 @@ bool create_ratio_plot(TGraphAsymmErrors* data, THStack* stack, TH1F* total_bkg,
   ratio2->SetFillColorAlpha(kBlue-9, 0.35);
   //ratio2->SetFillColor( kBlue-9 );
   ratio2->SetLineWidth( 2 );
-  ratio2->GetYaxis()->SetRangeUser( 0.4, 1.6 );
+  ratio2->GetYaxis()->SetRangeUser( 0.0, 3.0 );
   ratio2->SetTitle("");
   ratio2->GetYaxis()->SetTitle("data / mc");
   ratio2->GetXaxis()->SetTitle("nJet_{tags}");
@@ -217,7 +217,7 @@ bool create_ratio_plot(TGraphAsymmErrors* data, THStack* stack, TH1F* total_bkg,
   //ratio3->SetFillColorAlpha(kBlue-9, 0.35);
   //ratio2->SetFillColor( kBlue-9 );
   ratio3->SetLineWidth( 2 );
-  ratio3->GetYaxis()->SetRangeUser( 0.4, 1.6 );
+  ratio3->GetYaxis()->SetRangeUser( 0.0, 3.0 );
   ratio3->SetTitle("");
   ratio3->GetYaxis()->SetTitle("data / mc");
   ratio3->GetXaxis()->SetTitle("nJet_{tags}");

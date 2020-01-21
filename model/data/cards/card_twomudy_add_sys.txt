@@ -36,4 +36,4 @@ light_twomudy_bin2 flatParam
 light_twomudy_bin3 flatParam
 
 #log-Normal uncertainty
-#method_add_sys_mu_ch lnN           0.981726   -   -    -
+method_add_sys_mu_ch lnN           1.000539153   -   -    -

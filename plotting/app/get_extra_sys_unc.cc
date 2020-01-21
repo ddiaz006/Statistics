@@ -21,7 +21,7 @@
 #include <helper_functions.hh>
 
 const bool _info  = true;
-const bool _debug = false;
+const bool _debug = true;
 
 bool AddCMS( TCanvas* C );
 
@@ -30,6 +30,7 @@ int main( int argc, char** argv )
 
   //-----------------
   //Input File List
+  //This is a file with the list of the output of FitDiagnostics
   //-----------------
   std::string inputList = ParseCommandLine( argc, argv, "-inputList=" );
   if (  inputList == "" )
@@ -75,6 +76,7 @@ int main( int argc, char** argv )
       //Getting ROOT file
       //-----------------
       fin = new TFile( current_fname.c_str(), "READ");
+      if( _debug ) std::cout << "VR fname: " << current_fname << std::endl;
       //----------------------------------------------------------
       //GETTING POST-FIT RESULTS FROM COMBINE
       //----------------------------------------------------------
@@ -87,14 +89,30 @@ int main( int argc, char** argv )
       for( unsigned int i = 1; i <= bkg_total_two_ee_zh_pf->GetNbinsX(); i++ )
       {
         //data treatment
-        double y_data, x_data;
+        double y_data, x_data, y_data_err, y_data_err_low, y_data_err_high;
         data_two_ee_zh_pf->GetPoint(i-1, x_data, y_data);
-        //relative difference
-        double delta_y     = y_data - bkg_total_two_ee_zh_pf->GetBinContent(i);
-        double delta_y_rel = delta_y/bkg_total_two_ee_zh_pf->GetBinContent(i);
-        double y_unc       = bkg_total_two_ee_zh_pf->GetBinError(i);
+        y_data_err      = data_two_ee_zh_pf->GetErrorY(i-1);
+        y_data_err_low  = data_two_ee_zh_pf->GetErrorYlow(i-1);
+        y_data_err_high = data_two_ee_zh_pf->GetErrorYhigh(i-1);
 
-        if( fabs( delta_y ) > 2.*y_unc && y_data != 0.0 )
+        /*std::cout << "===========================" << std::endl;
+        std::cout << "data (x,y): (" << x_data << ","  << y_data << "); --> y_err: " << y_data_err << " y_err_low: "
+        << y_data_err_low << " y_err_high: " << y_data_err_high << std::endl;*/
+        //-------------------
+        //relative difference
+        //-------------------
+
+        //diff of the central value in data - prediction
+        double delta_y  = y_data - bkg_total_two_ee_zh_pf->GetBinContent(i);
+        //diff of the lower/higher 1sigma deviation in data - prediction
+        double delta_y_one_sigma;
+        if( delta_y >= 0 ) delta_y_one_sigma = (y_data - y_data_err_low) - bkg_total_two_ee_zh_pf->GetBinContent(i);
+        else delta_y_one_sigma = (y_data + y_data_err_high) - bkg_total_two_ee_zh_pf->GetBinContent(i);
+        //relative difference to add as systematic uncertainty
+        double delta_y_rel = delta_y/bkg_total_two_ee_zh_pf->GetBinContent(i);
+        double pred_unc    = bkg_total_two_ee_zh_pf->GetBinError(i);//uncertainty in the prediction
+
+        if( fabs( delta_y_one_sigma ) > 1.*pred_unc && y_data > 0.0 )
         {
           std::cout << "ee->"<< i-1 << " " << delta_y_rel<< std::endl;
           err_ee[i-1] += pow(delta_y_rel,2.0);
@@ -111,16 +129,28 @@ int main( int argc, char** argv )
       for( unsigned int i = 1; i <= bkg_total_two_mumu_zh_pf->GetNbinsX(); i++ )
       {
         //data treatment
-        double y_data, x_data;
+        double y_data, x_data, y_data_err, y_data_err_low, y_data_err_high;
         data_two_mumu_zh_pf->GetPoint(i-1, x_data, y_data);
+        y_data_err      = data_two_mumu_zh_pf->GetErrorY(i-1);
+        y_data_err_low  = data_two_mumu_zh_pf->GetErrorYlow(i-1);
+        y_data_err_high = data_two_mumu_zh_pf->GetErrorYhigh(i-1);
+        //-------------------
         //relative difference
-        double delta_y     = y_data - bkg_total_two_mumu_zh_pf->GetBinContent(i);
+        //-------------------
+
+        //diff of the central value in data - prediction
+        double delta_y  = y_data - bkg_total_two_mumu_zh_pf->GetBinContent(i);
+        //diff of the lower/higher 1sigma deviation in data - prediction
+        double delta_y_one_sigma;
+        if( delta_y >= 0 ) delta_y_one_sigma = (y_data - y_data_err_low) - bkg_total_two_mumu_zh_pf->GetBinContent(i);
+        else delta_y_one_sigma = (y_data + y_data_err_high) - bkg_total_two_mumu_zh_pf->GetBinContent(i);
+        //relative difference to add as systematic uncertainty
         double delta_y_rel = delta_y/bkg_total_two_mumu_zh_pf->GetBinContent(i);
-        double y_unc       = bkg_total_two_mumu_zh_pf->GetBinError(i);
+        double pred_unc    = bkg_total_two_mumu_zh_pf->GetBinError(i);//uncertainty in the prediction
         //std::cout << i-1 << " " << delta_y_rel<< std::endl;
-        if( fabs( delta_y ) > 2.*y_unc && y_data != 0.0 )
+        if( fabs( delta_y_one_sigma ) > 1.*pred_unc && y_data != 0.0 )
         {
-          std::cout << "mumu->"<< i-1 << " " << delta_y_rel<< std::endl;
+          std::cout << "mumu->"<< i-1 << " " << delta_y_rel << std::endl;
           err_mumu[i-1] += pow(delta_y_rel,2.0);
         }
       }

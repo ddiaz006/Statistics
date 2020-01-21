@@ -53,7 +53,8 @@ TString CMSText = "CMS";
 TString extraText   = "Preliminary";
 //TString lumiText = "2.32 fb^{-1} (13 TeV)";
 //TString lumiText = "35.9 fb^{-1} (13 TeV)";
-TString lumiText = "16.2 fb^{-1} (13 TeV)";
+//TString lumiText = "16.2 fb^{-1} (13 TeV)";
+TString lumiText = "117 fb^{-1} (13 TeV)";
 
 bool AddCMS( TCanvas* C );
 
@@ -228,7 +229,7 @@ int main( int argc, char** argv )
   c->SetBottomMargin( bottomMargin );
   c->SetFrameBorderMode(0);
   c->SetFrameBorderMode(0);
-  //c->SetLogy();
+  c->SetLogy();
   c->SetLogx();
 
   gStyle->SetPaintTextFormat("4.3f");
@@ -272,17 +273,17 @@ int main( int argc, char** argv )
   gTwoS->GetXaxis()->SetTitleSize(0.05);
   gTwoS->GetXaxis()->SetLabelOffset( 0.003);
   gTwoS->GetXaxis()->SetTitleOffset( 0.95);
-  gTwoS->GetXaxis()->SetTitle("#chi^{0} proper decay length [mm]");
+  gTwoS->GetXaxis()->SetTitle("s proper decay length [mm]");
   gTwoS->GetYaxis()->SetTitleSize(0.05);
   gTwoS->GetYaxis()->CenterTitle(kTRUE);
   //gTwoS->GetYaxis()->SetTitle("95% C.L. limit #sigma(pp#rightarrow #tilde{#chi}^{0}_{2} #tilde{#chi}^{0}_{2}) (pb)");
-  gTwoS->GetYaxis()->SetTitle("95 % CL Upper Limit on B_{H #rightarrow #chi^{0}#chi^{0}}");
+  gTwoS->GetYaxis()->SetTitle("95 % CL Upper Limit on BR(H #rightarrow ss)");
 
   //gTwoS->GetYaxis()->SetRangeUser(0,15);
   gTwoS->GetYaxis()->SetRangeUser(0,15);
 
-  gTwoS->SetMaximum(20);
-  gTwoS->SetMinimum(1e-12); //HZ
+  gTwoS->SetMaximum(1e4);
+  gTwoS->SetMinimum(5e-3); //HZ
   //gTwoS->SetMinimum(0.1-0.01); //HH
   //gTwoS->GetYaxis()->SetRangeUser(0,15);
   //gTwoS->GetXaxis()->SetRangeUser(150,400);
@@ -297,7 +298,7 @@ int main( int argc, char** argv )
   //gTheory_up->Draw("PC");
   //gTheory_down->Draw("PC");
 
-  TLegend* leg = new TLegend( 0.51, 0.75-5*0.065, 0.85, 0.75-0.05, NULL, "brNDC" );
+  TLegend* leg = new TLegend( 0.51, 0.5, 0.85, 0.78, NULL, "brNDC" );
   leg->SetBorderSize(0);
   leg->SetLineColor(1);
   leg->SetLineStyle(1);
@@ -338,8 +339,8 @@ int main( int argc, char** argv )
   //latex2.DrawLatex(cmsx+0.263, cmsy-0.07, "m_{#tilde{#chi}^{0}_{2}} #approx m_{#tilde{#chi}^{#pm}_{1}} #approx m_{#tilde{#chi}^{0}_{1}};  m_{#tilde{G}} = 1 GeV");
   //HZ
   //latex2.DrawLatex(cmsx, cmsy, "pp #rightarrow #tilde{#chi}^{0,#pm}_{i} #tilde{#chi}^{0,#pm}_{j} #rightarrow  #tilde{#chi}^{0}_{1} #tilde{#chi}^{0}_{1} + X_{soft}; #tilde{#chi}^{0}_{1} #rightarrow H #tilde{G} (50%)");
-  latex2.DrawLatex(cmsx+0.15, cmsy, "pp #rightarrow ZH #rightarrow  Z #chi^{0}#chi^{0}; #chi}^{0} #rightarrow b#bar{b} (85%)");
-  latex2.DrawLatex(cmsx+0.455, cmsy-0.07, "m_{#chi^{0}} = 40 GeV");
+  latex2.DrawLatex(cmsx+0.05, cmsy, "pp #rightarrow ZH #rightarrow  Z(l^{+}l^{-}) H(ss); s #rightarrow b#bar{b} (100%)");
+  latex2.DrawLatex(cmsx+0.455, cmsy-0.07, "m_{s} = 40 GeV");
   //latex2.DrawLatex(cmsx+0.25, cmsy-0.13, "m_{#tilde{#chi}^{0}_{2}} #approx m_{#tilde{#chi}^{#pm}_{1}} #approx m_{#tilde{#chi}^{0}_{1}};  m_{#tilde{G}} = 1 GeV");
   //1D WH
   //latex2.DrawLatex(cmsx+0.15, cmsy, "pp #rightarrow #tilde{#chi}^{#pm}_{1} #tilde{#chi}^{0}_{2} ; #tilde{#chi}^{#pm}_{1} #rightarrow W^{#pm} #tilde{#chi}^{0}_{1}, #tilde{#chi}^{0}_{2} #rightarrow H #tilde{#chi}^{0}_{1}");
@@ -352,8 +353,8 @@ int main( int argc, char** argv )
   AddCMS(c);
 
   //c->SetLogx();
-  c->SaveAs("NarrowResLimit_BIAS_fix.pdf");
-  c->SaveAs("NarrowResLimit_BIAS_fix.C");
+  c->SaveAs("Limit_displacedJet_m40.pdf");
+  c->SaveAs("Limit_displacedJet_m40.C");
   
   gObs->GetXaxis()->SetRangeUser(0, 30);
   gObs->Write("gObs");
