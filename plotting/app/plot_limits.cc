@@ -71,7 +71,7 @@ int main( int argc, char** argv )
       return -1;
     }
   std::ifstream ifs ( inputList.c_str(), std::ifstream::in );//input file list
-  
+
   //-----------------
   //xsec list
   //-----------------
@@ -81,7 +81,7 @@ int main( int argc, char** argv )
       std::cerr << "[ERROR]: please provide an inputList. Use --xsecFile=" << std::endl;
       //return -1;
     }
-  
+
   //No XSEC Needed For now
   /*
   std::ifstream ifs_xsec ( xsecFile.c_str(), std::ifstream::in );//xsec file
@@ -124,15 +124,25 @@ int main( int argc, char** argv )
 	  //  std::cout << "fname: " << fname << std::endl;
 	  TFile* fin = new TFile( fname.c_str(), "READ" );
 	  if ( fin->IsZombie() ) continue;
-          int low = fname.find("Sig_MS");
+
+    //ZH MODEL Key
+    // int low = fname.find("Sig_MS");
+	  // int high = fname.find("/higgsCombineTest");
+	  // std::string mass = fname.substr( low+10, high-(low+10) );
+	  // float _mass = atof( mass.c_str() );
+	  // std::cout << "mass: " << _mass << std::endl;
+
+    //ZZd model key
+    int low = fname.find("Sig_h500_llp200_ct");
 	  int high = fname.find("/higgsCombineTest");
-	  std::string mass = fname.substr( low+10, high-(low+10) );
+	  std::string mass = fname.substr( low+18, high-(low+18) );
 	  float _mass = atof( mass.c_str() );
 	  std::cout << "mass: " << _mass << std::endl;
+
 	  TTree* tree = (TTree*)fin->Get("limit");
 	  double limit;
 	  Limit tmpLimit;
-	  double limitSF = 0.2;
+	  double limitSF = 0.1;
 	  tree->SetBranchAddress( "limit", &limit );
 	  tree->GetEntry(0);
 	  //tmpLimit.exp0p025 = limit*limitSF*xsecMap[_mass].first;
@@ -152,7 +162,7 @@ int main( int argc, char** argv )
 	  //tree->GetEntry(5);
 	  //tmpLimit.obs = limit*limitSF*xsecMap[_mass].first;
 	  tmpLimit.obs = tmpLimit.exp0p5;
-	  
+
 	  //std::cout << "mass: " << mass << "-> " << exp0p025 << " " << exp0p16 << " " << exp0p5 << " " << exp0p84
 	  //<< " " << exp0p975 << " " << obs << std::endl;
 	  if ( mymap.find( _mass ) == mymap.end() )
@@ -174,11 +184,11 @@ int main( int argc, char** argv )
   float theory[npoints];
   float theory_up[npoints];
   float theory_down[npoints];
-  
+
   float xp[2*npoints];
   float OneS[2*npoints];
   float TwoS[2*npoints];
-   
+
 
   int ctr = 0;
   for ( auto tmp : mymap )
@@ -195,16 +205,16 @@ int main( int argc, char** argv )
       //theory[ctr] = xsecMap[tmp.first].first;//original model xsec;
       //theory_up[ctr] = xsecMap[tmp.first].first+xsecMap[tmp.first].second;
       //theory_down[ctr] = xsecMap[tmp.first].first-xsecMap[tmp.first].second;//original model xsec uncertainty;
-      
+
       xp[ctr] = tmp.first;
-      xp[2*npoints-(ctr+1)] = tmp.first;     
+      xp[2*npoints-(ctr+1)] = tmp.first;
 
       OneS[ctr] = tmp.second.exp0p16;
       OneS[2*npoints-(ctr+1)] = tmp.second.exp0p84;
 
       TwoS[ctr] = tmp.second.exp0p025;
       TwoS[2*npoints-(ctr+1)] = tmp.second.exp0p975;
-       
+
       ctr++;
     }
 
@@ -245,7 +255,7 @@ int main( int argc, char** argv )
   gTwoS->SetLineColor(kOrange);
   gOneS->SetFillColor(kGreen+1);
   gOneS->SetLineColor(kGreen+1);
-  
+
   gExp->SetLineWidth(3);
   gExp->SetLineStyle(2);
   //gExp->SetLineColor(kBlue);
@@ -253,11 +263,11 @@ int main( int argc, char** argv )
   gObs->SetMarkerSize(0.5);
   gObs->SetMarkerStyle(20);
   gObs->SetLineWidth(3);
-  
+
   gTheory->SetLineWidth(3);
   //gTheory->SetLineStyle(2);
   gTheory->SetLineColor(kRed);
-  
+
   gTheory_up->SetLineWidth(3);
   gTheory_up->SetLineStyle(2);
   gTheory_up->SetLineColor(kRed);
@@ -265,7 +275,7 @@ int main( int argc, char** argv )
   gTheory_down->SetLineWidth(3);
   gTheory_down->SetLineStyle(2);
   gTheory_down->SetLineColor(kRed);
-  
+
   //gTwoS->SetLineWidth(3);
   //gTwoS->SetLineStyle(2);
   //gTwoS->SetLineColor(kBlack);
@@ -282,14 +292,14 @@ int main( int argc, char** argv )
   //gTwoS->GetYaxis()->SetRangeUser(0,15);
   gTwoS->GetYaxis()->SetRangeUser(0,15);
 
-  gTwoS->SetMaximum(1e4);
-  gTwoS->SetMinimum(5e-3); //HZ
+  gTwoS->SetMaximum(1e3);
+  gTwoS->SetMinimum(5e-5); //HZ
   //gTwoS->SetMinimum(0.1-0.01); //HH
   //gTwoS->GetYaxis()->SetRangeUser(0,15);
   //gTwoS->GetXaxis()->SetRangeUser(150,400);
   //gTwoS->GetXaxis()->SetRangeUser(120,450);
   gTwoS->GetXaxis()->SetLimits(0,1000);
-  
+
   gTwoS->Draw("AF");
   gOneS->Draw("F");
   gExp->Draw("L");
@@ -322,9 +332,9 @@ int main( int argc, char** argv )
   TLatex latex;
   latex.SetNDC();
   latex.SetTextAngle(0);
-  latex.SetTextColor(kBlack);    
-  latex.SetTextAlign(31); 
-  latex.SetTextSize(cmsSize);    
+  latex.SetTextColor(kBlack);
+  latex.SetTextAlign(31);
+  latex.SetTextSize(cmsSize);
   latex.SetTextFont(cmsTextFont);
   //latex.DrawLatex(cmsx, cmsy, "95% CL upper limits");
 
@@ -332,7 +342,7 @@ int main( int argc, char** argv )
   cmsx = 0.29;
   cmsy = 0.88;
   latex2.SetNDC();
-  latex2.SetTextSize(0.038);   
+  latex2.SetTextSize(0.038);
   latex2.SetTextFont(42);
   //HH
   //latex2.DrawLatex(cmsx, cmsy, "pp #rightarrow #tilde{#chi}^{0,#pm}_{i} #tilde{#chi}^{0,#pm}_{j} #rightarrow  #tilde{#chi}^{0}_{1} #tilde{#chi}^{0}_{1} + X_{soft}; #tilde{#chi}^{0}_{1} #rightarrow H #tilde{G} (100%)");
@@ -347,7 +357,7 @@ int main( int argc, char** argv )
   //std::cout << "hola " << latex2.GetTextFont() << std::endl;
   TLatex latex3;
   latex3.SetNDC();
-  latex3.SetTextSize(0.038);   
+  latex3.SetTextSize(0.038);
   latex3.SetTextFont(42);
   //latex2.DrawLatex(0.2, 0.66, "#bf{EWP Analysis}");
   AddCMS(c);
@@ -355,14 +365,14 @@ int main( int argc, char** argv )
   //c->SetLogx();
   c->SaveAs("Limit_displacedJet_m40.pdf");
   c->SaveAs("Limit_displacedJet_m40.C");
-  
+
   gObs->GetXaxis()->SetRangeUser(0, 30);
   gObs->Write("gObs");
   gExp->GetXaxis()->SetRangeUser(0, 30);
   gExp->Write("gExp");
   gOneS->Write("gOneS");
   gTwoS->Write("gTwoS");
-  
+
   out->Close();
   return 0;
 }
@@ -374,7 +384,7 @@ bool AddCMS( TCanvas* C )
   float lumix = 0.955;
   float lumiy = 0.945;
   float lumifont = 42;
-  
+
   float cmsx = 0.25;
   float cmsy = 0.94;
   float cmsTextFont   = 61;  // default is helvetic-bold
@@ -389,20 +399,20 @@ bool AddCMS( TCanvas* C )
   TLatex latex;
   latex.SetNDC();
   latex.SetTextAngle(0);
-  latex.SetTextColor(kBlack);    
+  latex.SetTextColor(kBlack);
   float extraTextSize = extraOverCmsTextSize*cmsSize;
   latex.SetTextFont(lumifont);
-  latex.SetTextAlign(31); 
-  latex.SetTextSize(cmsSize);    
+  latex.SetTextAlign(31);
+  latex.SetTextSize(cmsSize);
   latex.DrawLatex(lumix, lumiy,lumiText);
 
   latex.SetTextFont(cmsTextFont);
-  latex.SetTextAlign(31); 
+  latex.SetTextAlign(31);
   latex.SetTextSize(cmsSize);
   latex.DrawLatex(cmsx, cmsy, CMSText);
-   
+
   latex.SetTextFont(extraTextFont);
-  latex.SetTextAlign(31); 
+  latex.SetTextAlign(31);
   latex.SetTextSize(extraTextSize);
   latex.DrawLatex(extrax, extray, extraText);
   return true;

@@ -76,7 +76,7 @@ TString dummy_syst = "0.01";
 TString xvar = "nSelectedAODCaloJetTag";
 //TString xvar = "nSelectedAODCaloJetTagSB7";
 //TString xvar_suffix = "_GH";
-TString xvar_suffix = "_log";
+TString xvar_suffix = "_log_eemumu_zpt65";
 TString signal_string = "Sig_MS55ct100";
 //TString data_string = "bkgtotal"; //"Data";
 TString data_string = "Data";
@@ -158,10 +158,10 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
   if(h_r->GetBinContent(3)>0){
     s_bin3     += h_r->GetBinContent(3);
     s_bin3_err += h_r->GetBinError(3)/h_r->GetBinContent(3);//relative error
-    if(s_bin3_err.Atof() > 0.5) 
+    if(s_bin3_err.Atof() > 0.5)
       {
 	s_bin3 = s_bin2;
-	s_bin3_err = "0.5"; 
+	s_bin3_err = "0.5";
       }
   }else{
     missing3 = true;
