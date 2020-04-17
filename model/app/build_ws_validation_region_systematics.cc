@@ -1,5 +1,7 @@
 #include <iostream>
 #include <math.h>
+#include <vector>
+#include <algorithm>
 
 #include "TFile.h"
 #include "TH1.h"
@@ -78,7 +80,7 @@ TString xvar = "nSelectedAODCaloJetTag";
 //TString xvar_suffix = "_GH";
 //TString xvar_suffix = "_log_eemumu_zpt65";
 //TString xvar_suffix = "_log_eemumu";
-TString xvar_suffix = "_log";
+TString xvar_suffix = "_mockup_sys_hadd";
 TString signal_string = "Sig_MS55ct100";
 //TString data_string = "bkgtotal"; //"Data";
 TString data_string = "Data";
@@ -218,20 +220,22 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
       continue;
     }
 
-    TFile* f_from_up = TFile::Open("../inputs/"+translate(from_name)+"_"+xvar+xvar_suffix+"_"+sys_vec[i]+"Up.root", "READ");
-    TH1F* h_from_up = (TH1F*)f_from_up->Get(process);
+    TFile* f_from_up = TFile::Open("../inputs/"+translate(from_name)+"_"+xvar+xvar_suffix+".root", "READ");
+    TH1F* h_from_up = (TH1F*)f_from_up->Get(process+"_"+sys_vec[i]+"Up");
 
-    TFile* f_to_up = TFile::Open("../inputs/"+translate(to_name)+"_"+xvar+xvar_suffix+"_"+sys_vec[i]+"Up.root", "READ");
-    TH1F* h_to_up = (TH1F*)f_to_up->Get(process);
+    TFile* f_to_up = TFile::Open("../inputs/"+translate(to_name)+"_"+xvar+xvar_suffix+".root", "READ");
+    TH1F* h_to_up = (TH1F*)f_to_up->Get(process+"_"+sys_vec[i]+"Up");
 
+    //std::cout << "-----> " << h_to_up->GetBinContent(1) << "<------" << std::endl;
     TH1F* h_r_up = (TH1F*)h_to_up->Clone("h_r_"+full_name+"_"+sys_vec[i]+"_up");
     h_r_up->Divide(h_from_up);
+    //std::cout << "<----- " << h_to_up->GetBinContent(1) << "------>" << std::endl;
 
-    TFile* f_from_down = TFile::Open("../inputs/"+translate(from_name)+"_"+xvar+xvar_suffix+"_"+sys_vec[i]+"Down.root", "READ");
-    TH1F* h_from_down = (TH1F*)f_from_down->Get(process);
+    TFile* f_from_down = TFile::Open("../inputs/"+translate(from_name)+"_"+xvar+xvar_suffix+".root", "READ");
+    TH1F* h_from_down = (TH1F*)f_from_down->Get(process+"_"+sys_vec[i]+"Down");
 
-    TFile* f_to_down = TFile::Open("../inputs/"+translate(to_name)+"_"+xvar+xvar_suffix+"_"+sys_vec[i]+"Down.root", "READ");
-    TH1F* h_to_down = (TH1F*)f_to_down->Get(process);
+    TFile* f_to_down = TFile::Open("../inputs/"+translate(to_name)+"_"+xvar+xvar_suffix+".root", "READ");
+    TH1F* h_to_down = (TH1F*)f_to_down->Get(process+"_"+sys_vec[i]+"Down");
 
     TH1F* h_r_down = (TH1F*)h_to_down->Clone("h_r_"+full_name+"_"+sys_vec[i]+"_down");
     h_r_down->Divide(h_from_down);
@@ -245,90 +249,68 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
     //h_r_symm->Add(h_r_down, -1);
     //h_r_symm->Scale(0.5);
 
-    TH1F* h_r_symm = (TH1F*)h_r_up->Clone("h_r_symm_"+full_name+"_"+sys_vec[i]);
     bool sys_samedir[6]={0,0,0,0,0,0};
+    std::vector<float> max_relative_uncertainty;
     for(int j=1; j<=h_r_up->GetNbinsX(); j++){
-
+      //std::cout << "==========bin " << j << std::endl;
       double nom  = h_r->GetBinContent(j);
       double up   = h_r_up->GetBinContent(j);
       double down = h_r_down->GetBinContent(j);
 
-      //Skip error because not used.
-      //This is an error on an error.
-      double sym = 0;
-      double sym_err = 0;
+      //actual up,down from and to histrograms
+      double sys_to_down   = h_to_down->GetBinContent(j);
+      double sys_to_up     = h_to_up->GetBinContent(j);
 
-      //both higher than nom
-      if(up>nom && down>nom){
-	sys_samedir[j-1]=1;
-	if(up>down) sym = up-nom;//positive
-	else sym = down-nom;//positive
+      double sys_from_up   = h_from_up->GetBinContent(j);
+      double sys_from_down = h_from_down->GetBinContent(j);
+
+      //pick largest deviation up and down. 4 possibilities
+      double from_up_to_up     = 0.0;
+      double from_down_to_up   = 0.0;
+      double from_down_to_down = 0.0;
+      double from_up_to_down   = 0.0;
+
+      if( sys_from_up   != 0.0 ) from_up_to_up     = (sys_to_up/sys_from_up - nom)/nom;
+      if( sys_from_down != 0.0 ) from_down_to_up   = (sys_to_up/sys_from_down - nom)/nom;
+      if( sys_from_down != 0.0 ) from_down_to_down = (sys_to_down/sys_from_down - nom)/nom;
+      if( sys_from_up   != 0.0 ) from_up_to_down   = (sys_to_down/sys_from_up - nom)/nom;
+
+      std::vector<float> sys_vector;
+      sys_vector.push_back(from_up_to_up);
+      sys_vector.push_back(from_down_to_up);
+      sys_vector.push_back(from_down_to_down);
+      sys_vector.push_back(from_up_to_down);
+
+      //std::cout << nom << " " << up << " " << down << std::endl;
+      //for( auto &sys_tmp : sys_vector) std::cout << sys_tmp << std::endl;
+      std::sort(sys_vector.begin(),sys_vector.end());
+      //std::cout << "after sorting!!!!!!!!!!" << std::endl;
+      //for( auto &sys_tmp : sys_vector) std::cout << sys_tmp << std::endl;
+      double min_relative_sys = *std::min_element(sys_vector.begin(), sys_vector.end());
+      double max_relative_sys = *std::max_element(sys_vector.begin(), sys_vector.end());
+      double final_max_relative_sys = 1.0;
+      if( fabs(max_relative_sys) > fabs(min_relative_sys) )
+      {
+        final_max_relative_sys = fabs(max_relative_sys);
       }
-      //both lower than nom
-      else if(up<nom && down<nom){
-	sys_samedir[j-1]=1;
-	if(up<down) sym = up-nom;//negative
-	else sym = down-nom;//negative
+      else
+      {
+        final_max_relative_sys = fabs(min_relative_sys);
       }
-      //opposite directions w.r.t. nom
-      else{
-	sys_samedir[j-1]=0;
-	sym = 0.5 * (up-down);//positive if up>nom and down, else negative
-      }
+      //std::cout << "--------> " << final_max_relative_sys << std::endl;
+      max_relative_uncertainty.push_back(final_max_relative_sys);
+      //std::cout << "--------> " << *std::min_element(sys_vector.begin(), sys_vector.end()) << std::endl;
 
-      cout<< "RAW SYS " << full_name << sys_vec[i] << " " << sym << endl;
-      cout<< "   up " << up << " nom " << nom << " down " << down << endl;
-
-      h_r_symm->SetBinContent(j,sym);
-      h_r_symm->SetBinError(j,sym_err);
     }
 
-    //Make relative
-    TH1F* h_r_symm_rel = (TH1F*)h_r_symm->Clone("h_r_symm_rel_"+full_name+"_"+sys_vec[i]);
-    h_r_symm_rel->Divide(h_r);
 
-    //Now the RooFit part
-    //Might be cleaner to switch this to a loop over bins!
-    TString s_bin1_syst = "", s_bin2_syst = "", s_bin3_syst = "";
-    TString s_bin1_sign = "", s_bin2_sign = "", s_bin3_sign = "";
-    TString s_bin1_abs = "", s_bin1_abs_end = "";
-    TString s_bin2_abs = "", s_bin2_abs_end = "";
-    TString s_bin3_abs = "", s_bin3_abs_end = "";
+    std::string current_sys_bin1 = "*TMath::Power("+std::to_string(max_relative_uncertainty.at(0))+"+1,@0)";
+    std::string current_sys_bin2 = "*TMath::Power("+std::to_string(max_relative_uncertainty.at(1))+"+1,@0)";
+    std::string current_sys_bin3 = "*TMath::Power("+std::to_string(max_relative_uncertainty.at(2))+"+1,@0)";
+    rfv_bin1 += current_sys_bin1.c_str();
+    rfv_bin2 += current_sys_bin2.c_str();
+    rfv_bin3 += current_sys_bin3.c_str();
 
-    if(sys_samedir[0]==1){
-      s_bin1_abs = "TMath::Abs(";
-      s_bin1_abs_end = ")";
-    }
-    if(sys_samedir[1]==1){
-      s_bin2_abs = "TMath::Abs(";
-      s_bin2_abs_end = ")";
-    }
-    if(sys_samedir[2]==1){
-      s_bin3_abs = "TMath::Abs(";
-      s_bin3_abs_end = ")";
-    }
-
-    if(h_r_symm_rel->GetBinContent(1)<0) s_bin1_sign="-";
-    if(h_r_symm_rel->GetBinContent(2)<0) s_bin2_sign="-";
-
-    s_bin1_syst += h_r_symm_rel->GetBinContent(1);
-    s_bin2_syst += h_r_symm_rel->GetBinContent(2);
-    //TEMP
-    if(missing3 && h_r_symm_rel->GetBinContent(2)>0){
-      s_bin3_syst = dummy_syst;
-    }
-    else if(missing3 && h_r_symm_rel->GetBinContent(2)<0){
-      s_bin3_syst = "-"; s_bin3_syst = dummy_syst;
-      s_bin3_sign="-";
-    }
-    else{
-      s_bin3_syst += h_r_symm_rel->GetBinContent(3);
-      if(h_r_symm_rel->GetBinContent(3)<0) s_bin3_sign="-";
-    }
-
-    rfv_bin1 += "*TMath::Power( TMath::Abs("; rfv_bin1+=s_bin1_syst; rfv_bin1+=")+1,"; rfv_bin1+=s_bin1_sign; rfv_bin1+=s_bin1_abs; rfv_bin1+="@"; rfv_bin1+=sys_cnt; rfv_bin1+=s_bin1_abs_end; rfv_bin1+=")";
-    rfv_bin2 += "*TMath::Power( TMath::Abs("; rfv_bin2+=s_bin2_syst; rfv_bin2+=")+1,"; rfv_bin2+=s_bin2_sign; rfv_bin2+=s_bin2_abs; rfv_bin2+="@"; rfv_bin2+=sys_cnt; rfv_bin2+=s_bin2_abs_end; rfv_bin2+=")";
-    rfv_bin3 += "*TMath::Power( TMath::Abs("; rfv_bin3+=s_bin3_syst; rfv_bin3+=")+1,"; rfv_bin3+=s_bin3_sign; rfv_bin3+=s_bin3_abs; rfv_bin3+="@"; rfv_bin3+=sys_cnt; rfv_bin3+=s_bin3_abs_end; rfv_bin3+=")";
 
     RooRealVar* rrv_syst = wspace->var("rrv_"+sys_vec[i]);
     ral_bin1.add(RooArgList(*rrv_syst));
@@ -1143,12 +1125,12 @@ int main( int argc, char* argv[] ){
 
   signal_string = signal_model.c_str();
   //sys_vec.push_back("TagVars");
-  //sys_vec.push_back("AMax");//use
-  //sys_vec.push_back("IPSig");//use
-  //sys_vec.push_back("TA");//use
-  //sys_vec.push_back("EGS");
-  //sys_vec.push_back("MES");
-  //sys_vec.push_back("JES");
+  sys_vec.push_back("AMax");//use
+  sys_vec.push_back("IPSig");//use
+  sys_vec.push_back("TA");//use
+  sys_vec.push_back("EGS");
+  sys_vec.push_back("MES");
+  sys_vec.push_back("JES");
 
   // Output file and workspace
   TFile *fOut = new TFile("param_ws.root","RECREATE");

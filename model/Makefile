@@ -14,16 +14,22 @@ CPPFLAGS += -g -std=c++1z
 TARGET = MakeWorkspace
 TARGET2 = MakeWorkspace_VR
 TARGET3 = MakeWorkspace_DifferentYears
+TARGET4 = MakeWorkspace_VR_SYS
+TARGET5 = MakeMockupSystematics
 
 SRC = $(REPO)/build_ws.cc $(COMMON)/src/CommandLineInput.cc
 SRC2 = $(REPO)/app/build_ws_validation_region.cc $(COMMON)/src/CommandLineInput.cc
 SRC3 = $(REPO)/app/build_ws_combine_years.cc $(COMMON)/src/CommandLineInput.cc
+SRC4 = $(REPO)/app/build_ws_validation_region_systematics.cc $(COMMON)/src/CommandLineInput.cc
+SRC5 = $(REPO)/app/make_mockup_systematics.cc $(COMMON)/src/CommandLineInput.cc
 
 OBJ = $(SRC:.cc=.o)
 OBJ2 = $(SRC2:.cc=.o)
 OBJ3 = $(SRC3:.cc=.o)
+OBJ4 = $(SRC4:.cc=.o)
+OBJ5 = $(SRC5:.cc=.o)
 
-all : $(TARGET) $(TARGET2) $(TARGET3)
+all : $(TARGET) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5)
 
 $(TARGET) : $(OBJ)
 	$(LD) $(CPPFLAGS) -o $(TARGET) $(OBJ) $(LDFLAGS)
@@ -43,10 +49,24 @@ $(TARGET3) : $(OBJ3)
 	@echo $<
 	@echo $^
 
+
+$(TARGET4) : $(OBJ4)
+	$(LD) $(CPPFLAGS) -o $(TARGET4) $(OBJ4) $(LDFLAGS)
+	@echo $@
+	@echo $<
+	@echo $^
+
+$(TARGET5) : $(OBJ5)
+	$(LD) $(CPPFLAGS) -o $(TARGET5) $(OBJ5) $(LDFLAGS)
+	@echo $@
+	@echo $<
+	@echo $^
+
+
 %.o : %.cc
 	$(CXX) $(CPPFLAGS) -o $@ -c $<
 	@echo $@
 	@echo $<
 
 clean :
-	rm -f *.o app/*.o src/*.o include/*.o $(TARGET) $(TARGET2) $(TARGET3) $(COMMON)/src/*.o *~
+	rm -f *.o app/*.o src/*.o include/*.o $(TARGET) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) $(COMMON)/src/*.o *~
