@@ -499,7 +499,6 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "DY"){
   				     "@0*@1", RooArgList(*tf_light_twomudy_to_twomuzh_bin3, *light_twomudy_bin3));
     }
 
-
     RooArgList light_twomuzh_bins;
     light_twomuzh_bins.add(*light_twomuzh_bin1);
     light_twomuzh_bins.add(*light_twomuzh_bin2);
@@ -515,7 +514,49 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "DY"){
     return;
   }
 
+  //------------
   //Signal
+  //------------
+  //signal systematics
+
+  std::string signal_logN_amax[3] = {"TMath::Power(1+0.001,@0)","TMath::Power(1+0.001,@0)","TMath::Power(1+0.1,@0)"};//correlated bin-by-bin effect
+  RooRealVar rrv_signal_zh_amax_sys("rrv_signal_zh_amax_sys","rrv_signal_zh_amax_sys", 0.0);//controlled by 1 nuissance parameter
+  //rrv_signal_zh_amax_sys.setConstant(kTRUE);
+  RooFormulaVar rfv_signal_twomuzh_amax_sys_bin1("rfv_signal_twomuzh_amax_sys_bin1", "amax systematic (log-normal) bin1",
+  signal_logN_amax[0].c_str(), RooArgList(rrv_signal_zh_amax_sys));;
+  RooFormulaVar rfv_signal_twomuzh_amax_sys_bin2("rfv_signal_twomuzh_amax_sys_bin2", "amax systematic (log-normal) bin2",
+  signal_logN_amax[1].c_str(), RooArgList(rrv_signal_zh_amax_sys));
+  RooFormulaVar rfv_signal_twomuzh_amax_sys_bin3("rfv_signal_twomuzh_amax_sys_bin3", "amax systematic (log-normal) bin3",
+  signal_logN_amax[2].c_str(), RooArgList(rrv_signal_zh_amax_sys));
+
+  //getting central values from histogram
+  TH1F* signal_twomuzh_th1_file = (TH1F*)f_twomuzh->Get(signal_string);
+  RooRealVar signal_twomuzh_central_bin1("signal_twomuzh_central_bin1", "central signal yield in TwoMuZH bin1", signal_twomuzh_th1_file->GetBinContent(1));
+  RooRealVar signal_twomuzh_central_bin2("signal_twomuzh_central_bin2", "central signal yield in TwoMuZH bin2", signal_twomuzh_th1_file->GetBinContent(2));
+  RooRealVar signal_twomuzh_central_bin3("signal_twomuzh_central_bin3", "central signal yield in TwoMuZH bin3", signal_twomuzh_th1_file->GetBinContent(3));
+  signal_twomuzh_central_bin1.setConstant(kTRUE);
+  signal_twomuzh_central_bin2.setConstant(kTRUE);
+  signal_twomuzh_central_bin3.setConstant(kTRUE);
+
+  RooFormulaVar signal_twomuzh_bin1("signal_twomuzh_bin1", "signal yield in twomuzh bin1",
+  "@0*@1", RooArgList(signal_twomuzh_central_bin1, rfv_signal_twomuzh_amax_sys_bin1));//central_value*(1+unc)^amax_sys
+  RooFormulaVar signal_twomuzh_bin2("signal_twomuzh_bin2", "signal yield in twomuzh bin2",
+  "@0*@1", RooArgList(signal_twomuzh_central_bin2, rfv_signal_twomuzh_amax_sys_bin2));//central_value*(1+unc)^amax_sys
+  RooFormulaVar signal_twomuzh_bin3("signal_twomuzh_bin3", "signal yield in twomuzh bin3",
+  "@0*@1", RooArgList(signal_twomuzh_central_bin3, rfv_signal_twomuzh_amax_sys_bin3));//central_value*(1+unc)^amax_sys
+
+
+  RooArgList signal_twomuzh_bins;
+  signal_twomuzh_bins.add(signal_twomuzh_bin1);
+  signal_twomuzh_bins.add(signal_twomuzh_bin2);
+  signal_twomuzh_bins.add(signal_twomuzh_bin3);
+  RooParametricHist p_signal_twomuzh("signal_twomuzh", "signal PDF in TwoMuZH Region", *ntags, signal_twomuzh_bins, data_twomuzh_th1);
+  RooAddition p_signal_twomuzh_norm("signal_twomuzh_norm", "Total number of signal events in TwoMuZH Region", signal_twomuzh_bins);
+
+  wspace->import(p_signal_twomuzh);
+  wspace->import(p_signal_twomuzh_norm, RooFit::RecycleConflictNodes());
+ /*
+
   TH1F* signal_twomuzh_th1_file = (TH1F*)f_twomuzh->Get(signal_string);
   TH1F signal_twomuzh_th1("signal_twomuzh","Signal yield in TwoMuZH", 3, -0.5, 2.5);
   signal_twomuzh_th1.SetBinContent(1, signal_twomuzh_th1_file->GetBinContent(1));
@@ -523,8 +564,8 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "DY"){
   signal_twomuzh_th1.SetBinContent(3, signal_twomuzh_th1_file->Integral(3,6));//assumes bin 6 is overflow
   RooDataHist signal_twomuzh_hist("signal_twomuzh", "Signal yield in TwoMuZH", vars, &signal_twomuzh_th1);
   wspace->import(signal_twomuzh_hist);
-
-}
+ */
+};
 
 
 //---------------------------------------------------------------------------------------------------------------
@@ -1125,12 +1166,13 @@ int main( int argc, char* argv[] ){
 
   signal_string = signal_model.c_str();
   //sys_vec.push_back("TagVars");
-  sys_vec.push_back("AMax");//use
-  sys_vec.push_back("IPSig");//use
-  sys_vec.push_back("TA");//use
-  sys_vec.push_back("EGS");
-  sys_vec.push_back("MES");
-  sys_vec.push_back("JES");
+
+  //sys_vec.push_back("AMax");//use
+  //sys_vec.push_back("IPSig");//use
+  //sys_vec.push_back("TA");//use
+  //sys_vec.push_back("EGS");
+  //sys_vec.push_back("MES");
+  //sys_vec.push_back("JES");
 
   // Output file and workspace
   TFile *fOut = new TFile("param_ws.root","RECREATE");

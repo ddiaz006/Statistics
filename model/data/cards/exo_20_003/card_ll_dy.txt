@@ -1,0 +1,41 @@
+TwoMuDY Datacard
+
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+#shapes process channel file histogram [histogram_with_systematics]
+
+shapes data_obs twomudy param_ws.root wspace:data_obs_twomudy
+shapes light    twomudy param_ws.root wspace:light_twomudy
+shapes heavy    twomudy param_ws.root wspace:heavy_twomudy
+shapes other    twomudy param_ws.root wspace:other_twomudy
+shapes signal   twomudy param_ws.root wspace:signal_twomudy
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+bin         twomudy
+observation -1
+-------------------------------------------------------------------------------------------------------------------------------------------
+# background rate must be taken from _norm param x 1      
+bin      twomudy   twomudy  twomudy  twomudy
+process  light    heavy     signal   other
+process  1        2         0        3
+rate     1        1         -1       -1
+-------------------------------------------------------------------------------------------------------------------------------------------
+#uncertainties
+-------------------------------------------------------------------------------------------------------------------------------------------
+#lumi    lnN   -    -   1.10    -
+#lepID   lnN   1.5    1.5   -    1.5
+#jetScale lnN  1.5    1.5   -    1.5
+
+#free floating parameters
+rrv_heavy_elemul_to_twomudy_bin1  param 0 1
+rrv_heavy_elemul_to_twomudy_bin2  param 0 1
+rrv_heavy_elemul_to_twomudy_bin3  param 0 1
+light_twomudy_bin1 flatParam
+light_twomudy_bin2 flatParam
+light_twomudy_bin3 flatParam
+
