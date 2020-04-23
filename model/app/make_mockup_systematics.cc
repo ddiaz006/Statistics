@@ -8,12 +8,12 @@
 #include "CommandLineInput.hh"
 
 
-double _tag_var_sys[]   = {0.02,0.1,0.2};
-double _ipsig_sys[]     = {0.02,0.02,0.1};
-double _ta_sys[]        = {0.02,0.02,0.1};
-double _amax_sys[]      = {0.02,0.02,0.1};
-double _egs_sys[]       = {0.02,0.02,0.04};
-double _mes_sys[]       = {0.02,0.02,0.04};
+double _tag_var_sys[]   = {0.01,-0.02,-0.04};
+double _ipsig_sys[]     = {0.01,-0.02,-0.04};
+double _ta_sys[]        = {0.01,-0.02,-0.04};
+double _amax_sys[]      = {0.01,-0.02,-0.04};
+double _egs_sys[]       = {0.007,0.007,0.007};
+double _mes_sys[]       = {0.007,0.007,0.007};
 double _jes_sys[]       = {0.02,0.02,0.1};
 
 int main( int argc, char* argv[] )

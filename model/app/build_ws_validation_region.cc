@@ -80,8 +80,8 @@ TString xvar = "nSelectedAODCaloJetTag";
 //TString xvar_suffix = "_log_eemumu";
 TString xvar_suffix = "_log";
 TString signal_string = "Sig_MS55ct100";
-//TString data_string = "bkgtotal"; //"Data";
-TString data_string = "Data";
+TString data_string = "bkgtotal"; //"Data";
+//TString data_string = "Data";
 vector<TString> sys_vec;
 
 
@@ -160,11 +160,6 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
   if(h_r->GetBinContent(3)>0){
     s_bin3     += h_r->GetBinContent(3);
     s_bin3_err += h_r->GetBinError(3)/h_r->GetBinContent(3);//relative error
-    if(s_bin3_err.Atof() > 0.5)
-      {
-	s_bin3 = s_bin2;
-	s_bin3_err = "0.5";
-      }
   }else{
     missing3 = true;
     cout << endl; cout << "*** WARNING *** : Using 1-tag ratio for " << process << " " << from_name << " to " << to_name << endl; cout << endl;
@@ -379,7 +374,7 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "DY"){
   //setting up to add additional systematic uncertainty
   //----------------------------------------------------
   //std::string add_logN_systematic = "TMath::Power(1+0.1,@0)";
-  std::string add_logN_systematic = "TMath::Power(1+0.3,@0)";
+  std::string add_logN_systematic[] = {"TMath::Power(1+0.10,@0)","TMath::Power(1+0.1,@0)","TMath::Power(1+0.01,@0)"};
   RooRealVar rrv_twomuzh_add_sys_bin1("rrv_twomuzh_add_sys_bin1","rrv_twomuzh_add_sys_bin1", 1.0);
   RooRealVar rrv_twomuzh_add_sys_bin2("rrv_twomuzh_add_sys_bin2","rrv_twomuzh_add_sys_bin2", 1.0);
   RooRealVar rrv_twomuzh_add_sys_bin3("rrv_twomuzh_add_sys_bin3","rrv_twomuzh_add_sys_bin3", 1.0);
@@ -408,11 +403,11 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "DY"){
   //Include additional systematic uncertainty for the method
   //---------------------------------------------------------
   RooFormulaVar heavy_twomuzh_logN_add_sys_bin1("heavy_twomuzh_logN_add_sys_bin1", "additional log-normal for method, bin 1",
-  add_logN_systematic.c_str(), RooArgList(rrv_twomuzh_add_sys_bin1));
+  add_logN_systematic[0].c_str(), RooArgList(rrv_twomuzh_add_sys_bin1));
   RooFormulaVar heavy_twomuzh_logN_add_sys_bin2("heavy_twomuzh_logN_add_sys_bin2", "additional log-normal for method, bin 2",
-  add_logN_systematic.c_str(), RooArgList(rrv_twomuzh_add_sys_bin2));
+  add_logN_systematic[1].c_str(), RooArgList(rrv_twomuzh_add_sys_bin2));
   RooFormulaVar heavy_twomuzh_logN_add_sys_bin3("heavy_twomuzh_logN_add_sys_bin3", "additional log-normal for method, bin 3",
-  add_logN_systematic.c_str(), RooArgList(rrv_twomuzh_add_sys_bin3));
+  add_logN_systematic[2].c_str(), RooArgList(rrv_twomuzh_add_sys_bin3));
 
 
   RooFormulaVar* heavy_twomuzh_bin1;
@@ -489,11 +484,11 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "DY"){
     //Include additional systematic uncertainty for the method
     //---------------------------------------------------------
     RooFormulaVar light_twomuzh_logN_add_sys_bin1("light_twomuzh_logN_add_sys_bin1", "additional log-normal for method, bin 1",
-    add_logN_systematic.c_str(), RooArgList(rrv_twomuzh_add_sys_bin1));
+    add_logN_systematic[0].c_str(), RooArgList(rrv_twomuzh_add_sys_bin1));
     RooFormulaVar light_twomuzh_logN_add_sys_bin2("light_twomuzh_logN_add_sys_bin2", "additional log-normal for method, bin 2",
-    add_logN_systematic.c_str(), RooArgList(rrv_twomuzh_add_sys_bin2));
+    add_logN_systematic[1].c_str(), RooArgList(rrv_twomuzh_add_sys_bin2));
     RooFormulaVar light_twomuzh_logN_add_sys_bin3("light_twomuzh_logN_add_sys_bin3", "additional log-normal for method, bin 3",
-    add_logN_systematic.c_str(), RooArgList(rrv_twomuzh_add_sys_bin3));
+    add_logN_systematic[2].c_str(), RooArgList(rrv_twomuzh_add_sys_bin3));
 
     RooFormulaVar* light_twomuzh_bin1;
     RooFormulaVar* light_twomuzh_bin2;
