@@ -58,7 +58,8 @@ while read model; do
   echo $model
   mkdir -p $output_dir/$model
   cp card_*.txt $output_dir/$model
-  ./MakeWorkspace_VR --signal_model=$model
+  #./MakeWorkspace_VR --signal_model=$model
+  ./MakeWorkspace_VR_SYS --signal_model=$model
   mv param_ws.root $output_dir/$model
   cd $output_dir/$model
   #combineCards.py EleMu=card_elemu.txt EleMuL=card_elemul.txt TwoMuDY=card_twomudy.txt TwoEleDY=card_twoeledy.txt TwoMuZH=card_twomuzh.txt TwoEleZH=card_twoelezh.txt > card.txt

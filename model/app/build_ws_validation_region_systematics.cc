@@ -163,12 +163,11 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
   if(h_r->GetBinContent(3)>0){
     s_bin3     += h_r->GetBinContent(3);
     s_bin3_err += h_r->GetBinError(3)/h_r->GetBinContent(3);//relative error
-    /*if(s_bin3_err.Atof() > 0.5)
+    if(s_bin3_err.Atof() > 1.0)
       {
-	s_bin3 = s_bin2;
-	s_bin3_err = "0.5";
+        s_bin3 = s_bin2;
+        s_bin3_err = "0.99";
       }
-      */
   }else{
     missing3 = true;
     cout << endl; cout << "*** WARNING *** : Using 1-tag ratio for " << process << " " << from_name << " to " << to_name << endl; cout << endl;

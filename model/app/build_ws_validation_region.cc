@@ -160,6 +160,11 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
   if(h_r->GetBinContent(3)>0){
     s_bin3     += h_r->GetBinContent(3);
     s_bin3_err += h_r->GetBinError(3)/h_r->GetBinContent(3);//relative error
+    if(s_bin3_err.Atof() > 1.0)
+      {
+        s_bin3 = s_bin2;
+        s_bin3_err = "0.99";
+      }
   }else{
     missing3 = true;
     cout << endl; cout << "*** WARNING *** : Using 1-tag ratio for " << process << " " << from_name << " to " << to_name << endl; cout << endl;
@@ -374,7 +379,7 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "DY"){
   //setting up to add additional systematic uncertainty
   //----------------------------------------------------
   //std::string add_logN_systematic = "TMath::Power(1+0.1,@0)";
-  std::string add_logN_systematic[] = {"TMath::Power(1+0.10,@0)","TMath::Power(1+0.1,@0)","TMath::Power(1+0.01,@0)"};
+  std::string add_logN_systematic[] = {"TMath::Power(1+0.15,@0)","TMath::Power(1+0.15,@0)","TMath::Power(1+0.15,@0)"};
   RooRealVar rrv_twomuzh_add_sys_bin1("rrv_twomuzh_add_sys_bin1","rrv_twomuzh_add_sys_bin1", 1.0);
   RooRealVar rrv_twomuzh_add_sys_bin2("rrv_twomuzh_add_sys_bin2","rrv_twomuzh_add_sys_bin2", 1.0);
   RooRealVar rrv_twomuzh_add_sys_bin3("rrv_twomuzh_add_sys_bin3","rrv_twomuzh_add_sys_bin3", 1.0);
