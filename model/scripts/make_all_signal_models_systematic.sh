@@ -53,19 +53,22 @@ done
 echo INPUT LIST  = $input_list
 echo OUTFILE DIR = $output_dir
 
+make clean;make -j 12
 mkdir -p $output_dir
 while read model; do
   echo $model
   mkdir -p $output_dir/$model
-  cp card_*.txt $output_dir/$model
-  ./MakeWorkspace_VR --signal_model=$model
+  cp data/cards/exo_20_003/card_*.txt $output_dir/$model
+  ./MakeWorkspace_VR_SYS --signal_model=$model
   mv param_ws.root $output_dir/$model
   cd $output_dir/$model
   #combineCards.py EleMu=card_elemu.txt EleMuL=card_elemul.txt TwoMuDY=card_twomudy.txt TwoEleDY=card_twoeledy.txt TwoMuZH=card_twomuzh.txt TwoEleZH=card_twoelezh.txt > card.txt
-  combineCards.py EleMu=card_elemu.txt EleMuL=card_elemul.txt TwoMuDY=card_twomudy.txt TwoMuZH=card_twomuzh.txt > card.txt #only for ee+mumu combined
-  text2workspace.py card.txt
-  combine -M AsymptoticLimits card.root --run blind
+  combineCards.py EleMu=card_elemu.txt EleMuL=card_elemul.txt TwoMuDY=card_ll_dy.txt TwoMuZH=card_ll_zh.txt > card_systematics.txt #only for ee+mumu combined
+  text2workspace.py card_systematics.txt
+  #combine -M AsymptoticLimits card_systematics.root --run blind
+  combine -M AsymptoticLimits card_systematics.root
   cd -
+  
 done <$input_list
 
 if [[ -n $1 ]]; then

@@ -369,9 +369,9 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "DY"){
   //std::string add_logN_systematic[] = {"TMath::Power(1+0.01,@0)","TMath::Power(1+0.01,@0)","TMath::Power(1+0.01,@0)"};
   std::string add_logN_systematic[] = {"TMath::Power(1+0.15,@0)","TMath::Power(1+0.15,@0)","TMath::Power(1+0.15,@0)"};
   //std::string add_logN_systematic[] = {"TMath::Power(1+0.2,@0)","TMath::Power(1+0.2,@0)","TMath::Power(1+0.2,@0)"};
-  RooRealVar rrv_twomuzh_add_sys_bin1("rrv_twomuzh_add_sys_bin1","rrv_twomuzh_add_sys_bin1", 1.0);
-  RooRealVar rrv_twomuzh_add_sys_bin2("rrv_twomuzh_add_sys_bin2","rrv_twomuzh_add_sys_bin2", 1.0);
-  RooRealVar rrv_twomuzh_add_sys_bin3("rrv_twomuzh_add_sys_bin3","rrv_twomuzh_add_sys_bin3", 1.0);
+  RooRealVar rrv_twomuzh_add_sys_bin1("rrv_twomuzh_add_sys_bin1","rrv_twomuzh_add_sys_bin1", 0.0);
+  RooRealVar rrv_twomuzh_add_sys_bin2("rrv_twomuzh_add_sys_bin2","rrv_twomuzh_add_sys_bin2", 0.0);
+  RooRealVar rrv_twomuzh_add_sys_bin3("rrv_twomuzh_add_sys_bin3","rrv_twomuzh_add_sys_bin3", 0.0);
 
   //Other contamination
   TH1F* other_twomuzh_th1_file = (TH1F*)f_twomuzh->Get("other");
@@ -1243,8 +1243,8 @@ int main( int argc, char* argv[] ){
   sys_vec.push_back("AMax");//use
   sys_vec.push_back("IPSig");//use
   sys_vec.push_back("TA");//use
-  sys_vec.push_back("EGS");
-  sys_vec.push_back("MES");
+  sys_vec.push_back("EGS");//use
+  sys_vec.push_back("MES");//use
   //sys_vec.push_back("JES");
 
   // Output file and workspace
@@ -1258,6 +1258,7 @@ int main( int argc, char* argv[] ){
   //Make RRVs for systematics
   for(unsigned int i=0; i<sys_vec.size(); i++){
     RooRealVar r("rrv_"+sys_vec[i], "rrv_"+sys_vec[i], 1, 0, 5);
+    r.setConstant(kTRUE);
     wspace->import(r, RooFit::RecycleConflictNodes());
   }
 
