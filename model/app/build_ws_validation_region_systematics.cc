@@ -309,9 +309,9 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
     }
 
 
-    std::string current_sys_bin1 = "*TMath::Power("+std::to_string(max_relative_uncertainty.at(0))+"+1,@0)";
-    std::string current_sys_bin2 = "*TMath::Power("+std::to_string(max_relative_uncertainty.at(1))+"+1,@0)";
-    std::string current_sys_bin3 = "*TMath::Power("+std::to_string(max_relative_uncertainty.at(2))+"+1,@0)";
+    std::string current_sys_bin1 = "*TMath::Power("+std::to_string(max_relative_uncertainty.at(0))+"+1,@"+std::to_string(sys_cnt)+")";
+    std::string current_sys_bin2 = "*TMath::Power("+std::to_string(max_relative_uncertainty.at(1))+"+1,@"+std::to_string(sys_cnt)+")";
+    std::string current_sys_bin3 = "*TMath::Power("+std::to_string(max_relative_uncertainty.at(2))+"+1,@"+std::to_string(sys_cnt)+")";
     rfv_bin1 += current_sys_bin1.c_str();
     rfv_bin2 += current_sys_bin2.c_str();
     rfv_bin3 += current_sys_bin3.c_str();
