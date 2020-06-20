@@ -74,6 +74,7 @@ using namespace std;
 
 //Global options
 bool _additional_method_sys = true;
+const float signal_scaling = 0.10;
 TString dummy_syst = "0.01";
 TString xvar = "nSelectedAODCaloJetTag";
 //TString xvar = "nSelectedAODCaloJetTagSB7";
@@ -528,6 +529,7 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "DY"){
   //getting central values from histogram
   //-------------------------------------
   TH1F* signal_twomuzh_th1_file = (TH1F*)f_twomuzh->Get(signal_string);
+  signal_twomuzh_th1_file->Scale(signal_scaling);
   RooRealVar signal_twomuzh_central_bin1("signal_twomuzh_central_bin1", "central signal yield in TwoMuZH bin1", signal_twomuzh_th1_file->GetBinContent(1));
   RooRealVar signal_twomuzh_central_bin2("signal_twomuzh_central_bin2", "central signal yield in TwoMuZH bin2", signal_twomuzh_th1_file->GetBinContent(2));
   RooRealVar signal_twomuzh_central_bin3("signal_twomuzh_central_bin3", "central signal yield in TwoMuZH bin3", signal_twomuzh_th1_file->GetBinContent(3));
@@ -821,6 +823,7 @@ void build_twoelezh(RooWorkspace* wspace, TString light_est = "DY"){
 
   //Signal
   TH1F* signal_twoelezh_th1_file = (TH1F*)f_twoelezh->Get(signal_string);
+  signal_twoelezh_th1_file->Scale(signal_scaling);
   TH1F signal_twoelezh_th1("signal_twoelezh","Signal yield in TwoEleZH", 3, -0.5, 2.5);
   signal_twoelezh_th1.SetBinContent(1, signal_twoelezh_th1_file->GetBinContent(1));
   signal_twoelezh_th1.SetBinContent(2, signal_twoelezh_th1_file->GetBinContent(2));
@@ -1112,6 +1115,7 @@ void build_twomudy(RooWorkspace* wspace){
 
   //Signal
   TH1F* signal_twomudy_th1_file = (TH1F*)f_twomudy->Get(signal_string);
+  signal_twomudy_th1_file->Scale(signal_scaling);
   TH1F signal_twomudy_th1("signal_twomudy","Signal yield in TwoMuDY", 3, -0.5, 2.5);
   signal_twomudy_th1.SetBinContent(1, signal_twomudy_th1_file->GetBinContent(1));
   signal_twomudy_th1.SetBinContent(2, signal_twomudy_th1_file->GetBinContent(2));
@@ -1210,6 +1214,7 @@ void build_twoeledy(RooWorkspace* wspace){
   //Signal
   std::cout << "[INFO]: Signal Model Name: " << signal_string << std::endl;
   TH1F* signal_twoeledy_th1_file = (TH1F*)f_twoeledy->Get(signal_string);
+  signal_twoeledy_th1_file->Scale(signal_scaling);
   TH1F signal_twoeledy_th1("signal_twoeledy","Signal yield in TwoEleDY", 3, -0.5, 2.5);
   signal_twoeledy_th1.SetBinContent(1, signal_twoeledy_th1_file->GetBinContent(1));
   signal_twoeledy_th1.SetBinContent(2, signal_twoeledy_th1_file->GetBinContent(2));
