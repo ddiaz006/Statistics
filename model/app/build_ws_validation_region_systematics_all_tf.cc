@@ -73,7 +73,8 @@ using namespace std;
 
 
 //Global options
-bool _additional_method_sys = false;
+bool _additional_method_sys = true;
+bool _JES_sys               = true;
 const float signal_scaling = 0.10;
 TString dummy_syst = "0.01";
 TString xvar = "nSelectedAODCaloJetTag";
@@ -347,6 +348,44 @@ void build_tf(RooWorkspace* wspace, TString process, TString from_name, TString 
       ral_bin2.add(RooArgList(*rrv_bkg_method_add_sys_bin2));
       ral_bin3.add(RooArgList(*rrv_bkg_method_add_sys_bin3));
     }
+    sys_cnt++;
+  }
+  if(_JES_sys)
+  {
+    //elumu to high-z-pt
+    //if( from_name == "elemu" && to_name == "twomuzh" )
+    //{
+    //  std::string current_sys_bin1 = "*TMath::Power(1+0.15,@"+std::to_string(sys_cnt)+")";
+    //  std::string current_sys_bin2 = "*TMath::Power(1+0.15,@"+std::to_string(sys_cnt)+")";
+    //  std::string current_sys_bin3 = "*TMath::Power(1+0.15,@"+std::to_string(sys_cnt)+")";
+    //  rfv_bin1 += current_sys_bin1.c_str();
+    //  rfv_bin2 += current_sys_bin2.c_str();
+    //  rfv_bin3 += current_sys_bin3.c_str();
+
+    //  RooRealVar* rrv_JES_sys_bin1 = wspace->var("rrv_JES_sys_bin1");
+    //  RooRealVar* rrv_JES_sys_bin2 = wspace->var("rrv_JES_sys_bin2");
+    //  RooRealVar* rrv_JES_sys_bin3 = wspace->var("rrv_JES_sys_bin3");
+    //  ral_bin1.add(           *rrv_JES_sys_bin1);
+    //  ral_bin2.add(RooArgList(*rrv_JES_sys_bin2));
+    //  ral_bin3.add(RooArgList(*rrv_JES_sys_bin3));
+    //}
+    //low-z-pt to high-z-pt
+    if( from_name == "twomudy" && to_name == "twomuzh" )
+    {
+      std::string current_sys_bin1 = "*TMath::Power(1+0.05,@"+std::to_string(sys_cnt)+")";
+      std::string current_sys_bin2 = "*TMath::Power(1+0.12,@"+std::to_string(sys_cnt)+")";
+      std::string current_sys_bin3 = "*TMath::Power(1+0.20,@"+std::to_string(sys_cnt)+")";
+      rfv_bin1 += current_sys_bin1.c_str();
+      rfv_bin2 += current_sys_bin2.c_str();
+      rfv_bin3 += current_sys_bin3.c_str();
+
+      RooRealVar* rrv_JES_sys_bin1 = wspace->var("rrv_JES_sys_bin1");
+      RooRealVar* rrv_JES_sys_bin2 = wspace->var("rrv_JES_sys_bin2");
+      RooRealVar* rrv_JES_sys_bin3 = wspace->var("rrv_JES_sys_bin3");
+      ral_bin1.add(           *rrv_JES_sys_bin1);
+      ral_bin2.add(RooArgList(*rrv_JES_sys_bin2));
+      ral_bin3.add(RooArgList(*rrv_JES_sys_bin3));
+    }
   }
   cout << "RFV1: " << rfv_bin1 << endl;
   ral_bin1.Print();
@@ -389,16 +428,21 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "DY"){
   //----------------------------------------------------
   //setting up to add additional systematic uncertainty
   //----------------------------------------------------
-  //std::string add_logN_systematic = "TMath::Power(1+0.1,@0)";
-  //std::string add_logN_systematic[] = {"TMath::Power(1+0.01,@0)","TMath::Power(1+0.01,@0)","TMath::Power(1+0.01,@0)"};
-  std::string add_logN_systematic[] = {"TMath::Power(1+0.15,@0)","TMath::Power(1+0.15,@0)","TMath::Power(1+0.15,@0)"};
-  //std::string add_logN_systematic[] = {"TMath::Power(1+0.2,@0)","TMath::Power(1+0.2,@0)","TMath::Power(1+0.2,@0)"};
   RooRealVar rrv_bkg_method_add_sys_bin1("rrv_bkg_method_add_sys_bin1","rrv_bkg_method_add_sys_bin1", 0.0);
   RooRealVar rrv_bkg_method_add_sys_bin2("rrv_bkg_method_add_sys_bin2","rrv_bkg_method_add_sys_bin2", 0.0);
   RooRealVar rrv_bkg_method_add_sys_bin3("rrv_bkg_method_add_sys_bin3","rrv_bkg_method_add_sys_bin3", 0.0);
   wspace->import(rrv_bkg_method_add_sys_bin1);
   wspace->import(rrv_bkg_method_add_sys_bin2);
   wspace->import(rrv_bkg_method_add_sys_bin3);
+  //----------------------------------------------------
+  //setting up to add JES uncertainty
+  //----------------------------------------------------
+  RooRealVar rrv_JES_sys_bin1("rrv_JES_sys_bin1","rrv_JES_sys_bin1", 0.0);
+  RooRealVar rrv_JES_sys_bin2("rrv_JES_sys_bin2","rrv_JES_sys_bin2", 0.0);
+  RooRealVar rrv_JES_sys_bin3("rrv_JES_sys_bin3","rrv_JES_sys_bin3", 0.0);
+  wspace->import(rrv_JES_sys_bin1);
+  wspace->import(rrv_JES_sys_bin2);
+  wspace->import(rrv_JES_sys_bin3);
   //-------------------
   //Other Backgrounds
   //-------------------
@@ -437,24 +481,12 @@ void build_twomuzh(RooWorkspace* wspace, TString light_est = "DY"){
   RooFormulaVar* heavy_twomuzh_bin1;
   RooFormulaVar* heavy_twomuzh_bin2;
   RooFormulaVar* heavy_twomuzh_bin3;
-  if(_additional_method_sys)
-  {
-    // heavy_twomuzh_bin1 = new RooFormulaVar("heavy_twomuzh_bin1", "Heavy background yield in twomuzh, bin 1",
-    //          "@0*@1*@2", RooArgList(*tf_heavy_elemu_to_twomuzh_bin1, *heavy_elemu_bin1, heavy_twomuzh_logN_add_sys_bin1));
-    // heavy_twomuzh_bin2 = new RooFormulaVar("heavy_twomuzh_bin2", "Heavy background yield in twomuzh, bin 2",
-    //          "@0*@1*@2", RooArgList(*tf_heavy_elemu_to_twomuzh_bin2, *heavy_elemu_bin2, heavy_twomuzh_logN_add_sys_bin2));
-    // heavy_twomuzh_bin3 = new RooFormulaVar("heavy_twomuzh_bin3", "Heavy background yield in twomuzh, bin 3",
-    //          "@0*@1*@2", RooArgList(*tf_heavy_elemu_to_twomuzh_bin3, *heavy_elemu_bin3, heavy_twomuzh_logN_add_sys_bin3));
-  }
-  else
-  {
-    heavy_twomuzh_bin1 = new RooFormulaVar("heavy_twomuzh_bin1", "Heavy background yield in twomuzh, bin 1",
-  				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twomuzh_bin1, *heavy_elemu_bin1));
-    heavy_twomuzh_bin2 = new RooFormulaVar("heavy_twomuzh_bin2", "Heavy background yield in twomuzh, bin 2",
-  				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twomuzh_bin2, *heavy_elemu_bin2));
-    heavy_twomuzh_bin3 = new RooFormulaVar("heavy_twomuzh_bin3", "Heavy background yield in twomuzh, bin 3",
-  				   "@0*@1", RooArgList(*tf_heavy_elemu_to_twomuzh_bin3, *heavy_elemu_bin3));
-  }
+  heavy_twomuzh_bin1 = new RooFormulaVar("heavy_twomuzh_bin1", "Heavy background yield in twomuzh, bin 1",
+      			   "@0*@1", RooArgList(*tf_heavy_elemu_to_twomuzh_bin1, *heavy_elemu_bin1));
+  heavy_twomuzh_bin2 = new RooFormulaVar("heavy_twomuzh_bin2", "Heavy background yield in twomuzh, bin 2",
+      			   "@0*@1", RooArgList(*tf_heavy_elemu_to_twomuzh_bin2, *heavy_elemu_bin2));
+  heavy_twomuzh_bin3 = new RooFormulaVar("heavy_twomuzh_bin3", "Heavy background yield in twomuzh, bin 3",
+  			   "@0*@1", RooArgList(*tf_heavy_elemu_to_twomuzh_bin3, *heavy_elemu_bin3));
 
   RooArgList heavy_twomuzh_bins;
   heavy_twomuzh_bins.add(*heavy_twomuzh_bin1);
